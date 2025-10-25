@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('evidencias', function (Blueprint $table) {
-            $table->id();
-            $table->string('path');
-            $table->string('nearmiss')->nullable();
-            $table->string('incidente')->nullable();
-            $table->boolean('evidenciaFecho')->default(false);
+        Schema::create('especialidades', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->boolean('activo')->default(true);
+            $table->string('descricao');
+            $table->text('detalhes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('evidencias');
+        Schema::dropIfExists('especialidades');
     }
 };

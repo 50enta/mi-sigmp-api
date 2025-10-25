@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notificados', function (Blueprint $table) {
-            $table->id();
-            $table->integer('notificado')->notNullable();
-            $table->integer('near_miss')->nullable();
-            $table->integer('incidente')->nullable();
+        Schema::create('escalaos', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->boolean('activo')->default(true);
+            $table->string('descricao');
+            $table->text('comentarios')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('notificados');
+        Schema::dropIfExists('escalaos');
     }
 };

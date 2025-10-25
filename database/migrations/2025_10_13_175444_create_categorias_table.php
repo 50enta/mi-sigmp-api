@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('fotos', function (Blueprint $table) {
-            $table->id();
-            $table->string('caminho');
-            $table->boolean('antes')->default(false);
-            $table->text('legenda')->nullable();
-            $table->integer('nearmiss_id')->nullable();
-            $table->integer('incidentes_id')->nullable();
+        Schema::create('categorias', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->boolean('activo')->default(true);
+            $table->string('descricao');
+            $table->text('comentarios')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('fotos');
+        Schema::dropIfExists('categorias');
     }
 };
