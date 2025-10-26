@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AuditTrail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class AuditTrailController extends Controller
 {

@@ -24,7 +24,7 @@ class LocalAfectoSeeder extends Seeder
                 'id' => (string) Str::uuid(),
                 'local_id' => $local->id,
                 'pessoa_id' => $pessoa->id,
-                'despacho' => 'Despacho nº 456/2025',
+                'despacho' => '045/2025.456/2025',
                 'dataInicio' => '2025-02-01',
                 'dataFim' => '2025-12-31',
                 'isTransferencia' => true,

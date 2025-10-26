@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\EscalaoPolicia;
+use App\Models\Escolaridade;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
-class EscalaoPoliciaController extends Controller
+class EscolaridadeController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,13 +16,13 @@ class EscalaoPoliciaController extends Controller
         $page = $request->input('page', 1);
         $paging = filter_var($request->input('paging', true), FILTER_VALIDATE_BOOLEAN);
 
-        $query = EscalaoPolicia::query();
+        $query = Escolaridade::query();
 
         $registros = $paging
             ? $query->paginate($pageSize, ['*'], 'page', $page)
             : $query->simplePaginate($pageSize, ['*'], 'page', $page);
 
-        return response()->json(['escalao_policias' => $registros], 200);
+        return response()->json(['escolaridades' => $registros], 200);
     }
 
     /**
@@ -41,21 +40,23 @@ class EscalaoPoliciaController extends Controller
     {
         $validation = Validator::make($request->all(), [
             'activo' => 'required|boolean',
-            'escala_id' => 'required|uuid|exists:escalas,id',
-            'pessoa_id' => 'required|uuid|exists:pessoas,id',
-            'despacho' => 'nullable|string|max:255',
+            'nivel' => 'nullable|in:elementar,basico,medio,licenciatura,mestrado,phd',
+            'instituicao' => 'nullable|string|max:255',
+            'curso' => 'nullable|string|max:255',
             'dataInicio' => 'nullable|date',
             'dataFim' => 'nullable|date',
+            'isConcluido' => 'required|boolean',
             'obs' => 'nullable|string',
+            'pessoa_id' => 'required|uuid|exists:pessoas,id',
         ]);
 
         if ($validation->fails()) {
-            return response()->json(['message' => 'Erro ao criar vínculo de escala', 'errors' => $validation->errors()], 409);
+            return response()->json(['message' => 'Erro ao registar escolaridade', 'errors' => $validation->errors()], 409);
         }
 
-        $registro = EscalaoPolicia::create($validation->validated());
+        $registro = Escolaridade::create($validation->validated());
 
-        return response()->json(['message' => 'Escala policial criada com sucesso!', 'escalao_policia' => $registro], 201);
+        return response()->json(['message' => 'Escolaridade registada com sucesso!', 'escolaridade' => $registro], 201);
     }
 
     /**
@@ -63,13 +64,14 @@ class EscalaoPoliciaController extends Controller
      */
     public function show($id)
     {
-        $registro = EscalaoPolicia::findOrFail($id);
+        $registro = Escolaridade::findOrFail($id);
         return response()->json($registro, 200);
     }
+
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(EscalaoPolicia $escalaoPolicia)
+    public function edit(Escolaridade $escolaridade)
     {
         //
     }
@@ -79,25 +81,27 @@ class EscalaoPoliciaController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $registro = EscalaoPolicia::findOrFail($id);
+        $registro = Escolaridade::findOrFail($id);
 
         $validation = Validator::make($request->all(), [
             'activo' => 'required|boolean',
-            'escala_id' => 'required|uuid|exists:escalas,id',
-            'pessoa_id' => 'required|uuid|exists:pessoas,id',
-            'despacho' => 'nullable|string|max:255',
+            'nivel' => 'nullable|in:elementar,basico,medio,licenciatura,mestrado,phd',
+            'instituicao' => 'nullable|string|max:255',
+            'curso' => 'nullable|string|max:255',
             'dataInicio' => 'nullable|date',
             'dataFim' => 'nullable|date',
+            'isConcluido' => 'required|boolean',
             'obs' => 'nullable|string',
+            'pessoa_id' => 'required|uuid|exists:pessoas,id',
         ]);
 
         if ($validation->fails()) {
-            return response()->json(['message' => 'Erro ao actualizar vínculo de escala', 'errors' => $validation->errors()], 409);
+            return response()->json(['message' => 'Erro ao actualizar escolaridade', 'errors' => $validation->errors()], 409);
         }
 
         $registro->update($validation->validated());
 
-        return response()->json(['message' => 'Escala policial actualizada com sucesso!', 'escalao_policia' => $registro], 200);
+        return response()->json(['message' => 'Escolaridade actualizada com sucesso!', 'escolaridade' => $registro], 200);
     }
 
     /**
@@ -105,9 +109,9 @@ class EscalaoPoliciaController extends Controller
      */
     public function destroy($id)
     {
-        $registro = EscalaoPolicia::findOrFail($id);
+        $registro = Escolaridade::findOrFail($id);
         $registro->delete();
 
-        return response()->json(['message' => 'Escalao eliminada com sucesso!'], 200);
+        return response()->json(['message' => 'Escolaridade eliminada com sucesso!'], 200);
     }
 }

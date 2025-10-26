@@ -30,6 +30,8 @@ class DatabaseSeeder extends Seeder
         CategoriaPoliciaSeeder::class,
         SituacaoDisciplinarSeeder::class,
         EscalaoPoliciaSeeder::class,
+        ContinuacaoEstudoSeeder::class,
+        EscolaridadeSeeder::class,
 
         
 

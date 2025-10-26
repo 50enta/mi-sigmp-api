@@ -26,7 +26,7 @@ class SituacaoPessoaSeeder extends Seeder
                 'situacao_id' => $situacoes[0]->id,
                 'pessoa_id' => $pessoa->id,
                 'isMudanca' => false,
-                'despacho' => 'Despacho nº 101',
+                'despacho' => '045/2025.101',
                 'obs' => 'Situação inicial sem alterações',
             ]);
 
@@ -36,7 +36,7 @@ class SituacaoPessoaSeeder extends Seeder
                 'situacao_id' => $situacoes[1]->id,
                 'pessoa_id' => $pessoa->id,
                 'isMudanca' => true,
-                'despacho' => 'Despacho nº 102',
+                'despacho' => '045/2025.102',
                 'obs' => 'Mudança por decisão administrativa',
             ]);
 
@@ -46,7 +46,7 @@ class SituacaoPessoaSeeder extends Seeder
                 'situacao_id' => $situacoes[2]->id,
                 'pessoa_id' => $pessoa->id,
                 'isMudanca' => true,
-                'despacho' => 'Despacho nº 103',
+                'despacho' => '045/2025.103',
                 'obs' => 'Situação encerrada por falecimento',
             ]);
         }

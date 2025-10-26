@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Situacao;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class SituacaoController extends Controller
 {

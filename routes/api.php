@@ -18,6 +18,10 @@ use App\Http\Controllers\CursoPoliciaController;
 use App\Http\Controllers\CategoriaPoliciaController;
 use App\Http\Controllers\SituacaoDisciplinarController;
 use App\Http\Controllers\EscalaoPoliciaController;
+use App\Http\Controllers\ContinuacaoEstudoController;
+use App\Http\Controllers\EscolaridadeController;
+
+
 
 
 route::post('login', sessionController::class . '@login');
@@ -200,10 +204,25 @@ Route::group([
     Route::delete('/{id}', [EscalaoPoliciaController::class, 'destroy']);
 });
 
+Route::group([
+    'prefix' => 'continuacao-estudos'
+], function () {
+    Route::post('/', [ContinuacaoEstudoController::class, 'store']);
+    Route::get('/{id}', [ContinuacaoEstudoController::class, 'show']);
+    Route::get('/', [ContinuacaoEstudoController::class, 'index']);
+    Route::put('/{id}', [ContinuacaoEstudoController::class, 'update']);
+    Route::delete('/{id}', [ContinuacaoEstudoController::class, 'destroy']);
+});
 
-
-
-
+Route::group([
+    'prefix' => 'escolaridades'
+], function () {
+    Route::post('/', [EscolaridadeController::class, 'store']);
+    Route::get('/{id}', [EscolaridadeController::class, 'show']);
+    Route::get('/', [EscolaridadeController::class, 'index']);
+    Route::put('/{id}', [EscolaridadeController::class, 'update']);
+    Route::delete('/{id}', [EscolaridadeController::class, 'destroy']);
+});
 
 //});
 

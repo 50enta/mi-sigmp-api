@@ -25,7 +25,7 @@ class CursoPoliciaSeeder extends Seeder
                 'activo' => true,
                 'curso_id' => $cursos[0]->id,
                 'pessoa_id' => $pessoa->id,
-                'despacho_admissao' => 'Despacho nº 201',
+                'despacho_admissao' => '045/2025.201',
                 'dataInicio' => '2025-03-01',
                 'dataFim' => '2025-09-30',
             ]);
@@ -35,7 +35,7 @@ class CursoPoliciaSeeder extends Seeder
                 'activo' => true,
                 'curso_id' => $cursos[1]->id,
                 'pessoa_id' => $pessoa->id,
-                'despacho_admissao' => 'Despacho nº 202',
+                'despacho_admissao' => '045/2025.202',
                 'dataInicio' => '2025-04-15',
                 'dataFim' => '2025-10-15',
             ]);
@@ -45,7 +45,7 @@ class CursoPoliciaSeeder extends Seeder
                 'activo' => false,
                 'curso_id' => $cursos[2]->id,
                 'pessoa_id' => $pessoa->id,
-                'despacho_admissao' => 'Despacho nº 203',
+                'despacho_admissao' => '045/2025.203',
                 'dataInicio' => '2025-05-01',
                 'dataFim' => '2025-11-30',
             ]);
