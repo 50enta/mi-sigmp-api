@@ -39,7 +39,7 @@ class AuditTrailController extends Controller
     public function store(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            'pessoa_id' => 'required|uuid|exists:pessoas,id',
+            'pessoa_id' => 'required|uuid',
             'info' => 'nullable|string',
             'status' => 'nullable|string',
         ]);
@@ -78,7 +78,7 @@ class AuditTrailController extends Controller
         $auditTrail = AuditTrail::findOrFail($id);
 
         $validation = Validator::make($request->all(), [
-            'pessoa_id' => 'required|uuid|exists:pessoas,id',
+            'pessoa_id' => 'required|uuid',
             'info' => 'nullable|string',
             'status' => 'nullable|string',
         ]);

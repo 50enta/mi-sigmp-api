@@ -14,6 +14,10 @@ use App\Http\Controllers\EspecialidadeController;
 use App\Http\Controllers\EspecialidadePessoaController;
 use App\Http\Controllers\SituacaoController;
 use App\Http\Controllers\SituacaoPessoaController;
+use App\Http\Controllers\CursoPoliciaController;
+use App\Http\Controllers\CategoriaPoliciaController;
+use App\Http\Controllers\SituacaoDisciplinarController;
+use App\Http\Controllers\EscalaoPoliciaController;
 
 
 route::post('login', sessionController::class . '@login');
@@ -154,9 +158,53 @@ route::post('logout', sessionController::class . '@logout')->middleware('auth:sa
     });
 
 
+    Route::group([
+        'prefix' => 'curso-policias'
+    ], function () {
+        Route::post('/', [CursoPoliciaController::class, 'store']);
+        Route::get('/{id}', [CursoPoliciaController::class, 'show']);
+        Route::get('/', [CursoPoliciaController::class, 'index']);
+        Route::put('/{id}', [CursoPoliciaController::class, 'update']);
+        Route::delete('/{id}', [CursoPoliciaController::class, 'destroy']);
+    });
 
 
+    Route::group([
+        'prefix' => 'categoria-policias'
+    ], function () {
+        Route::post('/', [CategoriaPoliciaController::class, 'store']);
+        Route::get('/{id}', [CategoriaPoliciaController::class, 'show']);
+        Route::get('/', [CategoriaPoliciaController::class, 'index']);
+        Route::put('/{id}', [CategoriaPoliciaController::class, 'update']);
+        Route::delete('/{id}', [CategoriaPoliciaController::class, 'destroy']);
+    });
     
+
+    Route::group([
+        'prefix' => 'situacao-disciplinares'
+    ], function () {
+        Route::post('/', [SituacaoDisciplinarController::class, 'store']);
+        Route::get('/{id}', [SituacaoDisciplinarController::class, 'show']);
+        Route::get('/', [SituacaoDisciplinarController::class, 'index']);
+        Route::put('/{id}', [SituacaoDisciplinarController::class, 'update']);
+        Route::delete('/{id}', [SituacaoDisciplinarController::class, 'destroy']);
+    });
+
+Route::group([
+    'prefix' => 'escalao-policias'
+], function () {
+    Route::post('/', [EscalaoPoliciaController::class, 'store']);
+    Route::get('/{id}', [EscalaoPoliciaController::class, 'show']);
+    Route::get('/', [EscalaoPoliciaController::class, 'index']);
+    Route::put('/{id}', [EscalaoPoliciaController::class, 'update']);
+    Route::delete('/{id}', [EscalaoPoliciaController::class, 'destroy']);
+});
+
+
+
+
+
+
 //});
 
 

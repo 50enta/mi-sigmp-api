@@ -16,13 +16,35 @@ class CursoSeeder extends Seeder
     {
         Curso::create([
             'id' => (string) Str::uuid(),
-            'descricao' => 'Engenharia Informática',
+            'descricao' => 'Superior da Polícia',
             'dataInicio' => '2025-01-15',
             'especialidade' => 'Sistemas',
             'dataFim' => '2025-12-15',
             'numero' => 'CI2025',
             'grau' => 'Licenciatura',
-            'local' => 'Maputo',
+            'local' => 'ACIPOL',
+        ]);
+
+        Curso::create([
+            'id' => (string) Str::uuid(),
+            'descricao' => 'Básico da Polícia',
+            'dataInicio' => '2025-01-15',
+            'especialidade' => 'Sistemas',
+            'dataFim' => '2025-12-15',
+            'numero' => 'CI2025',
+            'grau' => 'Básico',
+            'local' => 'MATALANE',
+        ]);
+
+        Curso::create([
+            'id' => (string) Str::uuid(),
+            'descricao' => 'Básico Militar',
+            'dataInicio' => '2025-01-15',
+            'especialidade' => 'Sistemas',
+            'dataFim' => '2025-12-15',
+            'numero' => 'CI2025',
+            'grau' => 'Básico',
+            'local' => 'ISFP',
         ]);
     }
 }

@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         ContactosTableSeeder::class,
         PessoaTableSeeder::class,
         CategoriaSeeder::class,
-        // AuditTrailTableSeeder::class,
+        AuditTrailSeeder::class,
         CursoSeeder::class,
         LocalSeeder::class,
         LocalAfectoSeeder::class,
@@ -26,6 +26,10 @@ class DatabaseSeeder extends Seeder
         EspecialidadePessoaSeeder::class,
         SituacaoSeeder::class,
         SituacaoPessoaSeeder::class,
+        CursoPoliciaSeeder::class,
+        CategoriaPoliciaSeeder::class,
+        SituacaoDisciplinarSeeder::class,
+        EscalaoPoliciaSeeder::class,
 
         
 

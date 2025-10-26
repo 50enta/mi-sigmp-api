@@ -96,7 +96,7 @@ class EscalaoController extends Controller
 
         $escalaos->update($validation->validated());
 
-        return response()->json(['message' => 'Escalao actualizada com sucesso!', 'escalao' => $escalao], 200);
+        return response()->json(['message' => 'Escalao actualizada com sucesso!', 'escalao' => $escalaos], 200);
     }
 
     /**

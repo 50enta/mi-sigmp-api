@@ -13,18 +13,24 @@ return new class extends Migration
     {
         Schema::create('pessoas', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->boolean('activo')->default(true);
+            $table->integer('aprovado')->default(0);
+            $table->string('nip')->unique();
+            $table->boolean('isGerivel')->default(false);
+            $table->string('nomeCompleto');
+            $table->string('nomeMae')->nullable();
+            $table->string('nomePai')->nullable();
             $table->date('dataNasc')->nullable();
             $table->string('nuit')->nullable();
-            $table->string('estadoCivil')->nullable();
-            $table->string('sexo')->nullable();
-            $table->string('bi')->nullable();
+            $table->enum('estadoCivil', ['solteiro', 'casado', 'divorciado', 'viuvo'])->nullable();
+            $table->enum('grupoSangue', ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])->nullable();
             $table->string('distrito')->nullable();
-            $table->string('provincia')->nullable();
+            $table->enum('provincia',['Maputo Cidade', 'Maputo Provincia', 'Gaza', 'Inhambane', 'Sofala', 'Manica', 'Zambezia', 'Nampula', 'Tete', 'Cabo Delgado', 'Niassa'])->nullable();
             $table->string('residencia')->nullable();
-            $table->string('grupoSangue')->nullable();
-            $table->string('nrProcesso')->nullable();
-            $table->string('situacaoDisciplinar')->nullable();
-            $table->string('situacao')->nullable();
+            $table->enum('genero', ['Masculino', 'Feminino', 'Outro'])->nullable();
+            $table->string('BI')->nullable();
+            $table->decimal('altura', 5, 2)->nullable();
+            $table->text('linguas')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

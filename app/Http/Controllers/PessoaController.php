@@ -11,9 +11,19 @@ class PessoaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Pessoa::all();
+        $pageSize = $request->input('pageSize', 10);
+        $page = $request->input('page', 1);
+        $paging = filter_var($request->input('paging', true), FILTER_VALIDATE_BOOLEAN);
+
+        $query = Pessoa::query();
+
+        $pessoas = $paging
+            ? $query->paginate($pageSize, ['*'], 'page', $page)
+            : $query->simplePaginate($pageSize, ['*'], 'page', $page);
+
+        return response()->json(['pessoas' => $pessoas], 200);
     }
 
     /**
@@ -29,29 +39,34 @@ class PessoaController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validation = Validator::make($request->all(), [
+            'activo' => 'required|boolean',
+            'aprovado' => 'required|integer',
+            'nip' => 'required|string|unique:pessoas,nip',
+            'isGerivel' => 'required|boolean',
+            'nomeCompleto' => 'required|string|max:255',
+            'nomeMae' => 'nullable|string|max:255',
+            'nomePai' => 'nullable|string|max:255',
             'dataNasc' => 'nullable|date',
-            'nuit' => 'nullable|string',
-            'estadoCivil' => 'nullable|string',
-            'sexo' => 'nullable|string',
-            'bi' => 'nullable|string',
-            'distrito' => 'nullable|string',
-            'provincia' => 'nullable|string',
-            'residencia' => 'nullable|string',
-            'grupoSangue' => 'nullable|string',
-            'nrProcesso' => 'nullable|string',
-            'situacaoDisciplinar' => 'nullable|string',
-            'situacao' => 'nullable|string',
+            'nuit' => 'nullable|string|max:20',
+            'estadoCivil' => 'nullable|in:solteiro,casado,divorciado,viuvo',
+            'grupoSangue' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+            'distrito' => 'nullable|string|max:255',
+            'provincia' => 'nullable|in:Maputo Cidade,Maputo Provincia,Gaza,Inhambane,Sofala,Manica,Zambezia,Nampula,Tete,Cabo Delgado,Niassa',
+            'residencia' => 'nullable|string|max:255',
+            'genero' => 'nullable|in:Masculino,Feminino,Outro',
+            'BI' => 'nullable|string|max:50',
+            'altura' => 'nullable|numeric|min:0|max:3',
+            'linguas' => 'nullable|string',
         ]);
 
-        return Pessoa::create([
-            'id' => (string) Str::uuid(),
-            ...$request->only([
-                'dataNasc', 'nuit', 'estadoCivil', 'sexo', 'bi',
-                'distrito', 'provincia', 'residencia', 'grupoSangue',
-                'nrProcesso', 'situacaoDisciplinar', 'situacao',
-            ]),
-        ]);
+        if ($validation->fails()) {
+            return response()->json(['message' => 'Erro ao criar pessoa', 'errors' => $validation->errors()], 409);
+        }
+
+        $pessoa = Pessoa::create($validation->validated());
+
+        return response()->json(['message' => 'Pessoa criada com sucesso!', 'pessoa' => $pessoa], 201);
     }
 
     /**
@@ -59,7 +74,8 @@ class PessoaController extends Controller
      */
     public function show($id)
     {
-        return Pessoa::findOrFail($id);
+        $pessoa = Pessoa::findOrFail($id);
+        return response()->json($pessoa, 200);
     }
 
     /**
@@ -76,33 +92,43 @@ class PessoaController extends Controller
     public function update(Request $request, $id)
     {
         $pessoa = Pessoa::findOrFail($id);
-        $request->validate([
+
+        $validation = Validator::make($request->all(), [
+            'activo' => 'required|boolean',
+            'aprovado' => 'required|integer',
+            'nip' => 'required|string|unique:pessoas,nip',
+            'isGerivel' => 'required|boolean',
+            'nomeCompleto' => 'required|string|max:255',
+            'nomeMae' => 'nullable|string|max:255',
+            'nomePai' => 'nullable|string|max:255',
             'dataNasc' => 'nullable|date',
-            'nuit' => 'nullable|string',
-            'estadoCivil' => 'nullable|string',
-            'sexo' => 'nullable|string',
-            'bi' => 'nullable|string',
-            'distrito' => 'nullable|string',
-            'provincia' => 'nullable|string',
-            'residencia' => 'nullable|string',
-            'grupoSangue' => 'nullable|string',
-            'nrProcesso' => 'nullable|string',
-            'situacaoDisciplinar' => 'nullable|string',
-            'situacao' => 'nullable|string',
+            'nuit' => 'nullable|string|max:20',
+            'estadoCivil' => 'nullable|in:solteiro,casado,divorciado,viuvo',
+            'grupoSangue' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+            'distrito' => 'nullable|string|max:255',
+            'provincia' => 'nullable|in:Maputo Cidade,Maputo Provincia,Gaza,Inhambane,Sofala,Manica,Zambezia,Nampula,Tete,Cabo Delgado,Niassa',
+            'residencia' => 'nullable|string|max:255',
+            'genero' => 'nullable|in:Masculino,Feminino,Outro',
+            'BI' => 'nullable|string|max:50',
+            'altura' => 'nullable|numeric|min:0|max:3',
+            'linguas' => 'nullable|string',
         ]);
 
-        $pessoa->update($request->all());
+        if ($validation->fails()) {
+            return response()->json(['message' => 'Erro ao actualizar pessoa', 'errors' => $validation->errors()], 409);
+        }
 
-        return $pessoa;
+        $pessoa->update($validation->validated());
 
+        return response()->json(['message' => 'Pessoa actualizada com sucesso!', 'pessoa' => $pessoa], 200);
     }
-
     /**
      * Remove the specified resource from storage.
-     */
-    public function destroy($id)
+     */    public function destroy($id)
     {
-        Pessoa::findOrFail($id)->delete();
-        return response()->json(['message' => 'Deleted successfully']);
+        $pessoa = Pessoa::findOrFail($id);
+        $pessoa->delete();
+
+        return response()->json(['message' => 'Pessoa eliminada com sucesso!'], 200);
     }
 }

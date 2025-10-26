@@ -7,36 +7,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-class Pessoa extends Model
+class CursoPolicia extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'pessoas';
+    protected $table = 'curso_policias';
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
         'id',
         'activo',
-        'aprovado',
-        'nip',
-        'isGerivel',
-        'nomeCompleto',
-        'nomeMae',
-        'nomePai',
-        'dataNasc',
-        'nuit',
-        'estadoCivil',
-        'grupoSangue',
-        'distrito',
-        'provincia',
-        'residencia',
-        'genero',
-        'BI',
-        'altura',
-        'linguas',
+        'curso_id',
+        'pessoa_id',
+        'despacho_admissao',
+        'dataInicio',
+        'dataFim',
     ];
-
 
     protected static function boot()
     {
@@ -47,4 +34,14 @@ class Pessoa extends Model
         });
     }
 
+    public function curso()
+    {
+        return $this->belongsTo(Curso::class, 'curso_id');
+    }
+
+    public function pessoa()
+    {
+        return $this->belongsTo(Pessoa::class, 'pessoa_id');
+    }
+    
 }
