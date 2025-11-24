@@ -13,15 +13,26 @@ class LocalSeeder extends Seeder
      * Run the database seeds.
      */    public function run()
     {
-        Local::create([
+        $pai = Local::create([
             'id' => (string) Str::uuid(),
             'activo' => true,
             'isLogico' => false,
             'nivel' => 1,
-            'descricao' => 'PRM',
+            'descricao' => 'Ministério do Interior',
             'comentarios' => 'Polícia da Repúplica de Moçambique',
             'hasPai' => false,
             'pai_id' => null,
+        ]);
+
+        Local::create([
+            'id' => (string) Str::uuid(),
+            'activo' => true,
+            'isLogico' => true,
+            'nivel' => 2,
+            'descricao' => 'Comando Geral',
+            'comentarios' => 'Polícia da Repúplica de Moçambique',
+            'hasPai' => true,
+            'pai_id' => $pai->id,
         ]);
     }
 }
