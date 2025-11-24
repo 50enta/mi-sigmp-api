@@ -28,11 +28,11 @@ class sessionController extends Controller
                     $token = $user->createToken('near_miss_api_login_token')->plainTextToken;
                     return response(['token' => $token, 'user' => $user]);
                 } catch (Exception $e) {
-                    return response(['error' => 'Ocorreu um erro ao fazer login!']);
+                    return response(['error' => 'Ocorreu um erro ao fazer login!'], 401);
                 }
             }
         } catch (\Illuminate\Validation\ValidationException $th) {
-            return response(['error' => 'Email ou senha sao invalidos!']);
+            return response(['error' => 'Email ou senha sao invalidos!'], 401);
         }
     }
 
@@ -60,7 +60,7 @@ class sessionController extends Controller
                         ]);
                     return response(['success' => 'Foi enviado um codigo no seu email para a reposicao da senha!']);
                 } else {
-                    return response(['error' => 'Ocorreu um erro ao fazer a requisicao da nova senha!']);
+                    return response(['error' => 'Ocorreu um erro ao fazer a requisicao da nova senha!'], 500);
                 }
             } else {
                 return response(['error' => 'O email introduzido não existe!']);
