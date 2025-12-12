@@ -19,9 +19,8 @@ use App\Http\Controllers\CategoriaPoliciaController;
 use App\Http\Controllers\SituacaoDisciplinarController;
 use App\Http\Controllers\EscalaoPoliciaController;
 use App\Http\Controllers\ContinuacaoEstudoController;
+use App\Http\Controllers\dashboardController;
 use App\Http\Controllers\EscolaridadeController;
-
-
 
 
 route::post('login', sessionController::class . '@login');
@@ -31,6 +30,7 @@ route::post('passwordRequest', sessionController::class . '@requestPassword');
 route::post('checkToken', sessionController::class . '@checkToken')->middleware('auth:sanctum');
 
 route::post('logout', sessionController::class . '@logout')->middleware('auth:sanctum');
+
 
 //Route::middleware('auth:api')->group(function () {
 
@@ -65,6 +65,8 @@ route::post('logout', sessionController::class . '@logout')->middleware('auth:sa
         Route::get('/', [PessoaController::class, 'index']);
         Route::put('/{id}', [PessoaController::class, 'update']);
         Route::delete('/{id}', [PessoaController::class, 'destroy']);
+        //this route gives me 404 in the browser http://127.0.0.1:8000/api/pessoas/dashboard-data
+        Route::get('/dashboard-data', [PessoaController::class, 'getDashData']);
     });
 
 

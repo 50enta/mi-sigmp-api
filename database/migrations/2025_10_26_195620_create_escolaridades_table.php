@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('curso')->nullable();
             $table->date('dataInicio')->nullable();
             $table->date('dataFim')->nullable();
+            $table->date('certificado')->nullable();
             $table->boolean('isConcluido')->default(false);
             $table->text('obs')->nullable();
             $table->uuid('pessoa_id');

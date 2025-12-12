@@ -16,7 +16,7 @@ class PessoaTableSeeder extends Seeder
     {
         $pessoas = [
         [
-            'activo' => true,
+            'estado' => 'reserva',
             'aprovado' => 1,
             'nip' => '221997001',
             'isGerivel' => true,
@@ -36,7 +36,7 @@ class PessoaTableSeeder extends Seeder
             'linguas' => 'Português, Changana',
            ],
            [
-            'activo' => true,
+            'estado' => 'activo',
             'aprovado' => 1,
             'nip' => '221997034',
             'isGerivel' => true,
@@ -56,7 +56,7 @@ class PessoaTableSeeder extends Seeder
             'linguas' => 'Português, Ingles',
            ],
            [
-            'activo' => true,
+            'estado' => 'activo',
             'aprovado' => 1,
             'nip' => '231997078',
             'isGerivel' => true,

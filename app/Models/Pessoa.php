@@ -17,7 +17,7 @@ class Pessoa extends Model
 
     protected $fillable = [
         'id',
-        'activo',
+        'estado',
         'aprovado',
         'nip',
         'isGerivel',

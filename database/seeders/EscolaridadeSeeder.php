@@ -29,6 +29,7 @@ class EscolaridadeSeeder extends Seeder
                 'isConcluido' => true,
                 'obs' => 'Curso concluído com distinção',
                 'pessoa_id' => $pessoa->id,
+                "certificado" => null
             ]);
 
             Escolaridade::create([

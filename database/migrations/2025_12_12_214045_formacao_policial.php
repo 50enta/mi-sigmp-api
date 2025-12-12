@@ -11,18 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('curso_policias', function (Blueprint $table) {
+        Schema::create('formacaoPolicial', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->boolean('activo')->default(true);
-            $table->uuid('curso_id');
-            $table->uuid('pessoa_id');
-            $table->string('despacho_admissao')->nullable();
+            $table->enum('academiaPolicial', ['acipol', 'matalane', 'macandzene']);
             $table->date('dataInicio')->nullable();
+            $table->string('curso')->nullable();
             $table->date('dataFim')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->foreign('curso_id')->references('id')->on('cursos')->onDelete('cascade');
-            $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
         });
     }
 
@@ -31,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('curso_policias');
+        Schema::dropIfExists('formacaoPolicial');
     }
 };

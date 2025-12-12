@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('codigo')->notNullable();
             $table->boolean('activo')->default(true);
             $table->boolean('ja_acedeu')->default(false);
-            $table->string('name')->notNullable();
+            $table->string('pessoa_id')->notNullable();
             $table->string('acesso')->notNullable();
             $table->string('email')->unique()->notNullable();
             $table->string('funcao')->nullable();

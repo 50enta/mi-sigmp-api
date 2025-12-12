@@ -4,11 +4,39 @@ namespace App\Http\Controllers;
 
 use App\Models\Pessoa;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 
 class PessoaController extends Controller
 {
+    function getDashData()
+    {
+        try {
+            $pessoas = Pessoa::count();
+            $pessoasActivo = Pessoa::where('estado', 'activo')->count();
+            $pessoasReserve = Pessoa::where('estado', 'reserve')->count();
+
+            $pessoasCategoria = Pessoa::select('categoria', 'genero', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+                ->groupBy('categoria', 'genero')
+                ->get();
+
+            //select agents by province separated by gender
+            $pessoasProvincia = Pessoa::select('provincia', 'genero', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+                ->where('categoria', 'agente')
+                ->groupBy('provincia', 'genero')
+                ->get();
+
+            return response()->json([
+                'pessoas' => $pessoas,
+                'pessoasActivo' => $pessoasActivo,
+                'pessoasReserve' => $pessoasReserve,
+                'pessoasCategoria' => $pessoasCategoria,
+                'pessoasProvincia' => $pessoasProvincia,
+            ], 200);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
     /**
      * Display a listing of the resource.
      */
