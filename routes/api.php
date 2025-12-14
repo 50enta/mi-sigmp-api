@@ -5,12 +5,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContactosController;
 use App\Http\Controllers\EscalaoController;
 use App\Http\Controllers\PessoaController;
-use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\AuditTrailController;
 use App\Http\Controllers\CursoController;
 use App\Http\Controllers\LocalController;
 use App\Http\Controllers\LocalAfectoController;
-use App\Http\Controllers\EspecialidadeController;
 use App\Http\Controllers\EspecialidadePessoaController;
 use App\Http\Controllers\SituacaoController;
 use App\Http\Controllers\SituacaoPessoaController;
@@ -19,7 +17,6 @@ use App\Http\Controllers\CategoriaPoliciaController;
 use App\Http\Controllers\SituacaoDisciplinarController;
 use App\Http\Controllers\EscalaoPoliciaController;
 use App\Http\Controllers\ContinuacaoEstudoController;
-use App\Http\Controllers\dashboardController;
 use App\Http\Controllers\EscolaridadeController;
 
 
@@ -62,24 +59,12 @@ route::post('logout', sessionController::class . '@logout')->middleware('auth:sa
         //pessoas
         Route::post('/', [PessoaController::class, 'store']);
         Route::get('/{id}', [PessoaController::class, 'show']);
-        Route::get('/', [PessoaController::class, 'getDashData']);
+        Route::get('/', [PessoaController::class, 'index']);
         Route::put('/{id}', [PessoaController::class, 'update']);
         Route::delete('/{id}', [PessoaController::class, 'destroy']);
-        //this route gives me 404 in the browser http://127.0.0.1:8000/api/pessoas/dashboard-data
         Route::get('/dashboard-data', [PessoaController::class, 'getDashData']);
     });
 
-
-    Route::group([
-        'prefix' => 'categorias'
-    ], function () {
-        //categorias
-        Route::post('/', [CategoriaController::class, 'store']);
-        Route::get('/{id}', [CategoriaController::class, 'show']);
-        Route::get('/', action: [CategoriaController::class, 'index']);
-        Route::put('/{id}', [CategoriaController::class, 'update']);
-        Route::delete('/{id}', [CategoriaController::class, 'destroy']);
-    });
 
     Route::group([
         'prefix' => 'audittrails'
@@ -120,16 +105,6 @@ route::post('logout', sessionController::class . '@logout')->middleware('auth:sa
         Route::get('/', [LocalAfectoController::class, 'index']);
         Route::put('/{id}', [LocalAfectoController::class, 'update']);
         Route::delete('/{id}', [LocalAfectoController::class, 'destroy']);
-    });
-
-    Route::group([
-        'prefix' => 'especialidades'
-    ], function () {
-        Route::post('/', [EspecialidadeController::class, 'store']);
-        Route::get('/{id}', [EspecialidadeController::class, 'show']);
-        Route::get('/', [EspecialidadeController::class, 'index']);
-        Route::put('/{id}', [EspecialidadeController::class, 'update']);
-        Route::delete('/{id}', [EspecialidadeController::class, 'destroy']);
     });
 
     Route::group([

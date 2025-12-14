@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('pessoa_id')->notNullable();
             $table->string('acesso')->notNullable();
             $table->string('email')->unique()->notNullable();
-            $table->string('genero')->notNullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();

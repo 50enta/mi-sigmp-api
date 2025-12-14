@@ -9,28 +9,42 @@ use Illuminate\Support\Facades\DB;
 
 class PessoaController extends Controller
 {
+    function getByEstado()
+    {
+        try {
+            return DB::table('pessoas')
+                ->join('situacao_pessoas as sp', 'sp.pessoa_id', '=', 'pessoas.id')
+                ->whereNull('pessoas.deleted_at')
+                ->whereNull('sp.deleted_at')
+                ->select(
+                    'sp.situacao as situacao',
+                    DB::raw('COUNT(*) as total')
+                )
+                ->groupBy('sp.situacao',)
+                ->get();
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
     function getDashData()
     {
         try {
             $pessoas = Pessoa::count();
-            $pessoasActivo = Pessoa::where('estado', 'activo')->count();
-            $pessoasReserve = Pessoa::where('estado', 'reserva')->count();
 
             $results = DB::table('pessoas')
                 ->join('categoria_policias as cp', 'cp.pessoa_id', '=', 'pessoas.id')
-                ->join('categorias as c', 'cp.categoria_id', '=', 'c.id')
                 ->whereNull('pessoas.deleted_at')
                 ->whereNull('cp.deleted_at')
                 ->select(
-                    'c.descricao as categoria',
+                    'cp.categoria_id as categoria',
                     'pessoas.genero',
                     DB::raw('COUNT(*) as total')
                 )
-                ->groupBy('c.descricao', 'pessoas.genero')
+                ->groupBy('cp.categoria_id', 'pessoas.genero')
                 ->orderBy('pessoas.genero')
                 ->get();
 
-            //select agents by province separated by gender, join with categoriaPolicai and categoria
             $pessoasProvincia = Pessoa::select('provincia', 'genero', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
                 ->join('categoria_policias as cp', 'cp.pessoa_id', '=', 'pessoas.id')
                 ->whereNull('pessoas.deleted_at')
@@ -40,8 +54,7 @@ class PessoaController extends Controller
 
             return response()->json([
                 'pessoas' => $pessoas,
-                'pessoasActivo' => $pessoasActivo,
-                'pessoasReserve' => $pessoasReserve,
+                'pessoasPorEstado' => $this->getByEstado(),
                 'pessoasCategoria' => $results,
                 'pessoasProvincia' => $pessoasProvincia
             ], 200);
@@ -59,13 +72,60 @@ class PessoaController extends Controller
         $page = $request->input('page', 1);
         $paging = filter_var($request->input('paging', true), FILTER_VALIDATE_BOOLEAN);
 
-        $query = Pessoa::query();
+        $query = Pessoa::query()
+            ->select(
+                'pessoas.*',
+                'situacao_pessoas.situacao',
+                'categoria_policias.categoria_id',
+                'especialidade_pessoas.especialidade_id'
+            )
+            ->leftJoin('especialidade_pessoas', 'especialidade_pessoas.pessoa_id', '=', 'pessoas.id')
+            ->leftJoin('categoria_policias', 'categoria_policias.pessoa_id', '=', 'pessoas.id')
+            ->leftJoin('situacao_pessoas', 'situacao_pessoas.pessoa_id', '=', 'pessoas.id')
+            ->leftJoin('curso_policias', 'curso_policias.pessoa_id', '=', 'pessoas.id')
+
+            // nome completo
+            ->when(request('nomeCompleto'), function ($q, $nome) {
+                $q->where('pessoas.nomeCompleto', 'LIKE', "%{$nome}%");
+            })
+
+            // NIP
+            ->when(request('nip'), function ($q, $nip) {
+                $q->where('pessoas.nip', 'LIKE', "%{$nip}%");
+            })
+
+            // género
+            ->when(request('genero'), function ($q, $genero) {
+                $q->where('pessoas.genero', $genero);
+            })
+
+            // especialidade
+            ->when(request('especialidade'), function ($q, $especialidade) {
+                $q->where('especialidade_pessoas.especialidade_id', $especialidade);
+                // ou ->where('especialidade_pessoas.especialidade', $especialidade)
+            })
+
+            // categoria
+            ->when(request('categoria'), function ($q, $categoria) {
+                $q->where('categoria_policias.categoria_id', $categoria);
+            })
+
+            // curso
+            ->when(request('curso'), function ($q, $curso) {
+                $q->where('curso_policias.curso_id', $curso);
+            })
+
+            // situação (ENUM)
+            ->when(request('situacao'), function ($q, $situacao) {
+                $q->where('situacao_pessoas.situacao', $situacao);
+            });
+
 
         $pessoas = $paging
-            ? $query->paginate($pageSize, ['*'], 'page', $page)
-            : $query->simplePaginate($pageSize, ['*'], 'page', $page);
+            ? $query->paginate($pageSize,[] ,'page', $page)
+            : $query->simplePaginate($pageSize,[], 'page', $page);
 
-        return response()->json(['pessoas' => $pessoas], 200);
+        return response()->json(['pessoas' => $pessoas, 'pessoasPorEstado' => $this->getByEstado()], 200);
     }
 
     /**

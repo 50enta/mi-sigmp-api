@@ -13,15 +13,20 @@ return new class extends Migration
     {
         Schema::create('situacao_pessoas', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('situacao_id');
+            $table->enum('situacao', [
+                'SUSPENSO',
+                'EXONERADO',
+                'EXPULSO',
+                'MORTO',
+                'RESERVADO',
+                'APOSENTADO'
+            ]);
             $table->uuid('pessoa_id');
-            $table->boolean('isMudanca')->default(false);
             $table->string('despacho')->nullable();
             $table->text('obs')->nullable();
+            $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();
-            $table->foreign('situacao_id')->references('id')->on('situacaos')->onDelete('cascade');
-            $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
         });
     }
 

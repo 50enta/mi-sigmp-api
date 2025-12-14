@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('pessoas', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->enum('estado', ['activo', 'aposentado', 'reserva', 'morto'])->default('activo');
             $table->integer('aprovado')->default(0);
             $table->string('nip')->unique();
             $table->boolean('isGerivel')->default(false);
@@ -22,7 +21,7 @@ return new class extends Migration
             $table->string('nomePai')->nullable();
             $table->date('dataNasc')->nullable();
             $table->string('nuit')->nullable();
-            $table->enum('estadoCivil', ['solteiro', 'casado', 'divorciado', 'viuvo'])->nullable();
+            $table->enum('estadoCivil', ['Solteiro', 'Casado', 'Divorciado', 'Viuvo'])->nullable();
             $table->enum('grupoSangue', ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])->nullable();
             $table->string('distrito')->nullable();
             $table->enum('provincia', ['Maputo Cidade', 'Maputo Provincia', 'Gaza', 'Inhambane', 'Sofala', 'Manica', 'Zambezia', 'Nampula', 'Tete', 'Cabo Delgado', 'Niassa'])->nullable();
