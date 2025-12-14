@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class PessoaController extends Controller
 {
-    function getByEstado()
+    function getByEstado($year, $previousYear)
     {
         try {
             return DB::table('pessoas')
@@ -18,44 +18,115 @@ class PessoaController extends Controller
                 ->whereNull('sp.deleted_at')
                 ->select(
                     'sp.situacao as situacao',
-                    DB::raw('COUNT(*) as total')
+                    DB::raw("SUM(CASE WHEN YEAR(pessoas.created_at) = $year THEN 1 ELSE 0 END) as total"),
+                    DB::raw("SUM(CASE WHEN YEAR(pessoas.created_at) = $previousYear THEN 1 ELSE 0 END) as previous_total")
                 )
-                ->groupBy('sp.situacao',)
-                ->get();
+                ->groupBy('sp.situacao')
+                ->get()
+                ->map(function ($item) {
+                    $item->rate_change = $item->previous_total > 0
+                        ? (($item->total - $item->previous_total) / $item->previous_total) * 100
+                        : null;
+                    return $item;
+                });
         } catch (\Throwable $th) {
             throw $th;
         }
     }
 
-    function getDashData()
+    function getByCategoria($year, $previousYear)
     {
         try {
-            $pessoas = Pessoa::count();
-
-            $results = DB::table('pessoas')
+            return DB::table('pessoas')
                 ->join('categoria_policias as cp', 'cp.pessoa_id', '=', 'pessoas.id')
                 ->whereNull('pessoas.deleted_at')
                 ->whereNull('cp.deleted_at')
                 ->select(
                     'cp.categoria_id as categoria',
                     'pessoas.genero',
-                    DB::raw('COUNT(*) as total')
+                    DB::raw("SUM(CASE WHEN YEAR(pessoas.created_at) = $year THEN 1 ELSE 0 END) as total"),
+                    DB::raw("SUM(CASE WHEN YEAR(pessoas.created_at) = $previousYear THEN 1 ELSE 0 END) as previous_total")
                 )
                 ->groupBy('cp.categoria_id', 'pessoas.genero')
                 ->orderBy('pessoas.genero')
-                ->get();
+                ->get()
+                ->map(function ($item) {
+                    $item->rate_change = $item->previous_total > 0
+                        ? (($item->total - $item->previous_total) / $item->previous_total) * 100
+                        : null;
 
-            $pessoasProvincia = Pessoa::select('provincia', 'genero', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
-                ->join('categoria_policias as cp', 'cp.pessoa_id', '=', 'pessoas.id')
+                    // 📈 Comparação textual
+                    if ($item->previous_total === 0 && $item->total > 0) {
+                        $item->trend = 'Aumentou'; // não tinha no ano anterior
+                    } elseif ($item->total > $item->previous_total) {
+                        $item->trend = 'Aumentou';
+                    } elseif ($item->total < $item->previous_total) {
+                        $item->trend = 'Diminuiu';
+                    } else {
+                        $item->trend = 'Manteve';
+                    }
+
+                    return $item;
+                });
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+    }
+
+    function getDashData(Request $request)
+    {
+        try {
+            $year = $request->input('year', now()->year);
+            $previousYear = $year - 1;
+
+            $totalCurrent = Pessoa::whereNull('deleted_at')
+                ->whereYear('created_at', $year)
+                ->count();
+
+            // Total de pessoas no ano anterior
+            $totalPrevious = Pessoa::whereNull('deleted_at')
+                ->whereYear('created_at', $previousYear)
+                ->count();
+
+            $rateChange = $totalPrevious > 0
+                ? (($totalCurrent - $totalPrevious) / $totalPrevious) * 100
+                : null;
+
+            $pessoasProvincia = Pessoa::join('categoria_policias as cp', 'cp.pessoa_id', '=', 'pessoas.id')
                 ->whereNull('pessoas.deleted_at')
                 ->whereNull('cp.deleted_at')
+                ->select(
+                    'provincia',
+                    'genero',
+                    DB::raw("SUM(CASE WHEN YEAR(pessoas.created_at) = $year THEN 1 ELSE 0 END) as total"),
+                    DB::raw("SUM(CASE WHEN YEAR(pessoas.created_at) = $previousYear THEN 1 ELSE 0 END) as previous_total")
+                )
                 ->groupBy('provincia', 'genero')
-                ->get();
+                ->get()
+                ->map(function ($item) {
+                    $item->rate_change = $item->previous_total > 0
+                        ? (($item->total - $item->previous_total) / $item->previous_total) * 100
+                        : null;
+
+                    // 📈 Comparação textual
+                    if ($item->previous_total === 0 && $item->total > 0) {
+                        $item->trend = 'Aumentou'; // não tinha no ano anterior
+                    } elseif ($item->total > $item->previous_total) {
+                        $item->trend = 'Aumentou';
+                    } elseif ($item->total < $item->previous_total) {
+                        $item->trend = 'Diminuiu';
+                    } else {
+                        $item->trend = 'Manteve';
+                    }
+
+                    return $item;
+                });
+
 
             return response()->json([
-                'pessoas' => $pessoas,
-                'pessoasPorEstado' => $this->getByEstado(),
-                'pessoasCategoria' => $results,
+                // 'pessoas' => $pessoas,
+                'pessoasPorEstado' => $this->getByEstado($year, $previousYear),
+                'pessoasCategoria' => $this->getByCategoria($year, $previousYear),
                 'pessoasProvincia' => $pessoasProvincia
             ], 200);
         } catch (\Throwable $th) {
@@ -71,6 +142,8 @@ class PessoaController extends Controller
         $pageSize = $request->input('pageSize', 10);
         $page = $request->input('page', 1);
         $paging = filter_var($request->input('paging', true), FILTER_VALIDATE_BOOLEAN);
+        $year = $request->input('year', now()->year);
+        $previousYear = $year - 1;
 
         $query = Pessoa::query()
             ->select(
@@ -122,10 +195,10 @@ class PessoaController extends Controller
 
 
         $pessoas = $paging
-            ? $query->paginate($pageSize,[] ,'page', $page)
-            : $query->simplePaginate($pageSize,[], 'page', $page);
+            ? $query->paginate($pageSize, [], 'page', $page)
+            : $query->simplePaginate($pageSize, [], 'page', $page);
 
-        return response()->json(['pessoas' => $pessoas, 'pessoasPorEstado' => $this->getByEstado()], 200);
+        return response()->json(['pessoas' => $pessoas, 'pessoasPorEstado' => $this->getByEstado($year, $previousYear)], 200);
     }
 
     /**
