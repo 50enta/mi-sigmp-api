@@ -13,21 +13,12 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('codigo')->notNullable();
             $table->boolean('activo')->default(true);
             $table->boolean('ja_acedeu')->default(false);
             $table->string('pessoa_id')->notNullable();
             $table->string('acesso')->notNullable();
             $table->string('email')->unique()->notNullable();
-            $table->string('funcao')->nullable();
-            $table->string('departamento')->nullable();
-            $table->string('celular')->notNullable();
-            $table->string('tipo')->default('0,');
             $table->string('genero')->notNullable();
-            $table->boolean('efectivo')->default(true);
-            $table->boolean('local_id')->notNullable();
-            $table->boolean('receiveAllNotifications')->default(false);
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();

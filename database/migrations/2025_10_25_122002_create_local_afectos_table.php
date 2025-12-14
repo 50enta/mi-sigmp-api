@@ -20,7 +20,7 @@ return new class extends Migration
             $table->date('dataFim')->nullable();
             $table->boolean('isTransferencia')->default(false);
             $table->uuid('transferidor_id')->nullable();
-            $table->string('aprovador')->nullable();
+            $table->string('aprovado_por')->nullable();
             $table->integer('aprovado')->nullable(); //1-aprovado, 0-pendente, 2-reprovado
             $table->string('local_origem')->nullable();
             $table->enum('regime', ['Pedido', 'Permuta'])->nullable();

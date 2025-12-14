@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('situacao_pessoas', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->boolean('activo')->default(true);
             $table->uuid('situacao_id');
             $table->uuid('pessoa_id');
             $table->boolean('isMudanca')->default(false);

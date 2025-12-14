@@ -62,7 +62,7 @@ route::post('logout', sessionController::class . '@logout')->middleware('auth:sa
         //pessoas
         Route::post('/', [PessoaController::class, 'store']);
         Route::get('/{id}', [PessoaController::class, 'show']);
-        Route::get('/', [PessoaController::class, 'index']);
+        Route::get('/', [PessoaController::class, 'getDashData']);
         Route::put('/{id}', [PessoaController::class, 'update']);
         Route::delete('/{id}', [PessoaController::class, 'destroy']);
         //this route gives me 404 in the browser http://127.0.0.1:8000/api/pessoas/dashboard-data

@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('continuacao_estudos', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->boolean('activo')->default(true);
             $table->string('despacho')->nullable();
             $table->string('instituicao')->nullable();
             $table->string('curso')->nullable();

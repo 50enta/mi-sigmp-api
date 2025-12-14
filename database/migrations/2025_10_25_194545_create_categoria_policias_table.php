@@ -21,10 +21,7 @@ return new class extends Migration
             $table->text('obs')->nullable();
             $table->timestamps();
             $table->softDeletes();
-
-            $table->foreign('categoria_id')->references('id')->on('categorias')->onDelete('cascade');
             $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
-    
         });
     }
 

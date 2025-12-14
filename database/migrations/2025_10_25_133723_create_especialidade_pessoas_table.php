@@ -24,10 +24,7 @@ return new class extends Migration
             $table->text('obs')->nullable();
             $table->timestamps();
             $table->softDeletes();
-
-            $table->foreign('especialidade_id')->references('id')->on('especialidades')->onDelete('cascade');
             $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
-        
         });
     }
 

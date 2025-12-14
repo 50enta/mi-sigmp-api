@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pessoa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class PessoaController extends Controller
 {
@@ -13,15 +14,27 @@ class PessoaController extends Controller
         try {
             $pessoas = Pessoa::count();
             $pessoasActivo = Pessoa::where('estado', 'activo')->count();
-            $pessoasReserve = Pessoa::where('estado', 'reserve')->count();
+            $pessoasReserve = Pessoa::where('estado', 'reserva')->count();
 
-            $pessoasCategoria = Pessoa::select('categoria', 'genero', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
-                ->groupBy('categoria', 'genero')
+            $results = DB::table('pessoas')
+                ->join('categoria_policias as cp', 'cp.pessoa_id', '=', 'pessoas.id')
+                ->join('categorias as c', 'cp.categoria_id', '=', 'c.id')
+                ->whereNull('pessoas.deleted_at')
+                ->whereNull('cp.deleted_at')
+                ->select(
+                    'c.descricao as categoria',
+                    'pessoas.genero',
+                    DB::raw('COUNT(*) as total')
+                )
+                ->groupBy('c.descricao', 'pessoas.genero')
+                ->orderBy('pessoas.genero')
                 ->get();
 
-            //select agents by province separated by gender
+            //select agents by province separated by gender, join with categoriaPolicai and categoria
             $pessoasProvincia = Pessoa::select('provincia', 'genero', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
-                ->where('categoria', 'agente')
+                ->join('categoria_policias as cp', 'cp.pessoa_id', '=', 'pessoas.id')
+                ->whereNull('pessoas.deleted_at')
+                ->whereNull('cp.deleted_at')
                 ->groupBy('provincia', 'genero')
                 ->get();
 
@@ -29,8 +42,8 @@ class PessoaController extends Controller
                 'pessoas' => $pessoas,
                 'pessoasActivo' => $pessoasActivo,
                 'pessoasReserve' => $pessoasReserve,
-                'pessoasCategoria' => $pessoasCategoria,
-                'pessoasProvincia' => $pessoasProvincia,
+                'pessoasCategoria' => $results,
+                'pessoasProvincia' => $pessoasProvincia
             ], 200);
         } catch (\Throwable $th) {
             throw $th;
