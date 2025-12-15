@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Requests\escolaidadeRequest;
 use App\Models\Escolaridade;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -36,27 +37,11 @@ class EscolaridadeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(escolaidadeRequest $request)
     {
-        $validation = Validator::make($request->all(), [
-            'activo' => 'required|boolean',
-            'nivel' => 'nullable|in:elementar,basico,medio,licenciatura,mestrado,phd',
-            'instituicao' => 'nullable|string|max:255',
-            'curso' => 'nullable|string|max:255',
-            'dataInicio' => 'nullable|date',
-            'dataFim' => 'nullable|date',
-            'isConcluido' => 'required|boolean',
-            'obs' => 'nullable|string',
-            'pessoa_id' => 'required|uuid|exists:pessoas,id',
-        ]);
 
-        if ($validation->fails()) {
-            return response()->json(['message' => 'Erro ao registar escolaridade', 'errors' => $validation->errors()], 409);
-        }
-
-        $registro = Escolaridade::create($validation->validated());
-
-        return response()->json(['message' => 'Escolaridade registada com sucesso!', 'escolaridade' => $registro], 201);
+       
+        
     }
 
     /**

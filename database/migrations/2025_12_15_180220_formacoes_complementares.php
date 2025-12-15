@@ -11,17 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('escolaridades', function (Blueprint $table) {
+        Schema::create('formacoesComplementares', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->enum('nivel', ['Elementar', 'Basico', 'Medio', 'Licenciatura', 'Mestrado', 'Doutorado','Outro'])->nullable();
-            $table->string('instituicao')->nullable();
-            $table->string('curso')->nullable();
-            $table->date('dataInicio')->nullable();
-            $table->date('dataFim')->nullable();
-            $table->date('certificado')->nullable();
-            $table->uuid('pessoa_id');
+            $table->string('cursoComplementar');
+            $table->string('instituicao');
+            $table->string('anoConlusao');
+            $table->string('certificado');
             $table->timestamps();
             $table->softDeletes();
+            $table->uuid('pessoa_id');
             $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
         });
     }
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('escolaridades');
+        Schema::dropIfExists('formacoesComplementares');
     }
 };

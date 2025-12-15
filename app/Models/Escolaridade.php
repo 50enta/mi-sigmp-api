@@ -17,14 +17,12 @@ class Escolaridade extends Model
 
     protected $fillable = [
         'id',
-        'activo',
         'nivel',
         'instituicao',
         'curso',
         'dataInicio',
         'dataFim',
         'isConcluido',
-        'obs',
         'pessoa_id',
     ];
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Requests\pessoaRequest;
 use App\Models\Pessoa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -18,8 +19,8 @@ class PessoaController extends Controller
                 ->whereNull('sp.deleted_at')
                 ->select(
                     'sp.situacao as situacao',
-                    DB::raw("SUM(CASE WHEN YEAR(pessoas.created_at) = $year THEN 1 ELSE 0 END) as total"),
-                    DB::raw("SUM(CASE WHEN YEAR(pessoas.created_at) = $previousYear THEN 1 ELSE 0 END) as previous_total")
+                    DB::raw("SUM(CASE WHEN YEAR(sp.created_at) = $year THEN 1 ELSE 0 END) as total"),
+                    DB::raw("SUM(CASE WHEN YEAR(sp.created_at) = $previousYear THEN 1 ELSE 0 END) as previous_total")
                 )
                 ->groupBy('sp.situacao')
                 ->get()
@@ -44,8 +45,8 @@ class PessoaController extends Controller
                 ->select(
                     'cp.categoria_id as categoria',
                     'pessoas.genero',
-                    DB::raw("SUM(CASE WHEN YEAR(pessoas.created_at) = $year THEN 1 ELSE 0 END) as total"),
-                    DB::raw("SUM(CASE WHEN YEAR(pessoas.created_at) = $previousYear THEN 1 ELSE 0 END) as previous_total")
+                    DB::raw("SUM(CASE WHEN YEAR(cp.created_at) = $year THEN 1 ELSE 0 END) as total"),
+                    DB::raw("SUM(CASE WHEN YEAR(cp.created_at) = $previousYear THEN 1 ELSE 0 END) as previous_total")
                 )
                 ->groupBy('cp.categoria_id', 'pessoas.genero')
                 ->orderBy('pessoas.genero')
@@ -98,8 +99,8 @@ class PessoaController extends Controller
                 ->select(
                     'provincia',
                     'genero',
-                    DB::raw("SUM(CASE WHEN YEAR(pessoas.created_at) = $year THEN 1 ELSE 0 END) as total"),
-                    DB::raw("SUM(CASE WHEN YEAR(pessoas.created_at) = $previousYear THEN 1 ELSE 0 END) as previous_total")
+                    DB::raw("SUM(CASE WHEN YEAR(cp.created_at) = $year THEN 1 ELSE 0 END) as total"),
+                    DB::raw("SUM(CASE WHEN YEAR(cp.created_at) = $previousYear THEN 1 ELSE 0 END) as previous_total")
                 )
                 ->groupBy('provincia', 'genero')
                 ->get()
@@ -204,7 +205,7 @@ class PessoaController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(pessoaRequest $request)
     {
         //
     }
@@ -214,34 +215,13 @@ class PessoaController extends Controller
      */
     public function store(Request $request)
     {
-        $validation = Validator::make($request->all(), [
-            'activo' => 'required|boolean',
-            'aprovado' => 'required|integer',
-            'nip' => 'required|string|unique:pessoas,nip',
-            'isGerivel' => 'required|boolean',
-            'nomeCompleto' => 'required|string|max:255',
-            'nomeMae' => 'nullable|string|max:255',
-            'nomePai' => 'nullable|string|max:255',
-            'dataNasc' => 'nullable|date',
-            'nuit' => 'nullable|string|max:20',
-            'estadoCivil' => 'nullable|in:solteiro,casado,divorciado,viuvo',
-            'grupoSangue' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
-            'distrito' => 'nullable|string|max:255',
-            'provincia' => 'nullable|in:Maputo Cidade,Maputo Provincia,Gaza,Inhambane,Sofala,Manica,Zambezia,Nampula,Tete,Cabo Delgado,Niassa',
-            'residencia' => 'nullable|string|max:255',
-            'genero' => 'nullable|in:Masculino,Feminino,Outro',
-            'BI' => 'nullable|string|max:50',
-            'altura' => 'nullable|numeric|min:0|max:3',
-            'linguas' => 'nullable|string',
-        ]);
+        try {
+            $pessoa = Pessoa::create($request->all());
 
-        if ($validation->fails()) {
-            return response()->json(['message' => 'Erro ao criar pessoa', 'errors' => $validation->errors()], 409);
+            return response(['pessoa' => $pessoa], 201);
+        } catch (\Throwable $th) {
+            return response(['error' => 'Error inesperado'], 500);
         }
-
-        $pessoa = Pessoa::create($validation->validated());
-
-        return response()->json(['message' => 'Pessoa criada com sucesso!', 'pessoa' => $pessoa], 201);
     }
 
     /**

@@ -31,145 +31,142 @@ route::post('logout', sessionController::class . '@logout')->middleware('auth:sa
 
 //Route::middleware('auth:api')->group(function () {
 
-    Route::group([
-        'prefix' => 'contactos'
-    ], function () {
-        //contactos
-        Route::post('/', [ContactosController::class, 'store']);
-        Route::get('/{id}', [ContactosController::class, 'show']);
-        Route::get('/', [ContactosController::class, 'index']);
-        Route::put('/{id}', [ContactosController::class, 'update']);
-        Route::delete('/{id}', [ContactosController::class, 'destroy']);
-    });
+Route::group([
+    'prefix' => 'contactos'
+], function () {
+    //contactos
+    Route::post('/', [ContactosController::class, 'store']);
+    Route::get('/{id}', [ContactosController::class, 'show']);
+    Route::get('/', [ContactosController::class, 'index']);
+    Route::put('/{id}', [ContactosController::class, 'update']);
+    Route::delete('/{id}', [ContactosController::class, 'destroy']);
+});
 
-    Route::group([
-        'prefix' => 'escaloes'
-    ], function () {
-        //escaloes
-        Route::post('/', [EscalaoController::class, 'store']);
-        Route::get('/{id}', [EscalaoController::class, 'show']);
-        Route::get('/', [EscalaoController::class, 'index']);
-        Route::put('/{id}', [EscalaoController::class, 'update']);
-        Route::delete('/{id}', [EscalaoController::class, 'destroy']);
-    });
-    
-    Route::group([
-        'prefix' => 'pessoas'
-    ], function () {
-        //pessoas
-        Route::post('/', [PessoaController::class, 'store']);
-        Route::get('/{id}', [PessoaController::class, 'show']);
-        Route::get('/', [PessoaController::class, 'index']);
-        Route::put('/{id}', [PessoaController::class, 'update']);
-        Route::delete('/{id}', [PessoaController::class, 'destroy']);
-        Route::get('/dashboard-data', [PessoaController::class, 'getDashData']);
-    });
+Route::group([
+    'prefix' => 'escaloes'
+], function () {
+    //escaloes
+    Route::post('/', [EscalaoController::class, 'store']);
+    Route::get('/{id}', [EscalaoController::class, 'show']);
+    Route::get('/', [EscalaoController::class, 'index']);
+    Route::put('/{id}', [EscalaoController::class, 'update']);
+    Route::delete('/{id}', [EscalaoController::class, 'destroy']);
+});
+
+Route::prefix('pessoas')->group(function () {
+    Route::post('/', [PessoaController::class, 'store']);
+    Route::get('/{id}', [PessoaController::class, 'show']);
+    Route::get('/', [PessoaController::class, 'index']);
+    Route::put('/{id}', [PessoaController::class, 'update']);
+    Route::delete('/{id}', [PessoaController::class, 'destroy']);
+});
+Route::get('/dashboard-data', [PessoaController::class, 'getDashData']);
 
 
-    Route::group([
-        'prefix' => 'audittrails'
-    ], function () {
-        Route::post('/', [AuditTrailController::class, 'store']);
-        Route::get('/{id}', [AuditTrailController::class, 'show']);
-        Route::get('/', [AuditTrailController::class, 'index']);
-        Route::put('/{id}', [AuditTrailController::class, 'update']);
-        Route::delete('/{id}', [AuditTrailController::class, 'destroy']);
-    });
+Route::group([
+    'prefix' => 'audittrails'
+], function () {
+    Route::post('/', [AuditTrailController::class, 'store']);
+    Route::get('/{id}', [AuditTrailController::class, 'show']);
+    Route::get('/', [AuditTrailController::class, 'index']);
+    Route::put('/{id}', [AuditTrailController::class, 'update']);
+    Route::delete('/{id}', [AuditTrailController::class, 'destroy']);
+});
 
-    Route::group([
-        'prefix' => 'cursos'
-    ], function () {
-        Route::post('/', [CursoController::class, 'store']);
-        Route::get('/{id}', [CursoController::class, 'show']);
-        Route::get('/', [CursoController::class, 'index']);
-        Route::put('/{id}', [CursoController::class, 'update']);
-        Route::delete('/{id}', [CursoController::class, 'destroy']);
-    });
-    
-
-    Route::group([
-        'prefix' => 'locais'
-    ], function () {
-        Route::post('/', [LocalController::class, 'store']);
-        Route::get('/{id}', [LocalController::class, 'show']);
-        Route::get('/', [LocalController::class, 'index']);
-        Route::put('/{id}', [LocalController::class, 'update']);
-        Route::delete('/{id}', [LocalController::class, 'destroy']);
-    });
-
-    Route::group([
-        'prefix' => 'local-afectos'
-    ], function () {
-        Route::post('/', [LocalAfectoController::class, 'store']);
-        Route::get('/{id}', [LocalAfectoController::class, 'show']);
-        Route::get('/', [LocalAfectoController::class, 'index']);
-        Route::put('/{id}', [LocalAfectoController::class, 'update']);
-        Route::delete('/{id}', [LocalAfectoController::class, 'destroy']);
-    });
-
-    Route::group([
-        'prefix' => 'especialidade-pessoas'
-    ], function () {
-        Route::post('/', [EspecialidadePessoaController::class, 'store']);
-        Route::get('/{id}', [EspecialidadePessoaController::class, 'show']);
-        Route::get('/', [EspecialidadePessoaController::class, 'index']);
-        Route::put('/{id}', [EspecialidadePessoaController::class, 'update']);
-        Route::delete('/{id}', [EspecialidadePessoaController::class, 'destroy']);
-    });
+Route::group([
+    'prefix' => 'cursos'
+], function () {
+    Route::post('/', [CursoController::class, 'store']);
+    Route::get('/{id}', [CursoController::class, 'show']);
+    Route::get('/', [CursoController::class, 'index']);
+    Route::put('/{id}', [CursoController::class, 'update']);
+    Route::delete('/{id}', [CursoController::class, 'destroy']);
+});
 
 
-    Route::group([
-        'prefix' => 'situacoes'
-    ], function () {
-        Route::post('/', [SituacaoController::class, 'store']);
-        Route::get('/{id}', [SituacaoController::class, 'show']);
-        Route::get('/', [SituacaoController::class, 'index']);
-        Route::put('/{id}', [SituacaoController::class, 'update']);
-        Route::delete('/{id}', [SituacaoController::class, 'destroy']);
-    });
+Route::group([
+    'prefix' => 'locais'
+], function () {
+    Route::post('/', [LocalController::class, 'store']);
+    Route::get('/{id}', [LocalController::class, 'show']);
+    Route::get('/', [LocalController::class, 'index']);
+    Route::put('/{id}', [LocalController::class, 'update']);
+    Route::delete('/{id}', [LocalController::class, 'destroy']);
+});
 
-    Route::group([
-        'prefix' => 'situacao-pessoas'
-    ], function () {
-        Route::post('/', [SituacaoPessoaController::class, 'store']);
-        Route::get('/{id}', [SituacaoPessoaController::class, 'show']);
-        Route::get('/', [SituacaoPessoaController::class, 'index']);
-        Route::put('/{id}', [SituacaoPessoaController::class, 'update']);
-        Route::delete('/{id}', [SituacaoPessoaController::class, 'destroy']);
-    });
+Route::group([
+    'prefix' => 'local-afectos'
+], function () {
+    Route::post('/', [LocalAfectoController::class, 'store']);
+    Route::get('/{id}', [LocalAfectoController::class, 'show']);
+    Route::get('/', [LocalAfectoController::class, 'index']);
+    Route::put('/{id}', [LocalAfectoController::class, 'update']);
+    Route::delete('/{id}', [LocalAfectoController::class, 'destroy']);
+});
+
+Route::group([
+    'prefix' => 'especialidade-pessoas'
+], function () {
+    Route::post('/', [EspecialidadePessoaController::class, 'store']);
+    Route::get('/{id}', [EspecialidadePessoaController::class, 'show']);
+    Route::get('/', [EspecialidadePessoaController::class, 'index']);
+    Route::put('/{id}', [EspecialidadePessoaController::class, 'update']);
+    Route::delete('/{id}', [EspecialidadePessoaController::class, 'destroy']);
+});
 
 
-    Route::group([
-        'prefix' => 'curso-policias'
-    ], function () {
-        Route::post('/', [CursoPoliciaController::class, 'store']);
-        Route::get('/{id}', [CursoPoliciaController::class, 'show']);
-        Route::get('/', [CursoPoliciaController::class, 'index']);
-        Route::put('/{id}', [CursoPoliciaController::class, 'update']);
-        Route::delete('/{id}', [CursoPoliciaController::class, 'destroy']);
-    });
+Route::group([
+    'prefix' => 'situacoes'
+], function () {
+    Route::post('/', [SituacaoController::class, 'store']);
+    Route::get('/{id}', [SituacaoController::class, 'show']);
+    Route::get('/', [SituacaoController::class, 'index']);
+    Route::put('/{id}', [SituacaoController::class, 'update']);
+    Route::delete('/{id}', [SituacaoController::class, 'destroy']);
+});
+
+Route::group([
+    'prefix' => 'situacao-pessoas'
+], function () {
+    Route::post('/', [SituacaoPessoaController::class, 'store']);
+    Route::get('/{id}', [SituacaoPessoaController::class, 'show']);
+    Route::get('/', [SituacaoPessoaController::class, 'index']);
+    Route::put('/{id}', [SituacaoPessoaController::class, 'update']);
+    Route::delete('/{id}', [SituacaoPessoaController::class, 'destroy']);
+});
 
 
-    Route::group([
-        'prefix' => 'categoria-policias'
-    ], function () {
-        Route::post('/', [CategoriaPoliciaController::class, 'store']);
-        Route::get('/{id}', [CategoriaPoliciaController::class, 'show']);
-        Route::get('/', [CategoriaPoliciaController::class, 'index']);
-        Route::put('/{id}', [CategoriaPoliciaController::class, 'update']);
-        Route::delete('/{id}', [CategoriaPoliciaController::class, 'destroy']);
-    });
-    
+Route::group([
+    'prefix' => 'curso-policias'
+], function () {
+    Route::post('/', [CursoPoliciaController::class, 'store']);
+    Route::get('/{id}', [CursoPoliciaController::class, 'show']);
+    Route::get('/', [CursoPoliciaController::class, 'index']);
+    Route::put('/{id}', [CursoPoliciaController::class, 'update']);
+    Route::delete('/{id}', [CursoPoliciaController::class, 'destroy']);
+});
 
-    Route::group([
-        'prefix' => 'situacao-disciplinares'
-    ], function () {
-        Route::post('/', [SituacaoDisciplinarController::class, 'store']);
-        Route::get('/{id}', [SituacaoDisciplinarController::class, 'show']);
-        Route::get('/', [SituacaoDisciplinarController::class, 'index']);
-        Route::put('/{id}', [SituacaoDisciplinarController::class, 'update']);
-        Route::delete('/{id}', [SituacaoDisciplinarController::class, 'destroy']);
-    });
+
+Route::group([
+    'prefix' => 'categoria-policias'
+], function () {
+    Route::post('/', [CategoriaPoliciaController::class, 'store']);
+    Route::get('/{id}', [CategoriaPoliciaController::class, 'show']);
+    Route::get('/', [CategoriaPoliciaController::class, 'index']);
+    Route::put('/{id}', [CategoriaPoliciaController::class, 'update']);
+    Route::delete('/{id}', [CategoriaPoliciaController::class, 'destroy']);
+});
+
+
+Route::group([
+    'prefix' => 'situacao-disciplinares'
+], function () {
+    Route::post('/', [SituacaoDisciplinarController::class, 'store']);
+    Route::get('/{id}', [SituacaoDisciplinarController::class, 'show']);
+    Route::get('/', [SituacaoDisciplinarController::class, 'index']);
+    Route::put('/{id}', [SituacaoDisciplinarController::class, 'update']);
+    Route::delete('/{id}', [SituacaoDisciplinarController::class, 'destroy']);
+});
 
 Route::group([
     'prefix' => 'escalao-policias'
@@ -202,7 +199,3 @@ Route::group([
 });
 
 //});
-
-
-
-

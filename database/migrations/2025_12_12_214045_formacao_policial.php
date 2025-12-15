@@ -19,6 +19,8 @@ return new class extends Migration
             $table->date('dataFim')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            $table->uuid('pessoa_id');
+            $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
         });
     }
 
