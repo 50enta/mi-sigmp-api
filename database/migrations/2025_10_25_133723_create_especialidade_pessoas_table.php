@@ -17,8 +17,6 @@ return new class extends Migration
             $table->string('despacho')->nullable();
             $table->date('dataInicio')->nullable();
             $table->date('dataFim')->nullable();
-            $table->boolean('isMudanca')->default(false);
-            $table->string('especialidadeAnterior')->nullable();
             $table->uuid('especialidade_id');
             $table->uuid('pessoa_id');
             $table->text('obs')->nullable();

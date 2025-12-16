@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('situacao_pessoas', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->enum('situacao', [
-                'SUSPENSO',
-                'EXONERADO',
-                'EXPULSO',
-                'MORTO',
-                'RESERVADO',
-                'APOSENTADO'
-            ]);
+                'Suspenso',
+                'Expulso',
+                'Morto',
+                'Reserva',
+                'Aposentado',
+                'Activo'
+            ])->default('Activo');
             $table->uuid('pessoa_id');
             $table->string('despacho')->nullable();
             $table->text('obs')->nullable();

@@ -14,7 +14,7 @@ class escolaidadeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
 
@@ -40,6 +40,7 @@ class escolaidadeRequest extends FormRequest
             'nivel' => 'nullable|in:elementar,basico,medio,licenciatura,mestrado,phd',
             'curso' => 'nullable|string',
             'dataInicio' => 'nullable|date',
+            'certificado' => 'required|file|mimes:pdf|max:2048',
             'dataFim' => 'nullable|date',
             'pessoa_id' => 'required|uuid|exists:pessoas,id',
         ];

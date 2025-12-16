@@ -35,20 +35,20 @@ class PessoaController extends Controller
         }
     }
 
-    function getByCategoria($year, $previousYear)
+    function getByEspecialidade($year, $previousYear)
     {
         try {
             return DB::table('pessoas')
-                ->join('categoria_policias as cp', 'cp.pessoa_id', '=', 'pessoas.id')
+                ->join('especialidade_pessoas as cp', 'cp.pessoa_id', '=', 'pessoas.id')
                 ->whereNull('pessoas.deleted_at')
                 ->whereNull('cp.deleted_at')
                 ->select(
-                    'cp.categoria_id as categoria',
+                    'cp.especialidade_id as especialidade',
                     'pessoas.genero',
                     DB::raw("SUM(CASE WHEN YEAR(cp.created_at) = $year THEN 1 ELSE 0 END) as total"),
                     DB::raw("SUM(CASE WHEN YEAR(cp.created_at) = $previousYear THEN 1 ELSE 0 END) as previous_total")
                 )
-                ->groupBy('cp.categoria_id', 'pessoas.genero')
+                ->groupBy('cp.especialidade_id', 'pessoas.genero')
                 ->orderBy('pessoas.genero')
                 ->get()
                 ->map(function ($item) {
@@ -93,41 +93,20 @@ class PessoaController extends Controller
                 ? (($totalCurrent - $totalPrevious) / $totalPrevious) * 100
                 : null;
 
-            $pessoasProvincia = Pessoa::join('categoria_policias as cp', 'cp.pessoa_id', '=', 'pessoas.id')
-                ->whereNull('pessoas.deleted_at')
-                ->whereNull('cp.deleted_at')
+            $pessoasProvincia = Pessoa::query()
+                ->whereNull('deleted_at')
                 ->select(
-                    'provincia',
-                    'genero',
-                    DB::raw("SUM(CASE WHEN YEAR(cp.created_at) = $year THEN 1 ELSE 0 END) as total"),
-                    DB::raw("SUM(CASE WHEN YEAR(cp.created_at) = $previousYear THEN 1 ELSE 0 END) as previous_total")
+                    'provincia','genero',
+                    DB::raw("SUM(CASE WHEN YEAR(created_at) = $year THEN 1 ELSE 0 END) as total"),
+                    DB::raw("SUM(CASE WHEN YEAR(created_at) = $previousYear THEN 1 ELSE 0 END) as previous_total")
                 )
-                ->groupBy('provincia', 'genero')
-                ->get()
-                ->map(function ($item) {
-                    $item->rate_change = $item->previous_total > 0
-                        ? (($item->total - $item->previous_total) / $item->previous_total) * 100
-                        : null;
-
-                    // 📈 Comparação textual
-                    if ($item->previous_total === 0 && $item->total > 0) {
-                        $item->trend = 'Aumentou'; // não tinha no ano anterior
-                    } elseif ($item->total > $item->previous_total) {
-                        $item->trend = 'Aumentou';
-                    } elseif ($item->total < $item->previous_total) {
-                        $item->trend = 'Diminuiu';
-                    } else {
-                        $item->trend = 'Manteve';
-                    }
-
-                    return $item;
-                });
-
+                ->groupBy('provincia','genero')
+                ->get();
 
             return response()->json([
                 // 'pessoas' => $pessoas,
                 'pessoasPorEstado' => $this->getByEstado($year, $previousYear),
-                'pessoasCategoria' => $this->getByCategoria($year, $previousYear),
+                'pessoasEspecialidade' => $this->getByEspecialidade($year, $previousYear),
                 'pessoasProvincia' => $pessoasProvincia
             ], 200);
         } catch (\Throwable $th) {

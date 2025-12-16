@@ -6,6 +6,7 @@ use App\Http\Requests\Requests\escolaidadeRequest;
 use App\Models\Escolaridade;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+
 class EscolaridadeController extends Controller
 {
     /**
@@ -27,21 +28,21 @@ class EscolaridadeController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
-    public function store(escolaidadeRequest $request)
+    public function store(Request $request)
     {
+        try {
+            if($request->file('certificadoFormacaoAcademica')){
+                
+            }
+            //code...
+            dd($request->formacaoAcademica);
+            // $registro = Escolaridade::create($request->all());
 
-       
-        
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 
     /**

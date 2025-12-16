@@ -22,7 +22,6 @@ class Escolaridade extends Model
         'curso',
         'dataInicio',
         'dataFim',
-        'isConcluido',
         'pessoa_id',
     ];
 

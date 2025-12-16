@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('categoria_policias', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->boolean('activo')->default(true);
             $table->uuid('categoria_id');
             $table->uuid('pessoa_id');
             $table->string('despacho')->nullable();
