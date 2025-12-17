@@ -19,8 +19,8 @@ class PessoaController extends Controller
                 ->whereNull('sp.deleted_at')
                 ->select(
                     'sp.situacao as situacao',
-                    DB::raw("SUM(CASE WHEN YEAR(sp.created_at) = $year THEN 1 ELSE 0 END) as total"),
-                    DB::raw("SUM(CASE WHEN YEAR(sp.created_at) = $previousYear THEN 1 ELSE 0 END) as previous_total")
+                    DB::raw("SUM(CASE WHEN YEAR(sp.created_at) <= $year THEN 1 ELSE 0 END) as total"),
+                    DB::raw("SUM(CASE WHEN YEAR(sp.created_at) <= $previousYear THEN 1 ELSE 0 END) as previous_total")
                 )
                 ->groupBy('sp.situacao')
                 ->get()
@@ -45,8 +45,8 @@ class PessoaController extends Controller
                 ->select(
                     'cp.especialidade_id as especialidade',
                     'pessoas.genero',
-                    DB::raw("SUM(CASE WHEN YEAR(cp.created_at) = $year THEN 1 ELSE 0 END) as total"),
-                    DB::raw("SUM(CASE WHEN YEAR(cp.created_at) = $previousYear THEN 1 ELSE 0 END) as previous_total")
+                    DB::raw("SUM(CASE WHEN YEAR(cp.created_at) <= $year THEN 1 ELSE 0 END) as total"),
+                    DB::raw("SUM(CASE WHEN YEAR(cp.created_at) <= $previousYear THEN 1 ELSE 0 END) as previous_total")
                 )
                 ->groupBy('cp.especialidade_id', 'pessoas.genero')
                 ->orderBy('pessoas.genero')
@@ -80,13 +80,10 @@ class PessoaController extends Controller
             $year = $request->input('year', now()->year);
             $previousYear = $year - 1;
 
-            $totalCurrent = Pessoa::whereNull('deleted_at')
-                ->whereYear('created_at', $year)
-                ->count();
+            $totalCurrent = Pessoa::whereNull('deleted_at')->count();
 
-            // Total de pessoas no ano anterior
             $totalPrevious = Pessoa::whereNull('deleted_at')
-                ->whereYear('created_at', $previousYear)
+                ->whereYear('created_at', '<=', $previousYear)
                 ->count();
 
             $rateChange = $totalPrevious > 0
@@ -96,15 +93,16 @@ class PessoaController extends Controller
             $pessoasProvincia = Pessoa::query()
                 ->whereNull('deleted_at')
                 ->select(
-                    'provincia','genero',
-                    DB::raw("SUM(CASE WHEN YEAR(created_at) = $year THEN 1 ELSE 0 END) as total"),
-                    DB::raw("SUM(CASE WHEN YEAR(created_at) = $previousYear THEN 1 ELSE 0 END) as previous_total")
+                    'provincia',
+                    'genero',
+                    DB::raw("SUM(CASE WHEN YEAR(created_at) <= $year THEN 1 ELSE 0 END) as total"),
+                    DB::raw("SUM(CASE WHEN YEAR(created_at) <= $previousYear THEN 1 ELSE 0 END) as previous_total")
                 )
-                ->groupBy('provincia','genero')
+                ->groupBy('provincia', 'genero')
                 ->get();
 
             return response()->json([
-                // 'pessoas' => $pessoas,
+                'pessoas' => ['total' => $totalCurrent, 'variation' => $rateChange],
                 'pessoasPorEstado' => $this->getByEstado($year, $previousYear),
                 'pessoasEspecialidade' => $this->getByEspecialidade($year, $previousYear),
                 'pessoasProvincia' => $pessoasProvincia
