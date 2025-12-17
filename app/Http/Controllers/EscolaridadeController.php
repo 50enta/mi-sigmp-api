@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Requests\escolaidadeRequest;
+use App\Http\Requests\Requests\StoreFormacaoRequest as RequestsStoreFormacaoRequest;
+use App\Http\Requests\StoreFormacaoRequest;
 use App\Models\Escolaridade;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class EscolaridadeController extends Controller
@@ -30,15 +33,52 @@ class EscolaridadeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreFormacaoRequest $request)
     {
         try {
-            if($request->file('certificadoFormacaoAcademica')){
-                
+            $fileName = /*time() . '_' .  $request->file('certificadoFormacaoAcademica')->getClientOriginalName()*/ 'The filee';
+
+            // if ($request->file('certificadoFormacaoAcademica')) {
+            //     $filename = time() . '_' . $file->getClientOriginalName();
+            //     $file->move(public_path('uploads'), $filename);
+            // }
+
+            $updateData = $request->except(['formacaoAcademica.certificadoFormacaoAcademica']);
+            dd($updateData['formacaoAcademica']['nivel']);
+
+            $formacaoAcademica = DB::table('escolaridades') // substitua pelo nome real da sua tabela
+                ->insert([
+                    'pessoa_id' => $updateData['formacaoAcademica']['pessoa_id'],
+                    'nivel'       => $updateData['formacaoAcademica']['nivel'],
+                    'instituicao' => $updateData['formacaoAcademica']['instituicao'],
+                    'curso'       => $updateData['formacaoAcademica']['curso'],
+                    'dataInicio'  => $updateData['formacaoAcademica']['dataInicio'],
+                    'dataFim'     => $updateData['formacaoAcademica']['dataFim'],
+                    'certificado' => 'fileName',
+                ]);
+
+            $formacaoPolicial = DB::table('formacaoPolicial')
+                ->insert([
+                    'pessoa_id' => $updateData['formacaoPolicia']['pessoa_id'],
+                    'academiaPolicial' => $updateData['formacaoPolicia']['academiaPolicial'],
+                    'dataInicio' => $updateData['formacaoPolicia']['dataInicio'],
+                    'curso'       => $updateData['formacaoPolicia']['curso'],
+                    'dataFim'     => $updateData['formacaoPolicia']['dataFim'],
+                ]);
+
+            if (isset($updateData['formacoesComplementares'])) {
+
+                $formacoesComplementares = DB::table('formacoesComplementares')
+                    ->insert([
+                        'pessoa_id' => $updateData['formacoesComplementares']['pessoa_id'],
+                        'cursoComplementar' => $updateData['formacoesComplementares']['cursoComplementar'],
+                        'instituicao' => $updateData['formacoesComplementares']['instituicao'],
+                        'anoConlusao'       => $updateData['formacoesComplementares']['anoConlusao'],
+                        'certificado'     => $updateData['formacoesComplementares']['certificado'],
+                    ]);
             }
-            //code...
-            dd($request->formacaoAcademica);
-            // $registro = Escolaridade::create($request->all());
+
+            return response()->json(['success' => true], 201);
 
         } catch (\Throwable $th) {
             throw $th;
@@ -65,30 +105,7 @@ class EscolaridadeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
-    {
-        $registro = Escolaridade::findOrFail($id);
-
-        $validation = Validator::make($request->all(), [
-            'activo' => 'required|boolean',
-            'nivel' => 'nullable|in:elementar,basico,medio,licenciatura,mestrado,phd',
-            'instituicao' => 'nullable|string|max:255',
-            'curso' => 'nullable|string|max:255',
-            'dataInicio' => 'nullable|date',
-            'dataFim' => 'nullable|date',
-            'isConcluido' => 'required|boolean',
-            'obs' => 'nullable|string',
-            'pessoa_id' => 'required|uuid|exists:pessoas,id',
-        ]);
-
-        if ($validation->fails()) {
-            return response()->json(['message' => 'Erro ao actualizar escolaridade', 'errors' => $validation->errors()], 409);
-        }
-
-        $registro->update($validation->validated());
-
-        return response()->json(['message' => 'Escolaridade actualizada com sucesso!', 'escolaridade' => $registro], 200);
-    }
+    public function update(Request $request, $id) {}
 
     /**
      * Remove the specified resource from storage.
