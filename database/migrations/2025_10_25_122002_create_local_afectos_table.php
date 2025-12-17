@@ -15,19 +15,13 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('local_id');
             $table->uuid('pessoa_id');
+            $table->uuid('transferencia_id')->nullable();
             $table->string('despacho')->nullable();
             $table->date('dataInicio')->nullable();
             $table->date('dataFim')->nullable();
             $table->boolean('isTransferencia')->default(false);
-            $table->uuid('transferidor_id')->nullable();
-            $table->string('aprovado_por')->nullable();
-            $table->integer('aprovado')->nullable(); //1-aprovado, 0-pendente, 2-reprovado
-            $table->string('local_origem')->nullable();
-            $table->enum('regime', ['Pedido', 'Permuta'])->nullable();
-            $table->string('permutador')->nullable();
             $table->timestamps();
             $table->softDeletes();
-
             $table->foreign('local_id')->references('id')->on('locals')->onDelete('cascade');
             $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
     
