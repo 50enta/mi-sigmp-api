@@ -20,9 +20,14 @@ class sessionController extends Controller
                 'password' => 'required|string'
             ]);
 
-            $user = User::where('email', $valid['email'])->where('activo', '=', '1')->first();
+            $user = User::where('users.email', $valid['email'])
+                ->where('users.activo', 1)
+                ->join('pessoas', 'pessoas.id', '=', 'users.pessoa_id')
+                ->select('users.*', 'pessoas.*') // IMPORTANTE
+                ->first();
+
             if (!$user || !Hash::check($valid['password'], $user->password)) {
-                return response(['error' => 'Email ou senha invalidos!']);
+                return response(['error' => 'Email ou senha invalidos!'], 401);
             } else {
                 try {
                     $token = $user->createToken('near_miss_api_login_token')->plainTextToken;

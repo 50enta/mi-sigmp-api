@@ -206,8 +206,27 @@ class PessoaController extends Controller
      */
     public function show($id)
     {
-        $pessoa = Pessoa::findOrFail($id);
-        return response()->json($pessoa, 200);
+        try {
+            $pessoa = Pessoa::query()
+                ->select(
+                    'pessoas.*',
+                    'situacao_pessoas.situacao',
+                    'categoria_policias.categoria_id',
+                    'especialidade_pessoas.especialidade_id',
+                    'curso_policias.*'
+                )
+                ->where('pessoas.id', $id)
+                ->leftJoin('especialidade_pessoas', 'especialidade_pessoas.pessoa_id', '=', 'pessoas.id')
+                ->leftJoin('categoria_policias', 'categoria_policias.pessoa_id', '=', 'pessoas.id')
+                ->leftJoin('situacao_pessoas', 'situacao_pessoas.pessoa_id', '=', 'pessoas.id')
+                ->leftJoin('curso_policias', 'curso_policias.pessoa_id', '=', 'pessoas.id')
+                ->get();
+
+            return response()->json($pessoa, 200);
+        } catch (\Throwable $th) {
+            dd($th);
+            //throw $th;
+        }
     }
 
     /**

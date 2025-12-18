@@ -38,4 +38,24 @@ class CategoriaEspecialidadeController extends Controller
             //throw $th;
         }
     }
+
+    function getCatEspHistory(Request $request)
+    {
+        try {
+            // dd($request->query());
+            $categoria = DB::table('categoria_policias')
+                ->where('pessoa_id', $request->query('pessoa_id'))
+                ->select('*')
+                ->get();
+
+            $especialidades = DB::table('especialidade_pessoas')
+                ->where('pessoa_id', $request->query('pessoa_id'))
+                ->select('*')
+                ->get();
+
+            return response()->json(['categorias' => $categoria, 'especialidades' => $especialidades], 200);
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+    }
 }

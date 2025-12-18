@@ -115,4 +115,6 @@ Route::group([
 });
 
 Route::post('/saveCatAndEsp', [CategoriaEspecialidadeController::class, 'saveCatAndEsp']);
+Route::get('/getCatEspHistory', [CategoriaEspecialidadeController::class, 'getCatEspHistory']);
+
 //});
