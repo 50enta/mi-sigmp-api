@@ -192,6 +192,7 @@ class PessoaController extends Controller
 
             return response(['pessoa' => $pessoa], 201);
         } catch (\Throwable $th) {
+            dd($th);
             return response(['error' => 'Error inesperado'], 500);
         }
     }

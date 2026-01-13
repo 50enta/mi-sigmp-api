@@ -10,7 +10,7 @@ class NipGenerator
     public static function generate(): string
     {
         $last = Pessoa::lockForUpdate()
-            ->orderBy('id', 'desc')
+            ->orderBy('created_at', 'desc')
             ->value('nip');
 
             $next = $last
