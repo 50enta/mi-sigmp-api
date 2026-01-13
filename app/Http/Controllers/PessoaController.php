@@ -180,17 +180,9 @@ class PessoaController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create(pessoaRequest $request)
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
-    public function store(pessoaRequest $request)
+    public function store(PessoaRequest $request)
     {
         try {
             $pessoa = Pessoa::create($request->all());

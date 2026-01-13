@@ -5,9 +5,8 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Http\Request;
 
-class pessoaRequest extends FormRequest
+class PessoaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -17,38 +16,85 @@ class pessoaRequest extends FormRequest
         return true;
     }
 
-    public function failedValidation(Validator $validator)
-    {
-        throw new HttpResponseException(response()->json([
-            "validation" => true,
-            'warning' => $validator->errors()
-        ])->toResponse($this->container->make(Request::class)));
-    }
-
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            'activo' => 'required|boolean',
-            'nip' => 'required|string|unique:pessoas,nip',
-            'nomeCompleto' => 'required|string|max:255',
-            'nomeMae' => 'nullable|string|max:255',
-            'nomePai' => 'nullable|string|max:255',
-            'dataNasc' => 'required|date',
-            'nuit' => 'required|string|max:20',
-            'estadoCivil' => 'nullable|in:Solteiro,Casado,Divorciado,Viuvo',
-            'grupoSangue' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
-            'distrito' => 'required|string|max:255',
-            'provincia' => 'required|in:Maputo Cidade,Maputo Provincia,Gaza,Inhambane,Sofala,Manica,Zambezia,Nampula,Tete,Cabo Delgado,Niassa',
-            'residencia' => 'nullable|string|max:255',
-            'genero' => 'required|in:Masculino,Feminino',
-            'BI' => 'required|string|max:50',
-            'altura' => 'nullable|numeric|min:0|max:3',
-            'linguas' => 'nullable|string',
+            'info.nomeCompleto' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    $names = preg_split('/\s+/', trim($value));
+
+                    if (count($names) < 2) {
+                        $fail('O nome completo deve conter pelo menos dois nomes.');
+                    }
+                },
+            ],
+            'info.nomeMae' => 'nullable|string|max:255',
+            'info.nomePai' => 'nullable|string|max:255',
+            'info.dataNasc' => 'required|date',
+            'info.nuit' => 'required|string|max:20',
+            'info.estadoCivil' => 'nullable|in:Solteiro,Casado,Divorciado,Viuvo',
+            'info.grupoSangue' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+            'info.distrito' => 'required|string|max:255',
+            'info.provincia' => 'required|in:Maputo Cidade,Maputo Provincia,Gaza,Inhambane,Sofala,Manica,Zambezia,Nampula,Tete,Cabo Delgado,Niassa',
+            'info.residencia' => 'nullable|string|max:255',
+            'info.genero' => 'required|in:Masculino,Feminino',
+            'info.BI' => 'required|string|max:50',
+            'info.altura' => 'nullable|numeric|min:0|max:3',
+            'info.linguas' => 'nullable|string',
         ];
+    }
+
+    /**
+     * Mensagens de erro personalizadas
+     */
+    public function messages(): array
+    {
+        return [
+            'info.nomeCompleto.required' => 'O nome completo deve ter pelo menos 2 nomes.',
+            'info.nomeCompleto.max' => 'O nome completo não pode exceder 255 caracteres.',
+
+            'info.dataNasc.required' => 'A data de nascimento é obrigatória.',
+            'info.dataNasc.date' => 'A data de nascimento deve ser uma data válida.',
+
+            'info.nuit.required' => 'O NUIT é obrigatório.',
+            'info.nuit.max' => 'O NUIT não pode exceder 20 caracteres.',
+
+            'info.estadoCivil.in' => 'O estado civil deve ser Solteiro, Casado, Divorciado ou Viúvo.',
+
+            'info.grupoSangue.in' => 'O grupo sanguíneo informado é inválido.',
+
+            'info.distrito.required' => 'O distrito é obrigatório.',
+
+            'info.provincia.required' => 'A província é obrigatória.',
+            'provincia.in' => 'A província informada é inválida.',
+
+            'info.genero.required' => 'O género é obrigatório.',
+            'info.genero.in' => 'O género deve ser Masculino ou Feminino.',
+
+            'info.BI.required' => 'O número do BI é obrigatório.',
+            'info.BI.max' => 'O número do BI não pode exceder 50 caracteres.',
+
+            'info.altura.numeric' => 'A altura deve ser um número.',
+            'info.altura.min' => 'A altura não pode ser inferior a 0.',
+            'info.altura.max' => 'A altura não pode ser superior a 3 metros.',
+        ];
+    }
+
+    /**
+     * Resposta personalizada para erro de validação (API)
+     */
+    protected function failedValidation(Validator $validator): void
+    {
+        throw new HttpResponseException(response()->json([
+            'success' => false,
+            'message' => 'Erro de validação',
+            'errors' => $validator->errors(),
+        ], 422));
     }
 }

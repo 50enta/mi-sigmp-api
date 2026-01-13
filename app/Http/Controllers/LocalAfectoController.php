@@ -34,7 +34,7 @@ class LocalAfectoController extends Controller
     {
 
         try {
-            LocalAfecto::create($request->validated());
+            $afeto = LocalAfecto::create($request->validated());
 
             return response()->json(['success' => true], 201);
         } catch (\Throwable $th) {
