@@ -185,7 +185,10 @@ class PessoaController extends Controller
     public function store(PessoaRequest $request)
     {
         try {
-            $pessoa = Pessoa::create($request->all());
+            $data = $request->input('info');
+            $data['nip'] = NipGenerator::generate();
+
+            $pessoa = Pessoa::create($data);
 
             return response(['pessoa' => $pessoa], 201);
         } catch (\Throwable $th) {
