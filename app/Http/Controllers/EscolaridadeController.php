@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Requests\escolaidadeRequest;
-use App\Http\Requests\Requests\StoreFormacaoRequest as RequestsStoreFormacaoRequest;
 use App\Http\Requests\StoreFormacaoRequest;
 use App\Models\Escolaridade;
 use Illuminate\Http\Request;
@@ -104,7 +102,14 @@ class EscolaridadeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id) {}
+    public function update(StoreFormacaoRequest $request, $id)
+    {
+        $escolaridade = Escolaridade::findOrFail($id);
+
+        $escolaridade->update($request->validated());
+
+        return response()->json($escolaridade, 200);
+    }
 
     /**
      * Remove the specified resource from storage.

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EscolaridadeController;
 use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\CategoriaEspecialidadeController;
+use App\Http\Controllers\LocalAfectoController;
 
 route::post('login', sessionController::class . '@login');
 
@@ -25,9 +26,10 @@ Route::prefix('pessoas')->group(function () {
 
 Route::get('/dashboard-data', [PessoaController::class, 'getDashData']);
 
+//Police registration
 Route::post('/saveCatAndEsp', [CategoriaEspecialidadeController::class, 'saveCatAndEsp']);
 Route::get('/getCatEspHistory', [CategoriaEspecialidadeController::class, 'getCatEspHistory']);
-
-Route::post('/saveEscolaridade', [EscolaridadeController::class, 'saveEscolaridade']);
+Route::post('/escolaridades', [EscolaridadeController::class, 'saveEscolaridade']);
+Route::post('/locaisAfectos', [LocalAfectoController::class, 'store']);    
 
 //});

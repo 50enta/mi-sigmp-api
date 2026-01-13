@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Requests\pessoaRequest;
+use App\Http\Requests\pessoaRequest;
 use App\Models\Pessoa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -190,7 +190,7 @@ class PessoaController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(pessoaRequest $request)
     {
         try {
             $pessoa = Pessoa::create($request->all());
@@ -240,14 +240,14 @@ class PessoaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(pessoaRequest $request, $id)
     {
         $pessoa = Pessoa::findOrFail($id);
 
         $validation = Validator::make($request->all(), [
             'activo' => 'required|boolean',
             'aprovado' => 'required|integer',
-            'nip' => 'required|string|unique:pessoas,nip',
+            'nip' => 'required|string|unique:pessoas,nip,' . $id,
             'isGerivel' => 'required|boolean',
             'nomeCompleto' => 'required|string|max:255',
             'nomeMae' => 'nullable|string|max:255',

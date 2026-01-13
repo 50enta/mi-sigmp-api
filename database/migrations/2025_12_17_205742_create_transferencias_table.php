@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('local_origem')->nullable();
             $table->enum('regime', ['Pedido', 'Permuta'])->nullable();
             $table->string('permutador')->nullable();
-            $table->timestamps();
             $table->softDeletes();
             $table->timestamps();
         });

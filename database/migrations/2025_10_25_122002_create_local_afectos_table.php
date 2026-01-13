@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('local_id');
             $table->uuid('pessoa_id');
+            $table->enum('cargo', ['Chefe do posto', 'Motorista', 'Outro'])->nullable();
             $table->uuid('transferencia_id')->nullable();
             $table->string('despacho')->nullable();
             $table->boolean('isTransferencia')->default(false);
