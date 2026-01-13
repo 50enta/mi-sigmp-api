@@ -11,6 +11,16 @@ class CategoriaEspecialidadeController extends Controller
     function saveCatAndEsp(StoreEspecialidadeCategoriaRequest $request)
     {
         try {
+            if ($request->file('especialidade.despachoEsp')) {
+                $filename = time() . '_' . $request->file('especialidade.despachoEsp')->getClientOriginalName();
+                $request->file('especialidade.despachoEsp')->move(public_path('uploads'), $filename);
+            }
+
+              if ($request->file('categoria.despachoEsp')) {
+                $catFileName = time() . '_' . $request->file('categoria.despachoEsp')->getClientOriginalName();
+                $request->file('categoria.despachoEsp')->move(public_path('uploads'), $filename);
+            }
+            
             dd($request['especialidade']);
 
             $especialidade = DB::table('especialidade_pessoas') // substitua pelo nome real da sua tabela
@@ -20,7 +30,7 @@ class CategoriaEspecialidadeController extends Controller
                     'dataInicio'  => $request['especialidade']['dataInicio'],
                     'dataFim'     => $request['especialidade']['dataFim'],
                     'dataFim'     => $request['especialidade']['observacoesEsp'],
-                    'despacho' => ''
+                    'despacho' => $filename
                 ]);
 
             $categoria = DB::table('categoria_policias')
@@ -29,8 +39,8 @@ class CategoriaEspecialidadeController extends Controller
                     'categoria_id'  => $request['categoria']['categoria'],
                     'dataInicio'  => $request['categoria']['dataInicio'],
                     'dataFim'     => $request['categoria']['dataFim'],
-                    'dataFim'     => $request['especialidade']['observacoesCat'],
-                    'despacho' => ''
+                    'observacoesCat'     => $request['categoria']['observacoesCat'],
+                    'despacho' => $catFileName
                 ]);
 
             return response()->json(['success' => true], 201);

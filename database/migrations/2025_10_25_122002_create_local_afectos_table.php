@@ -17,14 +17,16 @@ return new class extends Migration
             $table->uuid('pessoa_id');
             $table->uuid('transferencia_id')->nullable();
             $table->string('despacho')->nullable();
+            $table->boolean('isTransferencia')->default(false);
+            $table->text('observacoes')->nullable();
+            $table->text('departamento')->nullable();
             $table->date('dataInicio')->nullable();
             $table->date('dataFim')->nullable();
-            $table->boolean('isTransferencia')->default(false);
+
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('local_id')->references('id')->on('locals')->onDelete('cascade');
             $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
-    
         });
     }
 

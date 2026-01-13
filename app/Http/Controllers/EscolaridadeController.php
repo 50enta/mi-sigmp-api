@@ -30,56 +30,55 @@ class EscolaridadeController extends Controller
         return response()->json(['escolaridades' => $registros], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreFormacaoRequest $request)
+
+    public function saveEscolaridade(StoreFormacaoRequest $request)
     {
         try {
-            $fileName = /*time() . '_' .  $request->file('certificadoFormacaoAcademica')->getClientOriginalName()*/ 'The filee';
+            if ($request->file('formacoesComplementares.certificadoComplementar')) {
+                $filename = time() . '_' . $request->file('formacoesComplementares.certificadoComplementar')->getClientOriginalName();
+                $request->file('formacoesComplementares.certificadoComplementar')->move(public_path('uploads'), $filename);
+            }
 
-            // if ($request->file('certificadoFormacaoAcademica')) {
-            //     $filename = time() . '_' . $file->getClientOriginalName();
-            //     $file->move(public_path('uploads'), $filename);
-            // }
-
-            $updateData = $request->except(['formacaoAcademica.certificadoFormacaoAcademica']);
-            dd($updateData['formacaoAcademica']['nivel']);
+            if ($request->file('formacoesComplementares.certificadoComplementar')) {
+                $filename = time() . '_' . $request->file('formacoesComplementares.certificadoComplementar')->getClientOriginalName();
+                $request->file('formacoesComplementares.certificadoComplementar')->move(public_path('uploads'), $filename);
+            }
 
             $formacaoAcademica = DB::table('escolaridades') // substitua pelo nome real da sua tabela
                 ->insert([
-                    'pessoa_id' => $updateData['formacaoAcademica']['pessoa_id'],
-                    'nivel'       => $updateData['formacaoAcademica']['nivel'],
-                    'instituicao' => $updateData['formacaoAcademica']['instituicao'],
-                    'curso'       => $updateData['formacaoAcademica']['curso'],
-                    'dataInicio'  => $updateData['formacaoAcademica']['dataInicio'],
-                    'dataFim'     => $updateData['formacaoAcademica']['dataFim'],
-                    'certificado' => 'fileName',
+                    'pessoa_id' =>$request['formacaoAcademica']['pessoa_id'],
+                    'nivel'       =>$request['formacaoAcademica']['nivel'],
+                    'instituicao' =>$request['formacaoAcademica']['instituicao'],
+                    'curso'       =>$request['formacaoAcademica']['curso'],
+                    'dataInicio'  =>$request['formacaoAcademica']['dataInicio'],
+                    'dataFim'     =>$request['formacaoAcademica']['dataFim'],
+                    'certificado' => $filename,
                 ]);
 
             $formacaoPolicial = DB::table('formacaoPolicial')
                 ->insert([
-                    'pessoa_id' => $updateData['formacaoPolicia']['pessoa_id'],
-                    'academiaPolicial' => $updateData['formacaoPolicia']['academiaPolicial'],
-                    'dataInicio' => $updateData['formacaoPolicia']['dataInicio'],
-                    'curso'       => $updateData['formacaoPolicia']['curso'],
-                    'dataFim'     => $updateData['formacaoPolicia']['dataFim'],
+                    'pessoa_id' =>$request['formacaoPolicia']['pessoa_id'],
+                    'basico' =>$request['formacaoPolicia']['basico'],
+                    'dataConclusaoBasico' =>$request['formacaoPolicia']['dataConclusaoBasico'],
+                    'medio' =>$request['formacaoPolicia']['medio'],
+                    'dataConclusaoMedio' =>$request['formacaoPolicia']['dataConclusaoMedio'],
+                    'superior' =>$request['formacaoPolicia']['superior'],
+                    'dataConclusaoSuperior' =>$request['formacaoPolicia']['dataConclusaoSuperior'],
                 ]);
 
             if (isset($updateData['formacoesComplementares'])) {
 
                 $formacoesComplementares = DB::table('formacoesComplementares')
                     ->insert([
-                        'pessoa_id' => $updateData['formacoesComplementares']['pessoa_id'],
-                        'cursoComplementar' => $updateData['formacoesComplementares']['cursoComplementar'],
-                        'instituicao' => $updateData['formacoesComplementares']['instituicao'],
-                        'anoConlusao'       => $updateData['formacoesComplementares']['anoConlusao'],
-                        'certificado'     => $updateData['formacoesComplementares']['certificado'],
+                        'pessoa_id' =>$request['formacoesComplementares']['pessoa_id'],
+                        'cursoComplementar' =>$request['formacoesComplementares']['cursoComplementar'],
+                        'instituicao' =>$request['formacoesComplementares']['instituicao'],
+                        'anoConlusao'       =>$request['formacoesComplementares']['anoConlusao'],
+                        'certificado'     =>$request['formacoesComplementares']['certificadoComplementar'],
                     ]);
             }
 
             return response()->json(['success' => true], 201);
-
         } catch (\Throwable $th) {
             throw $th;
         }
