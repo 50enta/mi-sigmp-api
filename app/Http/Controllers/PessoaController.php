@@ -13,7 +13,11 @@ class PessoaController extends Controller
     function getByEstado($year, $previousYear)
     {
         try {
-            return DB::table('pessoas')
+            $uncomplete = DB::table('pessoas')
+                ->where('stepFinished', '<', 4)
+                ->count();
+
+            $byStatus = DB::table('pessoas')
                 ->join('situacao_pessoas as sp', 'sp.pessoa_id', '=', 'pessoas.id')
                 ->whereNull('pessoas.deleted_at')
                 ->whereNull('sp.deleted_at')
@@ -30,6 +34,13 @@ class PessoaController extends Controller
                         : null;
                     return $item;
                 });
+
+            $byStatus[] = (object)[
+                'situacao' => 'Incompleto',
+                'total' => $uncomplete,
+            ];
+
+            return $byStatus;
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -117,6 +128,7 @@ class PessoaController extends Controller
      */
     public function index(Request $request)
     {
+        // return response()->json($this->getByEstado(2025, 2024));
         $pageSize = $request->input('pageSize', 10);
         $page = $request->input('page', 1);
         $paging = filter_var($request->input('paging', true), FILTER_VALIDATE_BOOLEAN);
@@ -205,11 +217,12 @@ class PessoaController extends Controller
         try {
             $pessoa = Pessoa::query()
                 ->select(
+                    'curso_policias.*',
                     'pessoas.*',
+                    'pessoas.id as pessoa_id',
                     'situacao_pessoas.situacao',
                     'categoria_policias.categoria_id',
-                    'especialidade_pessoas.especialidade_id',
-                    'curso_policias.*'
+                    'especialidade_pessoas.especialidade_id'
                 )
                 ->where('pessoas.id', $id)
                 ->leftJoin('especialidade_pessoas', 'especialidade_pessoas.pessoa_id', '=', 'pessoas.id')
@@ -236,39 +249,6 @@ class PessoaController extends Controller
         }
     }
 
-    public function update(pessoaRequest $request, $id)
-    {
-        $pessoa = Pessoa::findOrFail($id);
-
-        $validation = Validator::make($request->all(), [
-            'activo' => 'required|boolean',
-            'aprovado' => 'required|integer',
-            'nip' => 'required|string|unique:pessoas,nip,' . $id,
-            'isGerivel' => 'required|boolean',
-            'nomeCompleto' => 'required|string|max:255',
-            'nomeMae' => 'nullable|string|max:255',
-            'nomePai' => 'nullable|string|max:255',
-            'dataNasc' => 'nullable|date',
-            'nuit' => 'nullable|string|max:20',
-            'estadoCivil' => 'nullable|in:solteiro,casado,divorciado,viuvo',
-            'grupoSangue' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
-            'distrito' => 'nullable|string|max:255',
-            'provincia' => 'nullable|in:Maputo Cidade,Maputo Provincia,Gaza,Inhambane,Sofala,Manica,Zambezia,Nampula,Tete,Cabo Delgado,Niassa',
-            'residencia' => 'nullable|string|max:255',
-            'genero' => 'nullable|in:Masculino,Feminino,Outro',
-            'BI' => 'nullable|string|max:50',
-            'altura' => 'nullable|numeric|min:0|max:3',
-            'linguas' => 'nullable|string',
-        ]);
-
-        if ($validation->fails()) {
-            return response()->json(['message' => 'Erro ao actualizar pessoa', 'errors' => $validation->errors()], 409);
-        }
-
-        $pessoa->update($validation->validated());
-
-        return response()->json(['message' => 'Pessoa actualizada com sucesso!', 'pessoa' => $pessoa], 200);
-    }
     /**
      * Remove the specified resource from storage.
      */    public function destroy($id)

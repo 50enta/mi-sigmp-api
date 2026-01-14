@@ -43,23 +43,6 @@ class LocalAfectoController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show($id)
-    {
-        $afeto = LocalAfecto::findOrFail($id);
-        return response()->json($afeto, 200);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(LocalAfecto $localAfecto)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(localAfetosRequest $request, $id)
