@@ -29,13 +29,13 @@ class StoreFormacaoRequest extends FormRequest
             'formacaoAcademica.instituicao' => 'required|string|max:255',
             'formacaoAcademica.dataInicio' => 'required|date', 
             'formacaoAcademica.dataFim' => 'nullable|date|after_or_equal:formacaoAcademica.dataInicio',
-            // 'pessoa_id' => 'required|uuid|exists:pessoas,id',
+            'formacaoAcademica.pessoa_id' => 'required|uuid|exists:pessoas,id',
 
             // Se o certificado for um upload de arquivo:
             // 'formacaoAcademica.certificadoFormacaoAcademica' => 'required|file|mimes:pdf,jpeg,png,jpg|max:10240', // 10MB máx
 
             // === Formação Policial ===
-            'formacaoPolicia.curso' => 'required|string|max:255',
+            // 'formacaoPolicia.curso' => 'required|string|max:255',
             // Adicione outros campos policiais se necessário, ex:
             // 'formacaoPolicia.instituicao' => 'required|string|max:255',
             // 'formacaoPolicia.dataConclusao' => 'required|date',
@@ -84,6 +84,7 @@ class StoreFormacaoRequest extends FormRequest
      */
     protected function failedValidation(Validator $validator): void
     {
+        dd($validator);
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Erro de validação',

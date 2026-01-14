@@ -34,6 +34,7 @@ class Pessoa extends Model
         'BI',
         'altura',
         'linguas',
+        'stepFinished',
     ];
 
 

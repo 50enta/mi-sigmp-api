@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('BI')->nullable();
             $table->decimal('altura', 5, 2)->nullable();
             $table->text('linguas')->nullable();
+            $table->integer('stepFinished')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });

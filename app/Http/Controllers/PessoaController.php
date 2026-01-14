@@ -225,17 +225,17 @@ class PessoaController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Pessoa $pessoa)
+    public function updateStep($step, $id)
     {
-        //
+        try {
+            $pessoa = Pessoa::findOrFail($id);
+            $pessoa->stepFinished = $step;
+            $pessoa->save();
+        } catch (\Throwable $th) {
+            return response(['error' => 'Error inesperado'], 500);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(pessoaRequest $request, $id)
     {
         $pessoa = Pessoa::findOrFail($id);
