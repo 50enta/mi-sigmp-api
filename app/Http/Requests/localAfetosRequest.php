@@ -22,9 +22,9 @@ class localAfetosRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'dataInicio' => 'required|date',
-            'local_id' => 'required|uuid|exists:locals,id',
-            'pessoa_id' => 'required|exists:pessoas,id',
+            'localEfuncoes.dataInicio' => 'required|date',
+            'localEfuncoes.local_id' => 'required|uuid|exists:locals,id',
+            'localEfuncoes.pessoa_id' => 'required|exists:pessoas,id',
         ];
     }
 
@@ -34,9 +34,9 @@ class localAfetosRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'pessoa_id.required' => 'A pessoa é obrigatória.',
-            'local_id.required' => 'O local é obrigatório.',
-            'dataInicio.required' => 'A data de início é obrigatória.',
+            'localEfuncoes.pessoa_id.required' => 'A pessoa é obrigatória.',
+            'localEfuncoes.local_id.required' => 'O local é obrigatório.',
+            'localEfuncoes.dataInicio.required' => 'A data de início é obrigatória.',
         ];
     }
 

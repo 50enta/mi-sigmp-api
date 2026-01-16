@@ -49,8 +49,7 @@ class CategoriaEspecialidadeController extends Controller
 
             return response()->json(['success' => true], 201);
         } catch (\Throwable $th) {
-            dd($th);
-            //throw $th;
+                       return response(['error' => 'Error inesperado'], 500);
         }
     }
 

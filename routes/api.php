@@ -6,6 +6,7 @@ use App\Http\Controllers\EscolaridadeController;
 use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\CategoriaEspecialidadeController;
 use App\Http\Controllers\LocalAfectoController;
+use App\Http\Controllers\LocalController;
 
 route::post('login', sessionController::class . '@login');
 
@@ -31,5 +32,9 @@ Route::post('/saveCatAndEsp', [CategoriaEspecialidadeController::class, 'saveCat
 Route::get('/getCatEspHistory', [CategoriaEspecialidadeController::class, 'getCatEspHistory']);
 Route::post('/escolaridades', [EscolaridadeController::class, 'saveEscolaridade']);
 Route::post('/locaisAfectos', [LocalAfectoController::class, 'store']);    
+
+
+Route::get('/locais', [LocalController::class, 'index']);    
+Route::get('/locaisAfectos', [LocalAfectoController::class, 'index']);    
 
 //});

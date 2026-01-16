@@ -11,19 +11,15 @@ class LocalController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $pageSize = $request->input('pageSize', 10);
-        $page = $request->input('page', 1);
-        $paging = filter_var($request->input('paging', true), FILTER_VALIDATE_BOOLEAN);
-
-        $query = Local::query();
-
-        $locais = $paging
-            ? $query->paginate($pageSize, ['*'], 'page', $page)
-            : $query->simplePaginate($pageSize, ['*'], 'page', $page);
-
-        return response()->json(['locais' => $locais], 200);
+        try {
+            $locais = Local::all();
+            
+            return response()->json(['locais' => $locais], 200);
+        } catch (\Throwable $th) {
+            return response(['error' => 'Error inesperado'], 500);
+        }
     }
 
     /**

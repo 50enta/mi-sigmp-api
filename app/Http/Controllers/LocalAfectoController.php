@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\localAfetosRequest;
 use App\Models\LocalAfecto;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class LocalAfectoController extends Controller
 {
@@ -14,17 +14,18 @@ class LocalAfectoController extends Controller
      */
     public function index(Request $request)
     {
-        $pageSize = $request->input('pageSize', 10);
-        $page = $request->input('page', 1);
-        $paging = filter_var($request->input('paging', true), FILTER_VALIDATE_BOOLEAN);
+        try {
+            $locais = DB::table('local_afectos')
+                ->join('locals', 'local_afectos.local_id', '=', 'locals.id')
+                ->where('pessoa_id', $request->query('pessoa_id'))
+                ->select('*')
+                ->get();
 
-        $query = LocalAfecto::query();
+            return response()->json(['locais' => $locais], 200);
+        } catch (\Throwable $th) {
 
-        $afetos = $paging
-            ? $query->paginate($pageSize, ['*'], 'page', $page)
-            : $query->simplePaginate($pageSize, ['*'], 'page', $page);
-
-        return response()->json(['local_afetos' => $afetos], 200);
+            return response()->json(['error' => 'Error inesperado'], 500);
+        }
     }
 
     /**
@@ -34,43 +35,16 @@ class LocalAfectoController extends Controller
     {
 
         try {
-            $afeto = LocalAfecto::create($request->validated());
+            $data = $request->input('localEfuncoes');
+            LocalAfecto::create($data);
+
+            $pessoa = new PessoaController();
+            $pessoa->updateStep(3, $request['especialidade']['pessoa_id']);
 
             return response()->json(['success' => true], 201);
         } catch (\Throwable $th) {
-            throw $th;
+            return response()->json(['error' => 'Error inesperado'], 500);
         }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(localAfetosRequest $request, $id)
-    {
-        $afeto = LocalAfecto::findOrFail($id);
-
-        $validation = Validator::make($request->all(), [
-            'local_id' => 'required|uuid|exists:locais,id',
-            'pessoa_id' => 'required|uuid|exists:pessoas,id',
-            'despacho' => 'nullable|string',
-            'dataInicio' => 'nullable|date',
-            'dataFim' => 'nullable|date',
-            'isTransferencia' => 'required|boolean',
-            'transferidor_id' => 'nullable|uuid',
-            'aprovador' => 'nullable|string',
-            'aprovado' => 'nullable|integer',
-            'local_origem' => 'nullable|string',
-            'regime' => 'nullable|in:Pedido,Permuta',
-            'permutador' => 'nullable|string',
-        ]);
-
-        if ($validation->fails()) {
-            return response()->json(['message' => 'Erro ao actualizar afectação', 'errors' => $validation->errors()], 409);
-        }
-
-        $afeto->update($validation->validated());
-
-        return response()->json(['message' => 'Afectação actualizada com sucesso!', 'local_afeto' => $afeto], 200);
     }
 
     /**
