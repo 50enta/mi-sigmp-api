@@ -28,8 +28,8 @@ class CategoriaEspecialidadeController extends Controller
                     'pessoa_id' => $request['especialidade']['pessoa_id'],
                     'especialidade_id'  => $request['especialidade']['especialidade'],
                     'dataInicio'  => $request['especialidade']['dataNomeacaoEsp'],
-                    // 'dataFim'     => $request['especialidade']['dataFim'],
-                    'obs'     => $request['especialidade']['observacoesEsp'],
+                    'dataFim'     => isset($request['especialidade']['dataFim']) ? $request['especialidade']['dataFim'] : null,
+                    'obs'     => isset($request['especialidade']['observacoesEsp']) ? $request['especialidade']['observacoesEsp'] : null,
                     'despacho' => $filename ?? null
                 ]);
 
@@ -39,8 +39,8 @@ class CategoriaEspecialidadeController extends Controller
                     'pessoa_id' => $request['categoria']['pessoa_id'],
                     'categoria_id'  => $request['categoria']['categoria'],
                     'dataInicio'  => $request['categoria']['dataNomeacaoCat'],
-                    // 'dataFim'     => $request['categoria']['dataFim'],
-                    'obs'     => $request['categoria']['observacoesCat'],
+                    'obs'     => isset($request['categoria']['observacoesCat']) ? $request['categoria']['observacoesCat'] : null,
+                    'dataFim'     => isset($request['categoria']['dataFim']) ? $request['categoria']['dataFim'] : null,
                     'despacho' => $catFileName ?? null
                 ]);
 
@@ -49,7 +49,7 @@ class CategoriaEspecialidadeController extends Controller
 
             return response()->json(['success' => true], 201);
         } catch (\Throwable $th) {
-                       return response(['error' => 'Error inesperado'], 500);
+            return response(['error' => 'Error inesperado' . $th], 500);
         }
     }
 

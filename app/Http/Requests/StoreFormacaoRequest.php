@@ -24,12 +24,12 @@ class StoreFormacaoRequest extends FormRequest
     {
         return [
             // === Formação Acadêmica ===
-            'formacaoAcademica.nivel' => 'required|string|in:basico,medio,superior,pos_graduacao,mestrado,doutorado',
-            'formacaoAcademica.curso' => 'required|string|max:255',
-            'formacaoAcademica.instituicao' => 'required|string|max:255',
-            'formacaoAcademica.dataInicio' => 'required|date', 
-            'formacaoAcademica.dataFim' => 'nullable|date|after_or_equal:formacaoAcademica.dataInicio',
-            'formacaoAcademica.pessoa_id' => 'required|exists:pessoas,id',
+            // 'formacaoAcademica.nivel' => 'required|string',
+            // 'formacaoAcademica.curso' => 'required|string|max:255',
+            // 'formacaoAcademica.instituicao' => 'required|string|max:255',
+            // 'formacaoAcademica.dataInicio' => 'required|date', 
+            // 'formacaoAcademica.dataFim' => 'nullable|date|after_or_equal:formacaoAcademica.dataInicio',
+            // 'formacaoAcademica.pessoa_id' => 'required|exists:pessoas,id',
 
             // Se o certificado for um upload de arquivo:
             // 'formacaoAcademica.certificadoFormacaoAcademica' => 'required|file|mimes:pdf,jpeg,png,jpg|max:10240', // 10MB máx
@@ -84,7 +84,6 @@ class StoreFormacaoRequest extends FormRequest
      */
     protected function failedValidation(Validator $validator): void
     {
-        dd($validator);
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Erro de validação',

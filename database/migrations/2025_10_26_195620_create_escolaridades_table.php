@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('escolaridades', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->enum('nivel', ['Elementar', 'Basico', 'Medio', 'Licenciatura', 'Mestrado', 'Doutorado','Outro'])->nullable();
+            $table->enum('nivel', ['Elementar', 'Basico', 'Medio', 'Licenciatura', 'Mestrado', 'Doutorado','Catedratico','Outro'])->nullable();
             $table->string('instituicao')->nullable();
             $table->string('curso')->nullable();
             $table->date('dataInicio')->nullable();
             $table->date('dataFim')->nullable();
-            $table->date('certificado')->nullable();
+            $table->string('certificado')->nullable();
             $table->uuid('pessoa_id');
             $table->timestamps();
             $table->softDeletes();

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('cursoComplementar');
             $table->string('instituicao');
             $table->string('anoConlusao');
-            $table->string('certificado');
+            $table->string('certificado')->nullable();
             $table->timestamps();
             $table->softDeletes();
             $table->uuid('pessoa_id');

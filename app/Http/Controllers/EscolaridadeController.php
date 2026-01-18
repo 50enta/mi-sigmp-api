@@ -20,11 +20,11 @@ class EscolaridadeController extends Controller
                 $request->file('formacoesComplementares.certificadoComplementar')->move(public_path('uploads'), $filename);
             }
 
-            if ($request->file('formacoesComplementares.certificado')) {
-                $certificado = time() . 'certi' . $request->file('formacoesComplementares.certificado')->getClientOriginalName();
-                $request->file('formacoesComplementares.certificado')->move(public_path('uploads'), $certificado);
+            if ($request->file('formacaoAcademica.certificado')) {
+                $certificado = time() . 'certi' . $request->file('formacaoAcademica.certificado')->getClientOriginalName();
+                $request->file('formacaoAcademica.certificado')->move(public_path('uploads'), $certificado);
             }
-
+            
             $formacaoAcademica = DB::table('escolaridades') // substitua pelo nome real da sua tabela
                 ->insertGetId([
                     'id' => (string) Str::uuid(),
@@ -77,16 +77,15 @@ class EscolaridadeController extends Controller
                     ]);
             }
 
-            if (isset($updateData['formacoesComplementares'])) {
-
+            if (isset($request['formacoesComplementares']['cursoComplementar'])) {
                 $formacoesComplementares = DB::table('formacoesComplementares')
                     ->insertGetId([
                         'id' => (string) Str::uuid(),
                         'pessoa_id' => $request['formacoesComplementares']['pessoa_id'],
-                        'cursoComplementar' => $request['formacoesComplementares']['cursoComplementar'],
-                        'instituicao' => $request['formacoesComplementares']['instituicao'],
-                        'anoConlusao' => $request['formacoesComplementares']['anoConlusao'],
-                        'certificado' => $filename ?? null
+                        'cursoComplementar' => isset($request['formacoesComplementares']['cursoComplementar']) ? $request['formacoesComplementares']['cursoComplementar'] : null,
+                        'instituicao' => $request['formacoesComplementares']['instituicaoComplementar'],
+                        'anoConlusao' => $request['formacoesComplementares']['anoConclusaoComplementar'],
+                        'certificado' => $filename ?? ''
                     ]);
             }
 
@@ -95,8 +94,7 @@ class EscolaridadeController extends Controller
 
             return response()->json(['success' => true], 201);
         } catch (\Throwable $th) {
-            dd($th);
-            throw $th;
+            return response()->json(['error' => 'Error inesperado'.$th], 500);
         }
     }
 
@@ -123,8 +121,7 @@ class EscolaridadeController extends Controller
 
             return response()->json(['fAcademica' => $fAcademica, 'fPolicial' => $fPolicial, 'fComplementares' => $fComplementares], 200);
         } catch (\Throwable $th) {
-            dd($th);
-            return response()->json(['error' => 'Error inesperado'], 500);
+            return response()->json(['error' => 'Error inesperado'.$th], 00);
         }
     }
 }
