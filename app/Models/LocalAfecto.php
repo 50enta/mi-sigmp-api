@@ -28,7 +28,7 @@ class LocalAfecto extends Model
         'aprovado',
         'local_origem',
         'regime',
-        'permutador',
+        'observacoes',
     ];
 
     protected static function boot()

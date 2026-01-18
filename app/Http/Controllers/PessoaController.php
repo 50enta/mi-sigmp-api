@@ -129,7 +129,7 @@ class PessoaController extends Controller
     public function index(Request $request)
     {
         // return response()->json($this->getByEstado(2025, 2024));
-        $pageSize = $request->input('pageSize', 10);
+        $pageSize = $request->input('per_page', 10);
         $page = $request->input('page', 1);
         $paging = filter_var($request->input('paging', true), FILTER_VALIDATE_BOOLEAN);
         $year = $request->input('year', now()->year);
@@ -199,8 +199,10 @@ class PessoaController extends Controller
         try {
             $data = $request->input('info');
             $data['nip'] = NipGenerator::generate();
-
             $pessoa = Pessoa::create($data);
+
+            $sitController= new SituacaoController();
+            $sitController->addDefaultStatus($pessoa->id);
 
             return response(['pessoa' => $pessoa], 201);
         } catch (\Throwable $th) {

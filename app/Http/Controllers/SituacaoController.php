@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Situacao;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class SituacaoController extends Controller
 {
@@ -54,53 +56,18 @@ class SituacaoController extends Controller
         return response()->json(['message' => 'Situação criada com sucesso!', 'situacao' => $situacao], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
+    public function addDefaultStatus($id)
     {
-        $situacao = Situacao::findOrFail($id);
-        return response()->json($situacao, 200);
-    }
+        try {
+            $data = [
+                'id' => (string) Str::uuid(),
+                'pessoa_id' => $id,
+            ];
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Situacao $situacao)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
-    {
-        $situacao = Situacao::findOrFail($id);
-
-        $validation = Validator::make($request->all(), [
-            'activo' => 'required|boolean',
-            'situacao' => 'required|in:suspenso,exonerado,expulso,morto,reservado,aposentado',
-            'obs' => 'nullable|string',
-        ]);
-
-        if ($validation->fails()) {
-            return response()->json(['message' => 'Erro ao actualizar situação', 'errors' => $validation->errors()], 409);
+            DB::table('situacao_pessoas')->insert($data);
+        } catch (\Throwable $th) {
+            dd($th);
+            return response(['error' => 'Error inesperado'], 500);
         }
-
-        $situacao->update($validation->validated());
-
-        return response()->json(['message' => 'Situação actualizada com sucesso!', 'situacao' => $situacao], 200);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
-    {
-        $situacao = Situacao::findOrFail($id);
-        $situacao->delete();
-
-        return response()->json(['message' => 'Situação eliminada com sucesso!'], 200);
     }
 }

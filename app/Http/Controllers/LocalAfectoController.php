@@ -39,7 +39,7 @@ class LocalAfectoController extends Controller
             LocalAfecto::create($data);
 
             $pessoa = new PessoaController();
-            $pessoa->updateStep(3, $request['especialidade']['pessoa_id']);
+            $pessoa->updateStep(4, $request['localEfuncoes']['pessoa_id']);
 
             return response()->json(['success' => true], 201);
         } catch (\Throwable $th) {
