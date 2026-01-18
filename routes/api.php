@@ -29,12 +29,13 @@ Route::get('/dashboard-data', [PessoaController::class, 'getDashData']);
 
 //Police registration
 Route::post('/saveCatAndEsp', [CategoriaEspecialidadeController::class, 'saveCatAndEsp']);
-Route::get('/getCatEspHistory', [CategoriaEspecialidadeController::class, 'getCatEspHistory']);
 Route::post('/escolaridades', [EscolaridadeController::class, 'saveEscolaridade']);
 Route::post('/locaisAfectos', [LocalAfectoController::class, 'store']);    
 
 
+Route::get('/getCatEspHistory', [CategoriaEspecialidadeController::class, 'getCatEspHistory']);
 Route::get('/locais', [LocalController::class, 'index']);    
 Route::get('/locaisAfectos', [LocalAfectoController::class, 'index']);    
+Route::get('/escolaridades', [EscolaridadeController::class, 'index']);    
 
 //});

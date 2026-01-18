@@ -17,6 +17,7 @@ class LocalAfectoController extends Controller
         try {
             $locais = DB::table('local_afectos')
                 ->join('locals', 'local_afectos.local_id', '=', 'locals.id')
+                ->orderBy('local_afectos.dataInicio', 'desc')
                 ->where('pessoa_id', $request->query('pessoa_id'))
                 ->select('*')
                 ->get();

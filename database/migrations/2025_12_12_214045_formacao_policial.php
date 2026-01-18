@@ -13,14 +13,10 @@ return new class extends Migration
     {
         Schema::create('formacaoPolicial', function (Blueprint $table) {
             $table->uuid('id')->primary();
-
-            $table->enum('basico', ['matalane', 'macandzene'])->nullable();
-            $table->date('dataConclusaoBasico')->nullable();
-            $table->enum('medio', ['esapol'])->nullable();
-            $table->date('dataConclusaoMedio')->nullable();
-            $table->enum('superior', ['acipol'])->nullable();
-            $table->date('dataConclusaoSuperior')->nullable();
-
+            $table->enum('instituicao', ['matalane', 'macandzene', 'esapol', 'acipol'])->nullable();
+            $table->string('curso')->nullable();
+            $table->date('dataConclusao')->nullable();
+            $table->date('dataInicio');
             $table->timestamps();
             $table->softDeletes();
             $table->uuid('pessoa_id');

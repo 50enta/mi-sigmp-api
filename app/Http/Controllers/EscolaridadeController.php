@@ -11,24 +11,6 @@ use Illuminate\Support\Str;
 
 class EscolaridadeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
-    {
-        $pageSize = $request->input('pageSize', 10);
-        $page = $request->input('page', 1);
-        $paging = filter_var($request->input('paging', true), FILTER_VALIDATE_BOOLEAN);
-
-        $query = Escolaridade::query();
-
-        $registros = $paging
-            ? $query->paginate($pageSize, ['*'], 'page', $page)
-            : $query->simplePaginate($pageSize, ['*'], 'page', $page);
-
-        return response()->json(['escolaridades' => $registros], 200);
-    }
-
 
     public function saveEscolaridade(StoreFormacaoRequest $request)
     {
@@ -51,21 +33,49 @@ class EscolaridadeController extends Controller
                     'instituicao' => $request['formacaoAcademica']['instituicao'],
                     'curso'       => $request['formacaoAcademica']['curso'],
                     'dataInicio'  => $request['formacaoAcademica']['dataInicio'],
-                    'dataFim'     => $request['formacaoAcademica']['dataFim'],
+                    'dataFim'     => isset($request['formacaoAcademica']['dataFim']) ? $request['formacaoAcademica']['dataFim'] : null,
                     'certificado' => $certificado ?? null,
                 ]);
 
-            $formacaoPolicial = DB::table('formacaoPolicial')
-                ->insertGetId([
-                    'id' => (string) Str::uuid(),
-                    'pessoa_id' => $request['formacaoPolicia']['pessoa_id'],
-                    'basico' => isset($request['formacaoPolicia']['basico']) ? $request['formacaoPolicia']['basico'] : null,
-                    'dataConclusaoBasico' => isset($request['formacaoPolicia']['dataConclusaoBasico']) ? $request['formacaoPolicia']['dataConclusaoBasico'] : null,
-                    'medio' => isset($request['formacaoPolicia']['medio']) ? $request['formacaoPolicia']['medio'] : null,
-                    'dataConclusaoMedio' => isset($request['formacaoPolicia']['dataConclusaoMedio']) ? $request['formacaoPolicia']['dataConclusaoMedio'] : null,
-                    'superior' => isset($request['formacaoPolicia']['superior']) ? $request['formacaoPolicia']['superior'] : null,
-                    'dataConclusaoSuperior' => isset($request['formacaoPolicia']['dataConclusaoSuperior']) ? $request['formacaoPolicia']['dataConclusaoSuperior'] : null,
-                ]);
+            //save nivel basico, matalane
+            if (isset($request['formacaoPolicia']['basico'])) {
+                $formacaoPolicialBasico = DB::table('formacaoPolicial')
+                    ->insertGetId([
+                        'id' => (string) Str::uuid(),
+                        'pessoa_id' => $request['formacaoPolicia']['pessoa_id'],
+                        'instituicao' => $request['formacaoPolicia']['basico'],
+                        'curso' => isset($request['formacaoPolicia']['cursoBasico']['curso']) ? $request['formacaoPolicia']['cursoBasico']['curso'] : null,
+                        'dataInicio' => $request['formacaoPolicia']['dataInicioBasico'],
+                        'dataConclusao' => isset($request['formacaoPolicia']['dataConclusaoBasico']) ? $request['formacaoPolicia']['dataConclusaoBasico'] : null,
+                    ]);
+            }
+
+
+            //save nivel medio, esapol
+            if (isset($request['formacaoPolicia']['medio'])) {
+                $formacaoPolicialMedio = DB::table('formacaoPolicial')
+                    ->insertGetId([
+                        'id' => (string) Str::uuid(),
+                        'pessoa_id' => $request['formacaoPolicia']['pessoa_id'],
+                        'instituicao' => $request['formacaoPolicia']['medio'],
+                        'curso' => isset($request['formacaoPolicia']['cursoMedio']) ? $request['formacaoPolicia']['cursoMedio'] : null,
+                        'dataInicio' => $request['formacaoPolicia']['dataInicioMedio'],
+                        'dataConclusao' => isset($request['formacaoPolicia']['dataConclusaoMedio']) ? $request['formacaoPolicia']['dataConclusaoMedio'] : null
+                    ]);
+            }
+
+            //save nivel superior, acipol
+            if (isset($request['formacaoPolicia']['superior'])) {
+                $formacaoPolicialSuperior = DB::table('formacaoPolicial')
+                    ->insertGetId([
+                        'id' => (string) Str::uuid(),
+                        'pessoa_id' => $request['formacaoPolicia']['pessoa_id'],
+                        'instituicao' => $request['formacaoPolicia']['superior'],
+                        'curso' => isset($request['formacaoPolicia']['cursoSuperior']) ? $request['formacaoPolicia']['cursoSuperior'] : null,
+                        'dataInicio' => $request['formacaoPolicia']['dataInicioSuperior'],
+                        'dataConclusao' => isset($request['formacaoPolicia']['dataConclusaoSuperior']) ? $request['formacaoPolicia']['dataConclusaoSuperior'] : null,
+                    ]);
+            }
 
             if (isset($updateData['formacoesComplementares'])) {
 
@@ -90,43 +100,31 @@ class EscolaridadeController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
+    public function index(Request $request)
     {
-        $registro = Escolaridade::findOrFail($id);
-        return response()->json($registro, 200);
-    }
+        try {
+            $fAcademica = DB::table('escolaridades')
+                ->orderBy('escolaridades.dataInicio', 'desc')
+                ->where('escolaridades.pessoa_id', $request->query('pessoa_id'))
+                ->select('*')
+                ->get();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Escolaridade $escolaridade)
-    {
-        //
-    }
+            $fPolicial = DB::table('formacaoPolicial')
+                ->orderBy('formacaoPolicial.dataConclusao', 'desc')
+                ->where('formacaoPolicial.pessoa_id', $request->query('pessoa_id'))
+                ->select('*')
+                ->get();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(StoreFormacaoRequest $request, $id)
-    {
-        $escolaridade = Escolaridade::findOrFail($id);
+            $fComplementares = DB::table('formacoesComplementares')
+                ->orderBy('formacoesComplementares.anoConlusao', 'desc')
+                ->where('formacoesComplementares.pessoa_id', $request->query('pessoa_id'))
+                ->select('*')
+                ->get();
 
-        $escolaridade->update($request->validated());
-
-        return response()->json($escolaridade, 200);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
-    {
-        $registro = Escolaridade::findOrFail($id);
-        $registro->delete();
-
-        return response()->json(['message' => 'Escolaridade eliminada com sucesso!'], 200);
+            return response()->json(['fAcademica' => $fAcademica, 'fPolicial' => $fPolicial, 'fComplementares' => $fComplementares], 200);
+        } catch (\Throwable $th) {
+            dd($th);
+            return response()->json(['error' => 'Error inesperado'], 500);
+        }
     }
 }
