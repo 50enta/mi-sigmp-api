@@ -12,6 +12,10 @@ use Exception;
 
 class sessionController extends Controller
 {
+    function enpointTest(){
+        return response(['message' => 'Endpoint testado com sucesso!']);
+    }
+    
     function login(Request $request)
     {
         try {

@@ -10,6 +10,8 @@ use App\Http\Controllers\LocalController;
 
 route::post('login', sessionController::class . '@login');
 
+route::get('endpointTest', sessionController::class . '@enpointTest');
+
 route::post('passwordRequest', sessionController::class . '@requestPassword');
 
 route::post('checkToken', sessionController::class . '@checkToken')->middleware('auth:sanctum');
