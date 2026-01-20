@@ -12,10 +12,11 @@ use Exception;
 
 class sessionController extends Controller
 {
-    function enpointTest(){
+    function enpointTest()
+    {
         return response(['message' => 'Endpoint testado com sucesso!']);
     }
-    
+
     function login(Request $request)
     {
         try {
@@ -37,11 +38,11 @@ class sessionController extends Controller
                     $token = $user->createToken('near_miss_api_login_token')->plainTextToken;
                     return response(['token' => $token, 'user' => $user]);
                 } catch (Exception $e) {
-                    return response(['error' => 'Ocorreu um erro ao fazer login!'], 401);
+                    return response(['error' => 'Ocorreu um erro ao fazer login!.' . $e], 401);
                 }
             }
         } catch (\Illuminate\Validation\ValidationException $th) {
-            return response(['error' => 'Email ou senha sao invalidos!'], 401);
+            return response(['error' => 'Ocorreu erro inesperado!' . $th], 401);
         }
     }
 
