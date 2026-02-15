@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\localRequest;
 use App\Models\Local;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class LocalController extends Controller
 {
@@ -21,14 +19,6 @@ class LocalController extends Controller
         } catch (\Throwable $th) {
             return response(['error' => 'Error inesperado'], 500);
         }
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -58,15 +48,34 @@ class LocalController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id) {}
+    public function update(LocalRequest $localPayload, $id)
+    {
+        try {
+            $local = Local::findOrFail($id);
+            $data = $localPayload->input();
+
+            $local->update($data);
+
+            return response()->json([
+                'success' => 'Local atualizado com sucesso!'
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => 'Erro ao actualizar local']);
+        }
+    }
 
     /**
      * Remove the specified resource from storage.
-     */    public function destroy($id)
+     */
+    public function destroy($id)
     {
-        $local = Local::findOrFail($id);
-        $local->delete();
+        try {
+            $local = Local::findOrFail($id);
+            $local->delete();
 
-        return response()->json(['message' => 'Local eliminado com sucesso!'], 200);
+            return response()->json(['success' => 'Local eliminado com sucesso!'], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => 'Erro ao eliminar local']);
+        }
     }
 }
