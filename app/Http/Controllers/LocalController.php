@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\localRequest;
 use App\Models\Local;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -15,7 +16,7 @@ class LocalController extends Controller
     {
         try {
             $locais = Local::all();
-            
+
             return response()->json(['locais' => $locais], 200);
         } catch (\Throwable $th) {
             return response(['error' => 'Error inesperado'], 500);
@@ -33,25 +34,16 @@ class LocalController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(LocalRequest $local)
     {
-        $validation = Validator::make($request->all(), [
-            'activo' => 'required|boolean',
-            'isLogico' => 'required|boolean',
-            'nivel' => 'required|integer',
-            'descricao' => 'required|string',
-            'comentarios' => 'nullable|string',
-            'hasPai' => 'required|boolean',
-            'pai_id' => 'nullable|uuid|exists:locais,id',
-        ]);
+        try {
+            $data = $local->input();
+            Local::create($data);
 
-        if ($validation->fails()) {
-            return response()->json(['message' => 'Erro ao criar o local', 'errors' => $validation->errors()], 409);
+            return response()->json(['success' => 'Local registado com sucesso!']);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => 'Erro ao registar local']);
         }
-
-        $local = Local::create($validation->validated());
-
-        return response()->json(['message' => 'Local criado com sucesso!', 'local' => $local], 201);
     }
 
     /**
@@ -64,38 +56,9 @@ class LocalController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Local $local)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
-    {
-        $local = Local::findOrFail($id);
-
-        $validation = Validator::make($request->all(), [
-            'activo' => 'required|boolean',
-            'isLogico' => 'required|boolean',
-            'nivel' => 'required|integer',
-            'descricao' => 'required|string',
-            'comentarios' => 'nullable|string',
-            'hasPai' => 'required|boolean',
-            'pai_id' => 'nullable|uuid|exists:locais,id',
-        ]);
-
-        if ($validation->fails()) {
-            return response()->json(['message' => 'Erro ao actualizar o local', 'errors' => $validation->errors()], 409);
-        }
-
-        $local->update($validation->validated());
-
-        return response()->json(['message' => 'Local actualizado com sucesso!', 'local' => $local], 200);
-    }
+    public function update(Request $request, $id) {}
 
     /**
      * Remove the specified resource from storage.

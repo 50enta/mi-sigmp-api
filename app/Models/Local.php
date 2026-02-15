@@ -18,12 +18,11 @@ class Local extends Model
     protected $fillable = [
         'id',
         'activo',
-        'isLogico',
         'nivel',
-        'descricao',
-        'comentarios',
-        'hasPai',
-        'pai_id',
+        'description',
+        'parent_id',
+        'code',
+        'nome'
     ];
 
     protected static function boot()
@@ -37,11 +36,11 @@ class Local extends Model
 
     public function parent()
     {
-        return $this->belongsTo(Local::class, 'pai_id');
+        return $this->belongsTo(Local::class, 'parent_id');
     }
 
     public function children()
     {
-        return $this->hasMany(Local::class, 'pai_id');
+        return $this->hasMany(Local::class, 'parent_id');
     }
 }

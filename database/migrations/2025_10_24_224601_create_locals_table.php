@@ -16,13 +16,15 @@ return new class extends Migration
         Schema::create('locals', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->boolean('activo')->default(true);
-            $table->integer('nivel')->default(1);
+            $table->integer('nivel')->default(2);
             $table->string('nome');
-            $table->uuid('pai_id')->nullable();
+            $table->string('code')->nullable();
+            $table->uuid('parent_id')->nullable();
+            $table->text('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('pai_id')
+            $table->foreign('parent_id')
                 ->references('id')
                 ->on('locals')
                 ->onDelete('set null');
@@ -33,47 +35,12 @@ return new class extends Migration
             // Nível 1 - Unidades principais
             [
                 'id' => Str::uuid(),
-                'nome' => 'Posto Policial George Dimitrov',
+                'nome' => 'República de Moçambique',
                 'nivel' => 1,
-                'pai_id' => null,
+                'parent_id' => null,
                 'activo' => true,
-            ],
-            [
-                'id' => Str::uuid(),
-                'nome' => '15a Esquadra',
-                'nivel' => 1,
-                'pai_id' => null,
-                'activo' => true,
-            ],
-
-            // Nível 2 - Subunidades (filhos)
-            [
-                'id' => Str::uuid(),
-                'nome' => '6a Esquadra',
-                'nivel' => 1,
-                'pai_id' => null, // será atualizado abaixo
-                'activo' => true,
-            ],
-            [
-                'id' => Str::uuid(),
-                'nome' => 'Posto Policia de Volante 6',
-                'nivel' => 1,
-                'pai_id' => null, // será atualizado abaixo
-                'activo' => true,
-            ],
-            [
-                'id' => Str::uuid(),
-                'nome' => 'Aeroporto de Mavalane',
-                'nivel' => 1,
-                'pai_id' => null, // será atualizado abaixo
-                'activo' => true,
-            ],
-            [
-                'id' => Str::uuid(),
-                'nome' => 'Controle do Zimpeto',
-                'nivel' => 1,
-                'pai_id' => null, // será atualizado abaixo
-                'activo' => true,
+                'code'=>'MZ',
+                'description'=>'República de Moçambique'
             ],
         ];
 

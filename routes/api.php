@@ -36,7 +36,8 @@ Route::post('/locaisAfectos', [LocalAfectoController::class, 'store']);
 
 
 Route::get('/getCatEspHistory', [CategoriaEspecialidadeController::class, 'getCatEspHistory']);
-Route::get('/locais', [LocalController::class, 'index']);    
+Route::get('/locais', [LocalController::class, 'index']);   
+Route::post('/locais', [LocalController::class, 'store']);    
 Route::get('/locaisAfectos', [LocalAfectoController::class, 'index']);    
 Route::get('/escolaridades', [EscolaridadeController::class, 'index']);    
 
