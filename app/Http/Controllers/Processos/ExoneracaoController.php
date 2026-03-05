@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Processos;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\SituacaoController;
-use App\Http\Requests\Processos\SituacaoDisciplinarRequest;
+use App\Http\Requests\Processos\ExoneracaoRequest;
 use App\Models\Processos\Exoneracao;
 use Illuminate\Http\Request;
 
@@ -55,11 +55,11 @@ class ExoneracaoController extends Controller
             })
 
             ->when(request('nrProcesso'), function ($q, $nrProcesso) {
-                $q->where('gestao_disciplinars.nrProcesso', 'like', "%$nrProcesso%");
+                $q->where('exoneracaos.nrProcesso', 'like', "%$nrProcesso%");
             })
 
             ->when(request('createdAt'), function ($q, $createdAt) {
-                $q->whereDate('gestao_disciplinars.created_at', $createdAt);
+                $q->whereDate('exoneracaos.created_at', $createdAt);
             });
 
 
@@ -71,7 +71,7 @@ class ExoneracaoController extends Controller
         return response()->json(['data' => $registros], 200);
     }
 
-    public function newProcess(SituacaoDisciplinarRequest $request)
+    public function newProcess(ExoneracaoRequest $request)
     {
         try {
             $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
@@ -79,15 +79,16 @@ class ExoneracaoController extends Controller
             
             $data = $request->validated();
             $data['despacho'] = $filename;
+            $data['estado'] = 'fechado';
 
             Exoneracao::create($data);
-            
+
             $sitCon = new SituacaoController();
             $sitCon->addDefaultStatus($data['pessoa_id'], 'Exonerado');
 
             return response()->json(['success' => 'Processo criado com sucesso'], 201);
         } catch (\Throwable $th) {
-            return response(['error' => 'Ocorreu um erro inesperado'], 500);
+            return response(['error' => 'Ocorreu um erro inesperado'.$th], 500);
         }
     }
 }

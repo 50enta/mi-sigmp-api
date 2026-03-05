@@ -25,6 +25,7 @@ class ExoneracaoRequest extends FormRequest
             'despacho' => 'required',
             'pessoa_id' => 'required|exists:pessoas,id',
             'motivo' => 'required|string',
+            'data' => 'required|date',
             'abertoPor' => 'required|exists:pessoas,id',
         ];
     }
@@ -39,6 +40,7 @@ class ExoneracaoRequest extends FormRequest
             'pessoa_id' => 'A pessoa é obrigatória.',
             'motivo' => 'O motivo é obrigatório.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
+            'data' => 'A data é obrigatória e deve ser uma data válida.',
         ];
     }
 
