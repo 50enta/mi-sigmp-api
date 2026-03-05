@@ -45,13 +45,14 @@ Route::get('/getCatEspHistory', [CategoriaEspecialidadeController::class, 'getCa
 
 
 Route::get('/locaisAfectos', [LocalAfectoController::class, 'index']);
-Route::get('/escolaridades', [EscolaridadeController::class, 'index']);    
+Route::get('/escolaridades', [EscolaridadeController::class, 'index']);
 
 Route::prefix('disciplinar')->group(function () {
     Route::post('/', [SituacaoDisciplinarController::class, 'newProcess']);
     Route::get('/{id}', [SituacaoDisciplinarController::class, 'show']);
     Route::get('/', [SituacaoDisciplinarController::class, 'index']);
     Route::put('/{id}', [SituacaoDisciplinarController::class, 'update']);
+    Route::get('/stats', [SituacaoDisciplinarController::class, 'stats']);
 });
 
 
