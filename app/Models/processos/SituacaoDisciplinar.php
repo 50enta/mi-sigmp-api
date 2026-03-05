@@ -16,30 +16,16 @@ class SituacaoDisciplinar extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id',
-        'activo',
+        'estado',
         'nrProcesso',
         'pessoa_id',
-        'local',
+        'despacho',
         'proposta',
         'abertoPor',
-        'dataAbertura',
-        'fechadoPor',
-        'dataFecho',
-        'obsFecho',
-        'aprovado',
-        'aprovador',
+        'dataDecisao',
+        'decididoPor',
+        'origem'
     ];
-
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($model) {
-            $model->id = (string) Str::uuid();
-        });
-    }
 
     public function pessoa()
     {

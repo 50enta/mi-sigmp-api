@@ -27,6 +27,7 @@ Route::prefix('pessoas')->group(function () {
     Route::delete('/{id}', [PessoaController::class, 'destroy']);
 });
 
+Route::get('/search', [PessoaController::class, 'search']);
 Route::get('/dashboard-data', [PessoaController::class, 'getDashData']);
 
 //Police registration

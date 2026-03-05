@@ -13,7 +13,21 @@ return new class extends Migration
     {
         Schema::create('gestao_disciplinars', function (Blueprint $table) {
             $table->id();
+            $table->enum('estado', ['aberto', 'fechado'])->default('aberto');
+            $table->string('nrProcesso');
+            $table->uuid('pessoa_id');
+            $table->string('despacho')->nullable();
+            $table->date('dataDecisao')->nullable();
+            $table->text('proposta');
+            $table->string('origem');
+            $table->string('abertoPor');
+            $table->string('decididoPor')->nullable();
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
+            $table->foreign('decididoPor')->references('id')->on('pessoas')->onDelete('cascade');
+            $table->foreign('abertoPor')->references('id')->on('pessoas')->onDelete('cascade');
         });
     }
 

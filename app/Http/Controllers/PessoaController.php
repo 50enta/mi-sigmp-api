@@ -201,7 +201,7 @@ class PessoaController extends Controller
             $data['nip'] = NipGenerator::generate();
             $pessoa = Pessoa::create($data);
 
-            $sitController= new SituacaoController();
+            $sitController = new SituacaoController();
             $sitController->addDefaultStatus($pessoa->id);
 
             return response(['pessoa' => $pessoa], 201);
@@ -249,6 +249,21 @@ class PessoaController extends Controller
         } catch (\Throwable $th) {
             return response(['error' => 'Error inesperado'], 500);
         }
+    }
+
+    public function search($query)
+    {   
+        $query = Pessoa::query()
+            ->select(
+                'pessoas.*',
+            )
+            ->when($query, function ($q, $nome) {
+                $q->where('pessoas.nomeCompleto', 'LIKE', "%{$nome}%");
+            })
+            ->get();
+
+    
+        return response()->json(['pessoas' => $query], 200);
     }
 
     /**
