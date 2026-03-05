@@ -7,6 +7,7 @@ use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\CategoriaEspecialidadeController;
 use App\Http\Controllers\LocalAfectoController;
 use App\Http\Controllers\LocalController;
+use App\Http\Controllers\Processos\SituacaoDisciplinarController;
 
 route::post('login', sessionController::class . '@login');
 
@@ -25,9 +26,9 @@ Route::prefix('pessoas')->group(function () {
     Route::get('/', [PessoaController::class, 'index']);
     Route::put('/{id}', [PessoaController::class, 'update']);
     Route::delete('/{id}', [PessoaController::class, 'destroy']);
+    Route::get('/search/{query}', [PessoaController::class, 'search']);
 });
 
-Route::get('/search', [PessoaController::class, 'search']);
 Route::get('/dashboard-data', [PessoaController::class, 'getDashData']);
 
 //Police registration
@@ -45,5 +46,13 @@ Route::get('/getCatEspHistory', [CategoriaEspecialidadeController::class, 'getCa
 
 Route::get('/locaisAfectos', [LocalAfectoController::class, 'index']);
 Route::get('/escolaridades', [EscolaridadeController::class, 'index']);    
+
+Route::prefix('disciplinar')->group(function () {
+    Route::post('/', [SituacaoDisciplinarController::class, 'newProcess']);
+    Route::get('/{id}', [SituacaoDisciplinarController::class, 'show']);
+    Route::get('/', [SituacaoDisciplinarController::class, 'index']);
+    Route::put('/{id}', [SituacaoDisciplinarController::class, 'update']);
+});
+
 
 //});

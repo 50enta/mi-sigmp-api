@@ -1,19 +1,21 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Processos;
 
+use App\Models\Pessoa;
+use App\Traits\HasProcessNumber;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 
 class SituacaoDisciplinar extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes,HasProcessNumber;
 
-    protected $table = 'situacao_disciplinars';
+    protected $table = 'gestao_disciplinars';
     public $incrementing = false;
     protected $keyType = 'string';
+    protected $processPrefix = 'GP';
 
     protected $fillable = [
         'estado',

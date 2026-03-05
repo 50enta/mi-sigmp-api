@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Processos;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\situacaoDisciplinarRequest;
-use App\Models\SituacaoDisciplinar;
+use App\Http\Requests\Processos\SituacaoDisciplinarRequest;
+use App\Models\Processos\SituacaoDisciplinar as ProcessosSituacaoDisciplinar;
 use Illuminate\Http\Request;
+
 class SituacaoDisciplinarController extends Controller
 {
     /**
@@ -17,7 +18,7 @@ class SituacaoDisciplinarController extends Controller
         $page = $request->input('page', 1);
         $paging = filter_var($request->input('paging', true), FILTER_VALIDATE_BOOLEAN);
 
-        $query = SituacaoDisciplinar::query();
+        $query = ProcessosSituacaoDisciplinar::query();
 
         $registros = $paging
             ? $query->paginate($pageSize, ['*'], 'page', $page)
@@ -26,10 +27,15 @@ class SituacaoDisciplinarController extends Controller
         return response()->json(['situacao_disciplinares' => $registros], 200);
     }
 
-    public function newProcess(situacaoDisciplinarRequest $request){
-        $data = $request->validated();
-        $situacaoDisciplinar = SituacaoDisciplinar::create($data);
-        return response()->json(['situacao_disciplinar' => $situacaoDisciplinar], 201);
+    public function newProcess(SituacaoDisciplinarRequest $request)
+    {
+        try {
+            $data = $request->validated();
+            $situacaoDisciplinar = ProcessosSituacaoDisciplinar::create($data);
+            return response()->json(['success' => $situacaoDisciplinar], 201);
+        } catch (\Throwable $th) {
+            dd($th);
+            return response(['error' => 'Ocorreu um erro inesperado'], 500);
+        }
     }
-   
 }
