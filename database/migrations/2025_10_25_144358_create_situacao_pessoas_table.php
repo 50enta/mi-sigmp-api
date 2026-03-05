@@ -19,7 +19,8 @@ return new class extends Migration
                 'Morto',
                 'Reserva',
                 'Aposentado',
-                'Activo'
+                'Activo',
+                'Exonerado'
             ])->default('Activo');
             $table->uuid('pessoa_id');
             $table->string('despacho')->nullable();

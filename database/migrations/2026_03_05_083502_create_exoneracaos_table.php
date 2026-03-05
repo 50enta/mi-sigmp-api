@@ -13,7 +13,18 @@ return new class extends Migration
     {
         Schema::create('exoneracaos', function (Blueprint $table) {
             $table->id();
+            $table->enum('estado', ['aberto', 'fechado'])->default('aberto');
+            $table->string('nrProcesso');
+            $table->uuid('pessoa_id');
+            $table->string('despacho');
+            $table->date('data');
+            $table->string('abertoPor');
+            $table->string('motivo');
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
+            $table->foreign('abertoPor')->references('id')->on('pessoas')->onDelete('cascade');
         });
     }
 

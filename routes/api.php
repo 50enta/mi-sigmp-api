@@ -7,6 +7,7 @@ use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\CategoriaEspecialidadeController;
 use App\Http\Controllers\LocalAfectoController;
 use App\Http\Controllers\LocalController;
+use App\Http\Controllers\Processos\ExoneracaoController;
 use App\Http\Controllers\Processos\SituacaoDisciplinarController;
 
 route::post('login', sessionController::class . '@login');
@@ -49,11 +50,18 @@ Route::get('/escolaridades', [EscolaridadeController::class, 'index']);
 
 Route::prefix('disciplinar')->group(function () {
     Route::post('/', [SituacaoDisciplinarController::class, 'newProcess']);
+    Route::get('/stats', [SituacaoDisciplinarController::class, 'stats']);
     Route::get('/{id}', [SituacaoDisciplinarController::class, 'show']);
     Route::get('/', [SituacaoDisciplinarController::class, 'index']);
     Route::put('/{id}', [SituacaoDisciplinarController::class, 'update']);
-    Route::get('/stats', [SituacaoDisciplinarController::class, 'stats']);
 });
 
+Route::prefix('exonerar')->group(function () {
+    Route::post('/', [ExoneracaoController::class, 'newProcess']);
+    Route::get('/stats', [ExoneracaoController::class, 'stats']);
+    Route::get('/{id}', [ExoneracaoController::class, 'show']);
+    Route::get('/', [ExoneracaoController::class, 'index']);
+    Route::put('/{id}', [ExoneracaoController::class, 'update']);
+});
 
 //});

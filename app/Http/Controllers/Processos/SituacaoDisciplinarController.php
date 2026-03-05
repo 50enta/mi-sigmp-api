@@ -10,15 +10,17 @@ use Illuminate\Http\Request;
 class SituacaoDisciplinarController extends Controller
 {
 
-    public function stats()
+    public function stats(Request $request)
     {
         try {
+            $year = $request->input('year', date('Y'));
             $query = ProcessosSituacaoDisciplinar::query()
                 ->selectRaw('
                     COUNT(*) as total,
                     SUM(CASE WHEN estado = "aberto" THEN 1 ELSE 0 END) as aberto,
                     SUM(CASE WHEN estado = "fechado" THEN 1 ELSE 0 END) as fechado
-                ');
+                ')
+                ->whereYear('created_at', $year);
 
             $stats = $query->first();
 
@@ -43,7 +45,25 @@ class SituacaoDisciplinarController extends Controller
             )
             ->leftJoin('pessoas as p', 'p.id', '=', 'gestao_disciplinars.pessoa_id')
             ->leftJoin('pessoas as ab', 'ab.id', '=', 'gestao_disciplinars.abertoPor')
-            ->leftJoin('locals', 'locals.id', '=', 'gestao_disciplinars.origem');
+            ->leftJoin('locals', 'locals.id', '=', 'gestao_disciplinars.origem')
+
+            ->when(request('nomeAgente'), function ($q, $nomeAgente) {
+                $q->where('p.nomeCompleto', 'like', "%$nomeAgente%");
+            })
+
+            ->when(request('nip'), function ($q, $nip) {
+                $q->where('p.nip', 'like', "%$nip%");
+            })
+
+            ->when(request('nrProcesso'), function ($q, $nrProcesso) {
+                $q->where('gestao_disciplinars.nrProcesso', 'like', "%$nrProcesso%");
+            })
+
+            ->when(request('createdAt'), function ($q, $createdAt) {
+                $q->whereDate('gestao_disciplinars.created_at', $createdAt);
+            });
+
+
 
         $registros = $paging
             ? $query->paginate($pageSize, ['*'], 'page', $page)

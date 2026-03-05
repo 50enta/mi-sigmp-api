@@ -28,45 +28,18 @@ class SituacaoController extends Controller
         return response()->json(['situacoes' => $situacoes], 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $validation = Validator::make($request->all(), [
-            'activo' => 'required|boolean',
-            'situacao' => 'required|in:suspenso,exonerado,expulso,morto,reservado,aposentado',
-            'obs' => 'nullable|string',
-        ]);
-
-        if ($validation->fails()) {
-            return response()->json(['message' => 'Erro ao criar situação', 'errors' => $validation->errors()], 409);
-        }
-
-        $situacao = Situacao::create($validation->validated());
-
-        return response()->json(['message' => 'Situação criada com sucesso!', 'situacao' => $situacao], 201);
-    }
-
-    public function addDefaultStatus($id)
+    public function addDefaultStatus($id, $estado = 'Activo')
     {
         try {
             $data = [
                 'id' => (string) Str::uuid(),
+                'situacao' => $estado,
                 'pessoa_id' => $id,
             ];
 
             DB::table('situacao_pessoas')->insert($data);
         } catch (\Throwable $th) {
-            dd($th);
             return response(['error' => 'Error inesperado'], 500);
         }
     }
