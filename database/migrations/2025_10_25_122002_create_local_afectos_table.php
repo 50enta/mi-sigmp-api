@@ -16,12 +16,13 @@ return new class extends Migration
             $table->uuid('local_id');
             $table->uuid('pessoa_id');
             $table->enum('cargo', ['Chefe do posto', 'Motorista', 'Outro'])->nullable();
-            $table->uuid('transferencia_id')->nullable();
+            $table->string('transferencia_id')->nullable();
+            $table->string('reafetacao_id')->nullable();
             $table->string('despacho')->nullable();
             $table->boolean('isTransferencia')->default(false);
+            $table->boolean('isReafetacao')->default(false);
             $table->text('observacoes')->nullable();
-            $table->text('departamento')->nullable();
-            $table->date('dataInicio')->nullable();
+            $table->date('dataInicio');
             $table->date('dataFim')->nullable();
 
             $table->timestamps();

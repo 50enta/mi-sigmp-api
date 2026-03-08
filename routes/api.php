@@ -8,6 +8,7 @@ use App\Http\Controllers\CategoriaEspecialidadeController;
 use App\Http\Controllers\LocalAfectoController;
 use App\Http\Controllers\LocalController;
 use App\Http\Controllers\Processos\ExoneracaoController;
+use App\Http\Controllers\Processos\ReafetacaoController;
 use App\Http\Controllers\Processos\SituacaoDisciplinarController;
 
 route::post('login', sessionController::class . '@login');
@@ -63,5 +64,14 @@ Route::prefix('exonerar')->group(function () {
     Route::get('/', [ExoneracaoController::class, 'index']);
     Route::put('/{id}', [ExoneracaoController::class, 'update']);
 });
+
+Route::prefix('reafetar')->group(function () {
+    Route::post('/', [ReafetacaoController::class, 'newProcess']);
+    Route::get('/stats', [ReafetacaoController::class, 'stats']);
+    Route::get('/{id}', [ReafetacaoController::class, 'show']);
+    Route::get('/', [ReafetacaoController::class, 'index']);
+    Route::put('/{id}', [ReafetacaoController::class, 'update']);
+});
+
 
 //});

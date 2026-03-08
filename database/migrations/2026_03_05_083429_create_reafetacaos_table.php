@@ -13,7 +13,20 @@ return new class extends Migration
     {
         Schema::create('reafetacaos', function (Blueprint $table) {
             $table->id();
+            $table->enum('estado', ['aberto', 'fechado'])->default('fechado');
+            $table->string('nrProcesso');
+            $table->uuid('pessoa_id');
+            $table->string('despacho');
+            $table->date('data');
+            $table->text('motivo');
+            $table->string('origem');
+            $table->string('destino');
+            $table->string('abertoPor');
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
+            $table->foreign('abertoPor')->references('id')->on('pessoas')->onDelete('cascade');
         });
     }
 

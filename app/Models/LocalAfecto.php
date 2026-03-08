@@ -23,12 +23,13 @@ class LocalAfecto extends Model
         'dataInicio',
         'dataFim',
         'isTransferencia',
-        'transferidor_id',
         'aprovador',
         'aprovado',
         'local_origem',
         'regime',
         'observacoes',
+        'isReafetacao',
+        'reafetacao_id'
     ];
 
     protected static function boot()
