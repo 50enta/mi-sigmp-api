@@ -43,9 +43,13 @@ class ReafetacaoController extends Controller
                     'reafetacaos.*',
                     'p.nomeCompleto as pessoaNome',
                     'ab.nomeCompleto as abertoPorNome',
+                    'o.nome as origemNome',
+                    'd.nome as destinoNome',
                 )
                 ->leftJoin('pessoas as p', 'p.id', '=', 'reafetacaos.pessoa_id')
                 ->leftJoin('pessoas as ab', 'ab.id', '=', 'reafetacaos.abertoPor')
+                ->leftJoin('locals as o', 'o.id', '=', 'reafetacaos.origem')
+                ->leftJoin('locals as d', 'd.id', '=', 'reafetacaos.destino')
 
                 ->when(request('nomeAgente'), function ($q, $nomeAgente) {
                     $q->where('p.nomeCompleto', 'like', "%$nomeAgente%");

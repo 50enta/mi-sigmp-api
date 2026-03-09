@@ -252,20 +252,28 @@ class PessoaController extends Controller
     }
 
     public function search($query)
-    {   
-        $query = Pessoa::query()
+    {
+        $pessoas = Pessoa::query()
             ->select(
                 'pessoas.*',
+                'local_afectos.local_id',
+                'local_afectos.cargo',
+                'local_afectos.local_id',
             )
+            ->leftJoin('local_afectos', function ($join) {
+                $join->on('pessoas.id', '=', 'local_afectos.pessoa_id')
+                    ->where(function ($q) {
+                        $q->whereNull('local_afectos.dataFim')
+                            ->orWhere('local_afectos.dataFim', '>=', now());
+                    });
+            })
             ->when($query, function ($q, $nome) {
                 $q->where('pessoas.nomeCompleto', 'LIKE', "%{$nome}%");
             })
             ->get();
 
-    
-        return response()->json(['pessoas' => $query], 200);
+        return response()->json(['pessoas' => $pessoas], 200);
     }
-
     /**
      * Remove the specified resource from storage.
      */    public function destroy($id)

@@ -73,5 +73,11 @@ Route::prefix('reafetar')->group(function () {
     Route::put('/{id}', [ReafetacaoController::class, 'update']);
 });
 
-
+Route::prefix('transferir')->group(function () {
+    Route::post('/', [ReafetacaoController::class, 'newProcess']);
+    Route::get('/stats', [ReafetacaoController::class, 'stats']);
+    Route::get('/{id}', [ReafetacaoController::class, 'show']);
+    Route::get('/', [ReafetacaoController::class, 'index']);
+    Route::put('/{id}', [ReafetacaoController::class, 'update']);
+});
 //});
