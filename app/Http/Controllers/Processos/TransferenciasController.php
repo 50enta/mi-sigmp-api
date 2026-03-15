@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Processos;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Processos\ReafetacaoRequest;
-use App\Models\LocalAfecto;
+use App\Http\Requests\Processos\TransferenciaRequest;
 use App\Models\Processos\Reafetacao;
+use App\Models\Processos\Transferencias;
 use Illuminate\Http\Request;
 
 class TransferenciasController extends Controller
@@ -15,7 +15,7 @@ class TransferenciasController extends Controller
     {
         try {
             $year = $request->input('year', date('Y'));
-            $query = Reafetacao::query()
+            $query = Transferencias::query()
                 ->selectRaw('
                     COUNT(*) as total,
                     SUM(CASE WHEN estado = "aberto" THEN 1 ELSE 0 END) as aberto,
@@ -40,16 +40,16 @@ class TransferenciasController extends Controller
 
             $query = Reafetacao::query()
                 ->select(
-                    'reafetacaos.*',
+                    'transferencias.*',
                     'p.nomeCompleto as pessoaNome',
                     'ab.nomeCompleto as abertoPorNome',
                     'o.nome as origemNome',
                     'd.nome as destinoNome',
                 )
-                ->leftJoin('pessoas as p', 'p.id', '=', 'reafetacaos.pessoa_id')
-                ->leftJoin('pessoas as ab', 'ab.id', '=', 'reafetacaos.abertoPor')
-                ->leftJoin('locals as o', 'o.id', '=', 'reafetacaos.origem')
-                ->leftJoin('locals as d', 'd.id', '=', 'reafetacaos.destino')
+                ->leftJoin('pessoas as p', 'p.id', '=', 'transferencias.pessoa_id')
+                ->leftJoin('pessoas as ab', 'ab.id', '=', 'transferencias.abertoPor')
+                ->leftJoin('locals as o', 'o.id', '=', 'transferencias.origem')
+                ->leftJoin('locals as d', 'd.id', '=', 'transferencias.destino')
 
                 ->when(request('nomeAgente'), function ($q, $nomeAgente) {
                     $q->where('p.nomeCompleto', 'like', "%$nomeAgente%");
@@ -60,11 +60,11 @@ class TransferenciasController extends Controller
                 })
 
                 ->when(request('nrProcesso'), function ($q, $nrProcesso) {
-                    $q->where('reafetacaos.nrProcesso', 'like', "%$nrProcesso%");
+                    $q->where('transferencias.nrProcesso', 'like', "%$nrProcesso%");
                 })
 
                 ->when(request('createdAt'), function ($q, $createdAt) {
-                    $q->whereDate('reafetacaos.created_at', $createdAt);
+                    $q->whereDate('transferencias.created_at', $createdAt);
                 });
 
             $registros = $paging
@@ -77,33 +77,17 @@ class TransferenciasController extends Controller
         }
     }
 
-    public function newProcess(ReafetacaoRequest $request)
+    public function newProcess(TransferenciaRequest $request)
     {
         try {
-            $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
-            $request->file('despacho')->move(public_path('uploads'), $filename);
 
-            $data = $request->except(['cargo']);
-            $data['despacho'] = $filename;
+            $data = $request->all();
+            $reaf = Transferencias::create($data);
 
-            $reaf = Reafetacao::create($data);
-
-            $newLocalData = [
-                "reafetacao_id" => $reaf->nrProcesso,
-                "cargo" => $request->input('cargo'),
-                "local_id" => $request->input('destino'),
-                "pessoa_id" => $request->input('pessoa_id'),
-                "despacho" => $filename,
-                "isReafetacao" => true,
-                "dataInicio" => $request->input('data')
-            ];
-
-            LocalAfecto::create($newLocalData);
-
-            return response()->json(['success' => 'Reacfectação criada com sucesso!'], 201);
+            return response()->json(['success' => 'Transferência criada com sucesso!'], 201);
         } catch (\Throwable $th) {
             dd($th);
-            return response(['error' => 'Ocorreu um erro inesperado'], 500);
+            return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
         }
     }
 }

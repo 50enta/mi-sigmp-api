@@ -77,7 +77,7 @@ class ExoneracaoController extends Controller
             $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
             $request->file('despacho')->move(public_path('uploads'), $filename);
             
-            $data = $request->validated();
+            $data = $request->all();
             $data['despacho'] = $filename;
             $data['estado'] = 'fechado';
 

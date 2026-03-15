@@ -19,11 +19,15 @@ return new class extends Migration
             $table->uuid('pessoa_id');
             $table->string('aprovado_por')->nullable();
             $table->integer('aprovado')->nullable(); //1-aprovado, 0-pendente, 2-reprovado
-            $table->string('local_origem')->nullable();
-            $table->enum('regime', ['conveniencia', 'pedido', 'Permuta'])->default('pedido');
+            $table->enum('regime', ['conveniencia', 'pedido', 'permuta'])->default('pedido');
+            $table->string('nrProcesso');
             $table->string('permutador')->nullable();
             $table->softDeletes();
             $table->timestamps();
+            $table->string('abertoPor');
+
+            $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
+            $table->foreign('abertoPor')->references('id')->on('pessoas')->onDelete('cascade');
         });
     }
 
