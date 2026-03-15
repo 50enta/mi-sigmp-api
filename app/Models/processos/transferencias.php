@@ -15,7 +15,7 @@ class Transferencias extends Model
     protected $table = 'transferencias';
     public $incrementing = false;
     protected $keyType = 'string';
-    protected $processPrefix = 'RF';
+    protected $processPrefix = 'TRF';
 
     protected $fillable = [
         'estado',

@@ -10,6 +10,7 @@ use App\Http\Controllers\LocalController;
 use App\Http\Controllers\Processos\ExoneracaoController;
 use App\Http\Controllers\Processos\ReafetacaoController;
 use App\Http\Controllers\Processos\SituacaoDisciplinarController;
+use App\Http\Controllers\Processos\TransferenciasController;
 
 route::post('login', sessionController::class . '@login');
 
@@ -74,10 +75,10 @@ Route::prefix('reafetar')->group(function () {
 });
 
 Route::prefix('transferir')->group(function () {
-    Route::post('/', [ReafetacaoController::class, 'newProcess']);
-    Route::get('/stats', [ReafetacaoController::class, 'stats']);
-    Route::get('/{id}', [ReafetacaoController::class, 'show']);
-    Route::get('/', [ReafetacaoController::class, 'index']);
-    Route::put('/{id}', [ReafetacaoController::class, 'update']);
+    Route::post('/', [TransferenciasController::class, 'newProcess']);
+    Route::get('/stats', [TransferenciasController::class, 'stats']);
+    Route::get('/{id}', [TransferenciasController::class, 'show']);
+    Route::get('/', [TransferenciasController::class, 'index']);
+    Route::put('/{id}', [TransferenciasController::class, 'update']);
 });
 //});

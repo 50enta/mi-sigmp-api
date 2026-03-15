@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Processos;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Processos\TransferenciaRequest;
-use App\Models\Processos\Reafetacao;
 use App\Models\Processos\Transferencias;
 use Illuminate\Http\Request;
 
@@ -38,16 +37,18 @@ class TransferenciasController extends Controller
             $page = $request->input('page', 1);
             $paging = filter_var($request->input('paging', true), FILTER_VALIDATE_BOOLEAN);
 
-            $query = Reafetacao::query()
+            $query = Transferencias::query()
                 ->select(
                     'transferencias.*',
                     'p.nomeCompleto as pessoaNome',
                     'ab.nomeCompleto as abertoPorNome',
+                    'permutador.nomeCompleto as permutador',
                     'o.nome as origemNome',
                     'd.nome as destinoNome',
                 )
                 ->leftJoin('pessoas as p', 'p.id', '=', 'transferencias.pessoa_id')
                 ->leftJoin('pessoas as ab', 'ab.id', '=', 'transferencias.abertoPor')
+                ->leftJoin('pessoas as permutador', 'permutador.id', '=', 'transferencias.permutador')
                 ->leftJoin('locals as o', 'o.id', '=', 'transferencias.origem')
                 ->leftJoin('locals as d', 'd.id', '=', 'transferencias.destino')
 
@@ -73,6 +74,7 @@ class TransferenciasController extends Controller
 
             return response()->json(['data' => $registros], 200);
         } catch (\Throwable $th) {
+            dd($th);
             return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
         }
     }
