@@ -12,21 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('continuacao_estudos', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('despacho')->nullable();
-            $table->string('instituicao')->nullable();
-            $table->string('curso')->nullable();
-            $table->string('nivelPretendido')->nullable();
-            $table->enum('situacao', ['activo', 'inactivo'])->default('activo');
-            $table->date('dataInicio')->nullable();
-            $table->date('dataPrevisaoTermino')->nullable();
-            $table->text('obs')->nullable();
+            $table->id();
+            $table->string('nrProcesso');
+            $table->enum('estado', ['aberto', 'fechado'])->default('fechado');
+            $table->string('despacho');
+            $table->string('instituicao');
+            $table->string('curso');
+            $table->string('nivelPretendido');
             $table->uuid('pessoa_id');
+            $table->string('abertoPor');
+            $table->date('data');
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
-    
+            $table->foreign('abertoPor')->references('id')->on('pessoas')->onDelete('cascade');
         });
     }
 

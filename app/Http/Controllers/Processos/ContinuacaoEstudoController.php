@@ -2,120 +2,92 @@
 
 namespace App\Http\Controllers\Processos;
 
-use App\Models\ContinuacaoEstudo;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Processos\EstudosRequest;
+use App\Models\Processos\ContinuacaoEstudo;
+use Illuminate\Http\Request;
 
 class ContinuacaoEstudoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
+    public function stats(Request $request)
+    {
+        try {
+            $year = $request->input('year', date('Y'));
+            $query = ContinuacaoEstudo::query()
+                ->selectRaw('
+                    COUNT(*) as total,
+                    SUM(CASE WHEN estado = "aberto" THEN 1 ELSE 0 END) as aberto,
+                    SUM(CASE WHEN estado = "fechado" THEN 1 ELSE 0 END) as fechado
+                ')
+                ->whereYear('created_at', $year);
+
+            $stats = $query->first();
+
+            return response()->json(['data' => $stats], 200);
+        } catch (\Throwable $th) {
+            dd($th);
+            return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
+        }
+    }
+
     public function index(Request $request)
     {
-        $pageSize = $request->input('pageSize', 10);
-        $page = $request->input('page', 1);
-        $paging = filter_var($request->input('paging', true), FILTER_VALIDATE_BOOLEAN);
+        try {
+            $pageSize = $request->input('pageSize', 10);
+            $page = $request->input('page', 1);
+            $paging = filter_var($request->input('paging', true), FILTER_VALIDATE_BOOLEAN);
 
-        $query = ContinuacaoEstudo::query();
+            $query = ContinuacaoEstudo::query()
+                ->select(
+                    'continuacao_estudos.*',
+                    'p.nomeCompleto as pessoaNome',
+                    'ab.nomeCompleto as abertoPorNome',
+                )
+                ->leftJoin('pessoas as p', 'p.id', '=', 'continuacao_estudos.pessoa_id')
+                ->leftJoin('pessoas as ab', 'ab.id', '=', 'continuacao_estudos.abertoPor')
 
-        $registros = $paging
-            ? $query->paginate($pageSize, ['*'], 'page', $page)
-            : $query->simplePaginate($pageSize, ['*'], 'page', $page);
+                ->when(request('nomeAgente'), function ($q, $nomeAgente) {
+                    $q->where('p.nomeCompleto', 'like', "%$nomeAgente%");
+                })
 
-        return response()->json(['continuacao_estudos' => $registros], 200);
-    }
+                ->when(request('nip'), function ($q, $nip) {
+                    $q->where('p.nip', 'like', "%$nip%");
+                })
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+                ->when(request('nrProcesso'), function ($q, $nrProcesso) {
+                    $q->where('continuacao_estudos.nrProcesso', 'like', "%$nrProcesso%");
+                })
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $validation = Validator::make($request->all(), [
-            'activo' => 'required|boolean',
-            'despacho' => 'nullable|string|max:255',
-            'instituicao' => 'nullable|string|max:255',
-            'curso' => 'nullable|string|max:255',
-            'nivelPretendido' => 'nullable|string|max:255',
-            'situacao' => 'required|in:activo,inactivo',
-            'dataInicio' => 'nullable|date',
-            'dataPrevisaoTermino' => 'nullable|date',
-            'obs' => 'nullable|string',
-            'pessoa_id' => 'required|uuid|exists:pessoas,id',
-        ]);
+                ->when(request('createdAt'), function ($q, $createdAt) {
+                    $q->whereDate('continuacao_estudos.created_at', $createdAt);
+                });
 
-        if ($validation->fails()) {
-            return response()->json(['message' => 'Erro ao registar continuação de estudo', 'errors' => $validation->errors()], 409);
+            $registros = $paging
+                ? $query->paginate($pageSize, ['*'], 'page', $page)
+                : $query->simplePaginate($pageSize, ['*'], 'page', $page);
+
+            return response()->json(['data' => $registros], 200);
+        } catch (\Throwable $th) {
+            dd($th);
+            return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
         }
-
-        $registro = ContinuacaoEstudo::create($validation->validated());
-
-        return response()->json(['message' => 'Continuação de estudo registada com sucesso!', 'continuacao_estudo' => $registro], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
+    public function newProcess(EstudosRequest $request)
     {
-        $registro = ContinuacaoEstudo::findOrFail($id);
-        return response()->json($registro, 200);
-    }
+        try {
+            $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
+            $request->file('despacho')->move(public_path('uploads'), $filename);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ContinuacaoEstudo $continuacaoEstudo)
-    {
-        //
-    }
+            $data = $request->all();
+            $data['despacho'] = $filename;
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
-    {
-        $registro = ContinuacaoEstudo::findOrFail($id);
+            ContinuacaoEstudo::create($data);
 
-        $validation = Validator::make($request->all(), [
-            'activo' => 'required|boolean',
-            'despacho' => 'nullable|string|max:255',
-            'instituicao' => 'nullable|string|max:255',
-            'curso' => 'nullable|string|max:255',
-            'nivelPretendido' => 'nullable|string|max:255',
-            'situacao' => 'required|in:activo,inactivo',
-            'dataInicio' => 'nullable|date',
-            'dataPrevisaoTermino' => 'nullable|date',
-            'obs' => 'nullable|string',
-            'pessoa_id' => 'required|uuid|exists:pessoas,id',
-        ]);
-
-        if ($validation->fails()) {
-            return response()->json(['message' => 'Erro ao actualizar continuação de estudo', 'errors' => $validation->errors()], 409);
+            return response()->json(['success' => 'Processo de continuacao com estudos criado com sucesso!'], 201);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => 'Ocorreu um erro inesperado'.$th], 500);
         }
-
-        $registro->update($validation->validated());
-
-        return response()->json(['message' => 'Continuação de estudo actualizada com sucesso!', 'continuacao_estudo' => $registro], 200);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
-    {
-        $registro = ContinuacaoEstudo::findOrFail($id);
-        $registro->delete();
-
-        return response()->json(['message' => 'Continuação de estudo eliminada com sucesso!'], 200);
     }
 }

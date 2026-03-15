@@ -7,6 +7,7 @@ use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\CategoriaEspecialidadeController;
 use App\Http\Controllers\LocalAfectoController;
 use App\Http\Controllers\LocalController;
+use App\Http\Controllers\Processos\ContinuacaoEstudoController;
 use App\Http\Controllers\Processos\ExoneracaoController;
 use App\Http\Controllers\Processos\ReafetacaoController;
 use App\Http\Controllers\Processos\SituacaoDisciplinarController;
@@ -80,5 +81,13 @@ Route::prefix('transferir')->group(function () {
     Route::get('/{id}', [TransferenciasController::class, 'show']);
     Route::get('/', [TransferenciasController::class, 'index']);
     Route::put('/{id}', [TransferenciasController::class, 'update']);
+});
+
+Route::prefix('continuarEstudos')->group(function () {
+    Route::post('/', [ContinuacaoEstudoController::class, 'newProcess']);
+    Route::get('/stats', [ContinuacaoEstudoController::class, 'stats']);
+    Route::get('/{id}', [ContinuacaoEstudoController::class, 'show']);
+    Route::get('/', [ContinuacaoEstudoController::class, 'index']);
+    Route::put('/{id}', [ContinuacaoEstudoController::class, 'update']);
 });
 //});

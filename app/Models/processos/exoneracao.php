@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Exoneracao extends Model
 {
-    use HasFactory, SoftDeletes,HasProcessNumber;
+    use HasFactory, SoftDeletes, HasProcessNumber;
 
     public $incrementing = false;
     protected $keyType = 'string';
