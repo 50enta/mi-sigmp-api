@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Processos;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\SituacaoController;
 use App\Http\Requests\Processos\FalecimentosRequest;
 use App\Models\Processos\Falecimentos;
 use Illuminate\Http\Request;
@@ -60,9 +61,7 @@ class FalecimentosController extends Controller
             ->when(request('createdAt'), function ($q, $createdAt) {
                 $q->whereDate('falecimentos.created_at', $createdAt);
             });
-
-
-
+            
         $registros = $paging
             ? $query->paginate($pageSize, ['*'], 'page', $page)
             : $query->simplePaginate($pageSize, ['*'], 'page', $page);
@@ -75,15 +74,18 @@ class FalecimentosController extends Controller
         try {
             $filename = time() . '_' . $request->file('certidaoObito')->getClientOriginalName();
             $request->file('certidaoObito')->move(public_path('uploads'), $filename);
-            
+
             $data = $request->all();
             $data['certidaoObito'] = $filename;
 
             Falecimentos::create($data);
 
-            return response()->json(['success' => 'Processo criado com sucesso'], 201);
+            $sitController = new SituacaoController();
+            $sitController->addDefaultStatus($data['pessoa_id'], 'Morto');
+
+            return response()->json(['success' => 'Falecimento registado com sucesso'], 201);
         } catch (\Throwable $th) {
-            return response(['error' => 'Ocorreu um erro inesperado'.$th], 500);
+            return response(['error' => 'Ocorreu um erro inesperado' . $th], 500);
         }
     }
 }
