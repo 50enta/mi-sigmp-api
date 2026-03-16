@@ -12,8 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('promocaos', function (Blueprint $table) {
-            $table->id();
+            $table->enum('estado', ['aberto', 'fechado'])->default('fechado');
+            $table->string('nrProcesso');
+            $table->uuid('pessoa_id');
+            $table->string('despacho');
+            $table->string('abertoPor');
+            $table->string('modalidade')->nullable();
+            $table->date('data');
+            $table->string('proposta');
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
+            $table->foreign('abertoPor')->references('id')->on('pessoas')->onDelete('cascade');
         });
     }
 

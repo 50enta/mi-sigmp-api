@@ -10,6 +10,7 @@ use App\Http\Controllers\LocalController;
 use App\Http\Controllers\Processos\ActualizacaoNivelAcademicoController;
 use App\Http\Controllers\Processos\ContinuacaoEstudoController;
 use App\Http\Controllers\Processos\ExoneracaoController;
+use App\Http\Controllers\Processos\PromocaoController;
 use App\Http\Controllers\Processos\ReafetacaoController;
 use App\Http\Controllers\Processos\SituacaoDisciplinarController;
 use App\Http\Controllers\Processos\TransferenciasController;
@@ -98,5 +99,13 @@ Route::prefix('atualizacaoAcademica')->group(function () {
     Route::get('/{id}', [ActualizacaoNivelAcademicoController::class, 'show']);
     Route::get('/', [ActualizacaoNivelAcademicoController::class, 'index']);
     Route::put('/{id}', [ActualizacaoNivelAcademicoController::class, 'update']);
+});
+
+Route::prefix('promover')->group(function () {
+    Route::post('/', [PromocaoController::class, 'newProcess']);
+    Route::get('/stats', [PromocaoController::class, 'stats']);
+    Route::get('/{id}', [PromocaoController::class, 'show']);
+    Route::get('/', [PromocaoController::class, 'index']);
+    Route::put('/{id}', [PromocaoController::class, 'update']);
 });
 //});
