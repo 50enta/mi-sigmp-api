@@ -11,6 +11,7 @@ use App\Http\Controllers\Processos\ActualizacaoNivelAcademicoController;
 use App\Http\Controllers\Processos\ContinuacaoEstudoController;
 use App\Http\Controllers\Processos\CorrecaoDeDadosController;
 use App\Http\Controllers\Processos\ExoneracaoController;
+use App\Http\Controllers\Processos\FalecimentosController;
 use App\Http\Controllers\Processos\PromocaoController;
 use App\Http\Controllers\Processos\ReafetacaoController;
 use App\Http\Controllers\Processos\SituacaoDisciplinarController;
@@ -25,7 +26,6 @@ route::post('passwordRequest', sessionController::class . '@requestPassword');
 route::post('checkToken', sessionController::class . '@checkToken')->middleware('auth:sanctum');
 
 route::post('logout', sessionController::class . '@logout')->middleware('auth:sanctum');
-
 
 Route::prefix('pessoas')->group(function () {
     Route::post('/', [PessoaController::class, 'store']);
@@ -116,5 +116,13 @@ Route::prefix('corrigirDados')->group(function () {
     Route::get('/{id}', [CorrecaoDeDadosController::class, 'show']);
     Route::get('/', [CorrecaoDeDadosController::class, 'index']);
     Route::put('/{id}', [CorrecaoDeDadosController::class, 'update']);
+});
+
+Route::prefix('falecimento')->group(function () {
+    Route::post('/', [FalecimentosController::class, 'newProcess']);
+    Route::get('/stats', [FalecimentosController::class, 'stats']);
+    Route::get('/{id}', [FalecimentosController::class, 'show']);
+    Route::get('/', [FalecimentosController::class, 'index']);
+    Route::put('/{id}', [FalecimentosController::class, 'update']);
 });
 //});

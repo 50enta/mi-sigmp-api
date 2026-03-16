@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class CorrecaoDadosRequest extends FormRequest
+class FalecimentosRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,13 +22,11 @@ class CorrecaoDadosRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'comprovativo' => 'required',
+            'certidaoObito' => 'required',
+            'dataMorte' => 'required|date',
+            'causaDaMorte' => 'required',
             'pessoa_id' => 'required|exists:pessoas,id',
-            'tipoCorrecao' => 'required|string',
-            'motivoEobs' => 'required|string',
             'abertoPor' => 'required|exists:pessoas,id',
-            'dataNasc' => 'required_if:tipoCorrecao,1',
-            'novoNome' => 'required_if:tipoCorrecao,0',
         ];
     }
 
@@ -38,13 +36,11 @@ class CorrecaoDadosRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'comprovativo' => 'O comprovativo é obrigatório',
+            'certidaoObito' => 'A certidão de óbito é obrigatória',
             'pessoa_id' => 'A pessoa é obrigatória.',
-            'motivoEobs' => 'O motivo/observação é obrigatório.',
+            'dataMorte' => 'A data da morte é obrigatória',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
-            'data' => 'A data é obrigatória e deve ser uma data válida.',
-            'dataNasc' => 'A nova data de nascimento é obrigatória',
-            'novoNome' => 'O novo nome é obrigatório'
+            'causaDaMorte' => 'A causa da morte é obrigatória',
         ];
     }
 
