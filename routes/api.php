@@ -9,6 +9,7 @@ use App\Http\Controllers\LocalAfectoController;
 use App\Http\Controllers\LocalController;
 use App\Http\Controllers\Processos\ActualizacaoNivelAcademicoController;
 use App\Http\Controllers\Processos\ContinuacaoEstudoController;
+use App\Http\Controllers\Processos\CorrecaoDeDadosController;
 use App\Http\Controllers\Processos\ExoneracaoController;
 use App\Http\Controllers\Processos\PromocaoController;
 use App\Http\Controllers\Processos\ReafetacaoController;
@@ -107,5 +108,13 @@ Route::prefix('promover')->group(function () {
     Route::get('/{id}', [PromocaoController::class, 'show']);
     Route::get('/', [PromocaoController::class, 'index']);
     Route::put('/{id}', [PromocaoController::class, 'update']);
+});
+
+Route::prefix('corrigirDados')->group(function () {
+    Route::post('/', [CorrecaoDeDadosController::class, 'newProcess']);
+    Route::get('/stats', [CorrecaoDeDadosController::class, 'stats']);
+    Route::get('/{id}', [CorrecaoDeDadosController::class, 'show']);
+    Route::get('/', [CorrecaoDeDadosController::class, 'index']);
+    Route::put('/{id}', [CorrecaoDeDadosController::class, 'update']);
 });
 //});
