@@ -13,7 +13,20 @@ return new class extends Migration
     {
         Schema::create('actualizacao_nivel_academicos', function (Blueprint $table) {
             $table->id();
+            $table->enum('estado', ['aberto', 'fechado'])->default('fechado');
+            $table->string('nrProcesso');
+            $table->uuid('pessoa_id');
+            $table->string('certificado');
+            $table->string('abertoPor');
+            $table->string('instituicao');
+            $table->string('curso');
+            $table->string('nivel');
+            $table->date('dataDeConclusao');
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
+            $table->foreign('abertoPor')->references('id')->on('pessoas')->onDelete('cascade');
         });
     }
 

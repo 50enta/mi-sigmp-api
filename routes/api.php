@@ -7,6 +7,7 @@ use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\CategoriaEspecialidadeController;
 use App\Http\Controllers\LocalAfectoController;
 use App\Http\Controllers\LocalController;
+use App\Http\Controllers\Processos\ActualizacaoNivelAcademicoController;
 use App\Http\Controllers\Processos\ContinuacaoEstudoController;
 use App\Http\Controllers\Processos\ExoneracaoController;
 use App\Http\Controllers\Processos\ReafetacaoController;
@@ -89,5 +90,13 @@ Route::prefix('continuarEstudos')->group(function () {
     Route::get('/{id}', [ContinuacaoEstudoController::class, 'show']);
     Route::get('/', [ContinuacaoEstudoController::class, 'index']);
     Route::put('/{id}', [ContinuacaoEstudoController::class, 'update']);
+});
+
+Route::prefix('atualizacaoAcademica')->group(function () {
+    Route::post('/', [ActualizacaoNivelAcademicoController::class, 'newProcess']);
+    Route::get('/stats', [ActualizacaoNivelAcademicoController::class, 'stats']);
+    Route::get('/{id}', [ActualizacaoNivelAcademicoController::class, 'show']);
+    Route::get('/', [ActualizacaoNivelAcademicoController::class, 'index']);
+    Route::put('/{id}', [ActualizacaoNivelAcademicoController::class, 'update']);
 });
 //});
