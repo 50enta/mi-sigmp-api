@@ -45,7 +45,8 @@ class CorrecaoDadosRequest extends FormRequest
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
             'data' => 'A data é obrigatória e deve ser uma data válida.',
             'dataNasc' => 'A nova data de nascimento é obrigatória',
-            'novoNome' => 'O novo nome é obrigatório'
+            'novoNome' => 'O novo nome é obrigatório',
+            'nrProcesso' => 'O número do processo é obrigatório',
         ];
     }
 

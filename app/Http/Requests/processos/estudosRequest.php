@@ -27,6 +27,7 @@ class EstudosRequest extends FormRequest
             'instituicao' => 'required',
             'data' => 'required|date',
             'abertoPor' => 'required|exists:pessoas,id',
+            'nrProcesso' => 'required|string',
         ];
     }
 
@@ -41,7 +42,7 @@ class EstudosRequest extends FormRequest
             'instituicao' => 'A instituição é obrigatória.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
             'data' => 'A data é obrigatória e deve ser uma data válida.',
-            'nrProcesso' => 'required|string',
+            'nrProcesso' => 'O número do processo é obrigatório',
         ];
     }
 

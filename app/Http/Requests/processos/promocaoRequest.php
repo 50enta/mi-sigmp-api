@@ -27,6 +27,7 @@ class PromocaoRequest extends FormRequest
             'proposta' => 'required|string',
             'data' => 'required|date',
             'abertoPor' => 'required|exists:pessoas,id',
+            'nrProcesso' => 'required|string',
         ];
     }
 
@@ -41,7 +42,7 @@ class PromocaoRequest extends FormRequest
             'proposta' => 'O proposta é obrigatório.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
             'data' => 'A data é obrigatória e deve ser uma data válida.',
-            'nrProcesso' => 'required|string',
+            'nrProcesso' => 'O número do processo é obrigatório',
         ];
     }
 

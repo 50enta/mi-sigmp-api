@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('despacho')->nullable();
             $table->date('dataDecisao')->nullable();
             $table->text('proposta');
+            $table->text('infraccao');
             $table->string('origem');
             $table->string('abertoPor');
             $table->string('decididoPor')->nullable();

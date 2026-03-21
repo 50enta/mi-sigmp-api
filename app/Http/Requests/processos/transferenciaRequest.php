@@ -27,6 +27,7 @@ class TransferenciaRequest extends FormRequest
             'pessoa_id' => 'required|exists:pessoas,id',
             'regime' => 'required',
             'abertoPor' => 'required|exists:pessoas,id',
+            'nrProcesso' => 'required|string',
         ];
     }
 
@@ -41,7 +42,7 @@ class TransferenciaRequest extends FormRequest
             'destino' => 'O destino é obrigatório.',
             'pessoa_id' => 'O agente é obrigatório.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
-            'nrProcesso' => 'required|string',
+            'nrProcesso' => 'O número do processo é obrigatório',
         ];
     }
 

@@ -27,7 +27,8 @@ class SituacaoDisciplinar extends Model
         'abertoPor',
         'dataDecisao',
         'decididoPor',
-        'origem'
+        'origem',
+        'infraccao'
     ];
 
     public function pessoa()
