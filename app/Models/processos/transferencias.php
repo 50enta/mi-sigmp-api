@@ -25,7 +25,11 @@ class Transferencias extends Model
         'regime',
         'origem',
         'destino',
-        'abertoPor'
+        'abertoPor',
+        'data',
+        'systemId',
+        'nrDespacho',
+        'dataDespacho'
     ];
 
     public function pessoa()

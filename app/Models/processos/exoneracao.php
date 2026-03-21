@@ -20,11 +20,12 @@ class Exoneracao extends Model
         'estado',
         'nrProcesso',
         'systemId',
+        'nrDespacho',
+        'dataDespacho',
         'pessoa_id',
         'despacho',
         'motivo',
         'abertoPor',
-        'data'
     ];
 
     public function pessoa()

@@ -22,12 +22,13 @@ class EstudosRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'despacho' => 'required',
             'pessoa_id' => 'required|exists:pessoas,id',
             'instituicao' => 'required',
             'data' => 'required|date',
             'abertoPor' => 'required|exists:pessoas,id',
             'nrProcesso' => 'required|string',
+            'nrDespacho' => 'required',
+            'dataDespacho' => 'required',
         ];
     }
 
@@ -37,7 +38,8 @@ class EstudosRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'despacho' => 'O despacho é obrigatório',
+            'nrDespacho' => 'O número do despacho é obrigatório',
+            'dataDespacho' => 'A data de despacho é obrigatória',
             'pessoa_id' => 'A pessoa é obrigatória.',
             'instituicao' => 'A instituição é obrigatória.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',

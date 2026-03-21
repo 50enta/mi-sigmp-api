@@ -15,17 +15,18 @@ class Promocao extends Model
     public $incrementing = false;
     protected $keyType = 'string';
     protected $processPrefix = 'PR0';
-    
+
     protected $fillable = [
         'id',
         'despacho',
         'abertoPor',
         'modalidade',
-        'data',
         'proposta',
         'pessoa_id',
         'nrProcesso',
-        'systemId'
+        'systemId',
+        'nrDespacho',
+        'dataDespacho'
     ];
 
     public function pessoa()

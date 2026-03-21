@@ -28,7 +28,10 @@ class SituacaoDisciplinar extends Model
         'dataDecisao',
         'decididoPor',
         'origem',
-        'infraccao'
+        'infraccao',
+        'anexos',
+        'nrDespacho',
+        'dataDespacho'
     ];
 
     public function pessoa()

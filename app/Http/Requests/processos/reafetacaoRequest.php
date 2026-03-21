@@ -22,7 +22,6 @@ class ReafetacaoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'despacho' => 'required',
             'origem' => 'required',
             'destino' => 'required',
             'pessoa_id' => 'required|exists:pessoas,id',
@@ -31,6 +30,8 @@ class ReafetacaoRequest extends FormRequest
             'cargo' => 'required',
             'abertoPor' => 'required|exists:pessoas,id',
             'nrProcesso' => 'required|string',
+            'nrDespacho' => 'required',
+            'dataDespacho' => 'required',
         ];
     }
 
@@ -40,10 +41,11 @@ class ReafetacaoRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'nrDespacho' => 'O número do despacho é obrigatório',
+            'dataDespacho' => 'A data de despacho é obrigatória',
             'cargo' => 'O cargo é obrigatório',
             'origem' => 'A origem é obrigatória.',
             'destino' => 'O destino é obrigatório.',
-            'despacho' => 'O despacho é obrigatório',
             'pessoa_id' => 'A pessoa é obrigatória.',
             'motivo' => 'O motivo é obrigatório.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',

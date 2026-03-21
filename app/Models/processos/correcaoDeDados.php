@@ -27,7 +27,10 @@ class CorrecaoDeDados extends Model
         'abertoPor',
         'nrProcesso',
         'systemId',
-        'tipoCorrecao'
+        'tipoCorrecao',
+        'nrDespacho',
+        'dataDespacho',
+        'despacho'
     ];
 
     public function pessoa()

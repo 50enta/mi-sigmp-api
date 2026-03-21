@@ -21,6 +21,7 @@ return new class extends Migration
             $table->date('dataDecisao')->nullable();
             $table->text('proposta');
             $table->text('infraccao');
+            $table->string('anexo')->nullable();
             $table->string('origem');
             $table->string('abertoPor');
             $table->string('decididoPor')->nullable();

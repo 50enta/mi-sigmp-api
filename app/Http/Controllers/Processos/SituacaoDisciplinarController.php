@@ -79,7 +79,16 @@ class SituacaoDisciplinarController extends Controller
     public function newProcess(SituacaoDisciplinarRequest $request)
     {
         try {
-            $data = $request->validated();
+            if(null !== $request->file('anexo')){
+                $filename = time() . '_' . $request->file('anexo')->getClientOriginalName();
+                $request->file('anexo')->move(public_path('uploads'), $filename);
+            }else{
+                $filename = null;
+            }
+
+            $data = $request->all();
+            $data['anexo'] = $filename;
+
             ProcessosSituacaoDisciplinar::create($data);
 
             return response()->json(['success' => 'Processo criado com sucesso'], 201);

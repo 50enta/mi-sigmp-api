@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('correcao_de_dados', function (Blueprint $table) {
             $table->id();
-            $table->enum('estado', ['aberto', 'fechado'])->default('fechado');
+            $table->enum('estado', ['aberto', 'fechado'])->default('aberto');
             $table->string('nrProcesso');
             $table->string('systemId');
             $table->uuid('pessoa_id');

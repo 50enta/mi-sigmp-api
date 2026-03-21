@@ -16,11 +16,13 @@ return new class extends Migration
             $table->string('systemId');
             $table->string('nrProcesso');
             $table->uuid('pessoa_id');
-            $table->string('despacho');
             $table->string('abertoPor');
             $table->string('modalidade')->nullable();
             $table->date('data');
             $table->string('proposta');
+            $table->string('despacho')->nullable();
+            $table->string('nrDespacho');
+            $table->date('dataDespacho');
             $table->timestamps();
             $table->softDeletes();
 

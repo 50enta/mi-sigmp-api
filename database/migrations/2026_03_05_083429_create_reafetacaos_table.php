@@ -17,8 +17,9 @@ return new class extends Migration
             $table->string('nrProcesso');
             $table->string('systemId');
             $table->uuid('pessoa_id');
-            $table->string('despacho');
-            $table->date('data');
+            $table->string('despacho')->nullable();
+            $table->string('nrDespacho');
+            $table->date('dataDespacho');
             $table->text('motivo');
             $table->string('origem');
             $table->string('destino');

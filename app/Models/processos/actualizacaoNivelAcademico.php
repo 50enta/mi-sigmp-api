@@ -25,8 +25,7 @@ class ActualizacaoNivelAcademico extends Model
         'dataDeConclusao',
         'pessoa_id',
         'abertoPor',
-        'nrProcesso',
-        'systemId'
+        'systemId',
     ];
 
     public function pessoa()

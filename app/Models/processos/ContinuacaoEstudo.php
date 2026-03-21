@@ -24,11 +24,12 @@ class ContinuacaoEstudo extends Model
         'instituicao',
         'curso',
         'nivelPretendido',
-        'data',
         'pessoa_id',
         'abertoPor',
         'nrProcesso',
-        'systemId'
+        'systemId',
+        'nrDespacho',
+        'dataDespacho'
     ];
 
     public function pessoa()

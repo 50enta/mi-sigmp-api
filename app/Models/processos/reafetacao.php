@@ -25,8 +25,9 @@ class Reafetacao extends Model
         'origem',
         'destino',
         'abertoPor',
-        'data',
-        'systemId'
+        'systemId',
+        'nrDespacho',
+        'dataDespacho'
     ];
 
     public function pessoa()

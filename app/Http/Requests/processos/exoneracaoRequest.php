@@ -22,12 +22,13 @@ class ExoneracaoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'despacho' => 'required',
             'pessoa_id' => 'required|exists:pessoas,id',
             'motivo' => 'required|string',
             'data' => 'required|date',
             'abertoPor' => 'required|exists:pessoas,id',
             'nrProcesso' => 'required|string',
+            'nrDespacho' => 'required',
+            'dataDespacho' => 'required',
         ];
     }
 
@@ -37,6 +38,8 @@ class ExoneracaoRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'nrDespacho' => 'O número do despacho é obrigatório',
+            'dataDespacho' => 'A data de despacho é obrigatória',
             'despacho' => 'O despacho é obrigatório',
             'pessoa_id' => 'A pessoa é obrigatória.',
             'motivo' => 'O motivo é obrigatório.',

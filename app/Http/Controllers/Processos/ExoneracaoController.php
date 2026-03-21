@@ -83,7 +83,6 @@ class ExoneracaoController extends Controller
             
             $data = $request->all();
             $data['despacho'] = $filename;
-            $data['estado'] = 'fechado';
 
             Exoneracao::create($data);
 
