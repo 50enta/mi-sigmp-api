@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('transferencias', function (Blueprint $table) {
             $table->id();
+            $table->string('systemId');
             $table->enum('estado', ['aberto', 'fechado'])->default('fechado');
             $table->uuid('origem');
             $table->uuid('destino');

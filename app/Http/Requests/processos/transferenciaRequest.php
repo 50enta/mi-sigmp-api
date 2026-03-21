@@ -41,6 +41,7 @@ class TransferenciaRequest extends FormRequest
             'destino' => 'O destino é obrigatório.',
             'pessoa_id' => 'O agente é obrigatório.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
+            'nrProcesso' => 'required|string',
         ];
     }
 

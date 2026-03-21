@@ -17,7 +17,7 @@ class ContinuacaoEstudo extends Model
     public $incrementing = false;
     protected $keyType = 'string';
     protected $processPrefix = 'CE';
-    
+
     protected $fillable = [
         'id',
         'despacho',
@@ -27,7 +27,8 @@ class ContinuacaoEstudo extends Model
         'data',
         'pessoa_id',
         'abertoPor',
-        'nrProcesso'
+        'nrProcesso',
+        'systemId'
     ];
 
     public function pessoa()

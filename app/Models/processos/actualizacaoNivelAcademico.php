@@ -15,7 +15,7 @@ class ActualizacaoNivelAcademico extends Model
     public $incrementing = false;
     protected $keyType = 'string';
     protected $processPrefix = 'ANA';
-    
+
     protected $fillable = [
         'id',
         'certificado',
@@ -25,7 +25,8 @@ class ActualizacaoNivelAcademico extends Model
         'dataDeConclusao',
         'pessoa_id',
         'abertoPor',
-        'nrProcesso'
+        'nrProcesso',
+        'systemId'
     ];
 
     public function pessoa()

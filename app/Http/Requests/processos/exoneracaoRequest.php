@@ -41,6 +41,7 @@ class ExoneracaoRequest extends FormRequest
             'motivo' => 'O motivo é obrigatório.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
             'data' => 'A data é obrigatória e deve ser uma data válida.',
+            'nrProcesso' => 'required|string',
         ];
     }
 

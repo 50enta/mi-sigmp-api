@@ -18,7 +18,7 @@ class Falecimentos extends Model
 
     protected $fillable = [
         'estado',
-        'nrProcesso',
+        'systemId',
         'pessoa_id',
         'certidaoObito',
         'dataMorte',

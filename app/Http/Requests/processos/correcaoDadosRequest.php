@@ -29,6 +29,7 @@ class CorrecaoDadosRequest extends FormRequest
             'abertoPor' => 'required|exists:pessoas,id',
             'dataNasc' => 'required_if:tipoCorrecao,1',
             'novoNome' => 'required_if:tipoCorrecao,0',
+            'nrProcesso' => 'required|string',
         ];
     }
 

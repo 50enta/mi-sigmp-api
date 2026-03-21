@@ -63,6 +63,10 @@ class ReafetacaoController extends Controller
                     $q->where('reafetacaos.nrProcesso', 'like', "%$nrProcesso%");
                 })
 
+                ->when(request('systemId'), function ($q, $systemId) {
+                    $q->where('reafetacaos.systemId', 'like', "%$systemId%");
+                })
+
                 ->when(request('createdAt'), function ($q, $createdAt) {
                     $q->whereDate('reafetacaos.created_at', $createdAt);
                 });

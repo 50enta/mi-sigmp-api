@@ -57,6 +57,10 @@ class PromocaoController extends Controller
                 $q->where('promocaos.nrProcesso', 'like', "%$nrProcesso%");
             })
 
+            ->when(request('systemId'), function ($q, $systemId) {
+                $q->where('promocaos.systemId', 'like', "%$systemId%");
+            })
+
             ->when(request('createdAt'), function ($q, $createdAt) {
                 $q->whereDate('promocaos.created_at', $createdAt);
             });
@@ -75,7 +79,7 @@ class PromocaoController extends Controller
         try {
             $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
             $request->file('despacho')->move(public_path('uploads'), $filename);
-            
+
             $data = $request->all();
             $data['despacho'] = $filename;
 
@@ -83,7 +87,6 @@ class PromocaoController extends Controller
 
             return response()->json(['success' => 'Processo criado com sucesso'], 201);
         } catch (\Throwable $th) {
-            dd($th);
             return response(['error' => 'Ocorreu um erro inesperado'], 500);
         }
     }

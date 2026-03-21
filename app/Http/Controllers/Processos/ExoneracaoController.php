@@ -58,6 +58,10 @@ class ExoneracaoController extends Controller
                 $q->where('exoneracaos.nrProcesso', 'like', "%$nrProcesso%");
             })
 
+             ->when(request('systemId'), function ($q, $systemId) {
+                $q->where('exoneracaos.systemId', 'like', "%$systemId%");
+            })
+
             ->when(request('createdAt'), function ($q, $createdAt) {
                 $q->whereDate('exoneracaos.created_at', $createdAt);
             });

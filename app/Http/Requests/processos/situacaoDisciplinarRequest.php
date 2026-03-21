@@ -26,6 +26,7 @@ class SituacaoDisciplinarRequest extends FormRequest
             'pessoa_id' => 'required|exists:pessoas,id',
             'origem' => 'required|string',
             'abertoPor' => 'required|exists:pessoas,id',
+            'nrProcesso' => 'required|string',
         ];
     }
 

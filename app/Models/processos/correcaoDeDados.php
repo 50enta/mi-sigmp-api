@@ -26,6 +26,7 @@ class CorrecaoDeDados extends Model
         'pessoa_id',
         'abertoPor',
         'nrProcesso',
+        'systemId',
         'tipoCorrecao'
     ];
 

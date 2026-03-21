@@ -41,6 +41,7 @@ class EstudosRequest extends FormRequest
             'instituicao' => 'A instituição é obrigatória.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
             'data' => 'A data é obrigatória e deve ser uma data válida.',
+            'nrProcesso' => 'required|string',
         ];
     }
 

@@ -59,6 +59,10 @@ class SituacaoDisciplinarController extends Controller
                 $q->where('gestao_disciplinars.nrProcesso', 'like', "%$nrProcesso%");
             })
 
+            ->when(request('systemId'), function ($q, $systemId) {
+                $q->where('gestao_disciplinars.systemId', 'like', "%$systemId%");
+            })
+
             ->when(request('createdAt'), function ($q, $createdAt) {
                 $q->whereDate('gestao_disciplinars.created_at', $createdAt);
             });

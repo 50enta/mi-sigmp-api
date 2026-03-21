@@ -55,8 +55,8 @@ class ActualizacaoNivelAcademicoController extends Controller
                     $q->where('p.nip', 'like', "%$nip%");
                 })
 
-                ->when(request('nrProcesso'), function ($q, $nrProcesso) {
-                    $q->where('actualizacao_nivel_academicos.nrProcesso', 'like', "%$nrProcesso%");
+                ->when(request('systemId'), function ($q, $systemId) {
+                    $q->where('actualizacao_nivel_academicos.systemId', 'like', "%$systemId%");
                 })
 
                 ->when(request('createdAt'), function ($q, $createdAt) {

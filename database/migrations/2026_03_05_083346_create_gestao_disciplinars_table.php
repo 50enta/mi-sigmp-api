@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->enum('estado', ['aberto', 'fechado'])->default('aberto');
             $table->string('nrProcesso');
+            $table->string('systemId');
             $table->uuid('pessoa_id');
             $table->string('despacho')->nullable();
             $table->date('dataDecisao')->nullable();

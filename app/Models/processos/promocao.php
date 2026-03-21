@@ -24,7 +24,8 @@ class Promocao extends Model
         'data',
         'proposta',
         'pessoa_id',
-        'nrProcesso'
+        'nrProcesso',
+        'systemId'
     ];
 
     public function pessoa()

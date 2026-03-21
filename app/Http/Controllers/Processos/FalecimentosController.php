@@ -54,8 +54,8 @@ class FalecimentosController extends Controller
                 $q->where('p.nip', 'like', "%$nip%");
             })
 
-            ->when(request('nrProcesso'), function ($q, $nrProcesso) {
-                $q->where('falecimentos.nrProcesso', 'like', "%$nrProcesso%");
+            ->when(request('systemId'), function ($q, $systemId) {
+                $q->where('falecimentos.systemId', 'like', "%$systemId%");
             })
 
             ->when(request('createdAt'), function ($q, $createdAt) {

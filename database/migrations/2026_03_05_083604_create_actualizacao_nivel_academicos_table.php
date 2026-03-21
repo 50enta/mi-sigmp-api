@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('actualizacao_nivel_academicos', function (Blueprint $table) {
             $table->id();
             $table->enum('estado', ['aberto', 'fechado'])->default('fechado');
-            $table->string('nrProcesso');
+            $table->string('systemId');
             $table->uuid('pessoa_id');
             $table->string('certificado');
             $table->string('abertoPor');

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SituacaoDisciplinar extends Model
 {
-    use HasFactory, SoftDeletes,HasProcessNumber;
+    use HasFactory, SoftDeletes, HasProcessNumber;
 
     protected $table = 'gestao_disciplinars';
     public $incrementing = false;
@@ -20,6 +20,7 @@ class SituacaoDisciplinar extends Model
     protected $fillable = [
         'estado',
         'nrProcesso',
+        'systemId',
         'pessoa_id',
         'despacho',
         'proposta',

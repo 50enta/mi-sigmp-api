@@ -19,6 +19,7 @@ class Exoneracao extends Model
     protected $fillable = [
         'estado',
         'nrProcesso',
+        'systemId',
         'pessoa_id',
         'despacho',
         'motivo',

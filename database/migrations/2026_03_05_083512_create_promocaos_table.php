@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('promocaos', function (Blueprint $table) {
             $table->enum('estado', ['aberto', 'fechado'])->default('fechado');
+            $table->string('systemId');
             $table->string('nrProcesso');
             $table->uuid('pessoa_id');
             $table->string('despacho');

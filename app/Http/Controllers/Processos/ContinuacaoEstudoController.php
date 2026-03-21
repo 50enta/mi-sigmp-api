@@ -59,6 +59,10 @@ class ContinuacaoEstudoController extends Controller
                     $q->where('continuacao_estudos.nrProcesso', 'like', "%$nrProcesso%");
                 })
 
+                ->when(request('systemId'), function ($q, $systemId) {
+                    $q->where('continuacao_estudos.systemId', 'like', "%$systemId%");
+                })
+
                 ->when(request('createdAt'), function ($q, $createdAt) {
                     $q->whereDate('continuacao_estudos.created_at', $createdAt);
                 });
@@ -87,7 +91,7 @@ class ContinuacaoEstudoController extends Controller
 
             return response()->json(['success' => 'Processo de continuacao com estudos criado com sucesso!'], 201);
         } catch (\Throwable $th) {
-            return response()->json(['error' => 'Ocorreu um erro inesperado'.$th], 500);
+            return response()->json(['error' => 'Ocorreu um erro inesperado' . $th], 500);
         }
     }
 }

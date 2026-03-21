@@ -58,6 +58,10 @@ class CorrecaoDeDadosController extends Controller
                     $q->where('correcao_de_dados.nrProcesso', 'like', "%$nrProcesso%");
                 })
 
+                ->when(request('systemId'), function ($q, $systemId) {
+                    $q->where('correcao_de_dados.systemId', 'like', "%$systemId%");
+                })
+
                 ->when(request('createdAt'), function ($q, $createdAt) {
                     $q->whereDate('correcao_de_dados.created_at', $createdAt);
                 });

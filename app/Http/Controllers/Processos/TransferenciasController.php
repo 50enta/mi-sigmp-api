@@ -64,6 +64,10 @@ class TransferenciasController extends Controller
                     $q->where('transferencias.nrProcesso', 'like', "%$nrProcesso%");
                 })
 
+                ->when(request('systemId'), function ($q, $systemId) {
+                    $q->where('transferencias.systemId', 'like', "%$systemId%");
+                })
+
                 ->when(request('createdAt'), function ($q, $createdAt) {
                     $q->whereDate('transferencias.created_at', $createdAt);
                 });
