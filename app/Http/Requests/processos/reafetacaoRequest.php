@@ -24,7 +24,8 @@ class ReafetacaoRequest extends FormRequest
         return [
             'origem' => 'required',
             'destino' => 'required',
-            'pessoa_id' => 'required|exists:pessoas,id',
+            'pessoa_id' => 'required|array',
+            'pessoa_id.*' => 'required|exists:pessoas,id',
             'motivo' => 'required|string',
             'data' => 'required|date',
             'cargo' => 'required',

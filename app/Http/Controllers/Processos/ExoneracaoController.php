@@ -58,7 +58,7 @@ class ExoneracaoController extends Controller
                 $q->where('exoneracaos.nrProcesso', 'like', "%$nrProcesso%");
             })
 
-             ->when(request('systemId'), function ($q, $systemId) {
+            ->when(request('systemId'), function ($q, $systemId) {
                 $q->where('exoneracaos.systemId', 'like', "%$systemId%");
             })
 
@@ -80,9 +80,10 @@ class ExoneracaoController extends Controller
         try {
             $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
             $request->file('despacho')->move(public_path('uploads'), $filename);
-            
+
             $data = $request->all();
             $data['despacho'] = $filename;
+            $data['pessoa_id'] = $request->input('pessoa_id')[0];
 
             Exoneracao::create($data);
 
@@ -91,7 +92,7 @@ class ExoneracaoController extends Controller
 
             return response()->json(['success' => 'Processo criado com sucesso'], 201);
         } catch (\Throwable $th) {
-            return response(['error' => 'Ocorreu um erro inesperado'.$th], 500);
+            return response(['error' => 'Ocorreu um erro inesperado' . $th], 500);
         }
     }
 }

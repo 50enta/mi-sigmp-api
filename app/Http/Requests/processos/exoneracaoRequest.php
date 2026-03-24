@@ -22,7 +22,8 @@ class ExoneracaoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pessoa_id' => 'required|exists:pessoas,id',
+            'pessoa_id' => 'required|array',
+            'pessoa_id.*' => 'required|exists:pessoas,id',
             'motivo' => 'required|string',
             'data' => 'required|date',
             'abertoPor' => 'required|exists:pessoas,id',

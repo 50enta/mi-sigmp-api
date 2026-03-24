@@ -23,7 +23,8 @@ class SituacaoDisciplinarRequest extends FormRequest
     {
         return [
             'proposta' => 'required|string',
-            'pessoa_id' => 'required|exists:pessoas,id',
+            'pessoa_id' => 'required|array',
+            'pessoa_id.*' => 'required|exists:pessoas,id',
             'origem' => 'required|string',
             'abertoPor' => 'required|exists:pessoas,id',
             'nrProcesso' => 'required|string',

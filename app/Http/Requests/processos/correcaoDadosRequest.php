@@ -23,7 +23,8 @@ class CorrecaoDadosRequest extends FormRequest
     {
         return [
             'comprovativo' => 'required',
-            'pessoa_id' => 'required|exists:pessoas,id',
+            'pessoa_id' => 'required|array',
+            'pessoa_id.*' => 'required|exists:pessoas,id',
             'tipoCorrecao' => 'required|string',
             'motivoEobs' => 'required|string',
             'abertoPor' => 'required|exists:pessoas,id',

@@ -85,6 +85,7 @@ class CorrecaoDeDadosController extends Controller
 
             $data = $request->all();
             $data['comprovativo'] = $filename;
+            $data['pessoa_id'] = $request->input('pessoa_id')[0];
 
             CorrecaoDeDados::create($data);
 

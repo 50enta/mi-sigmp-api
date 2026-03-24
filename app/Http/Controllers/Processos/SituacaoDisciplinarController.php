@@ -79,17 +79,20 @@ class SituacaoDisciplinarController extends Controller
     public function newProcess(SituacaoDisciplinarRequest $request)
     {
         try {
-            if(null !== $request->file('anexo')){
+            if (null !== $request->file('anexo')) {
                 $filename = time() . '_' . $request->file('anexo')->getClientOriginalName();
                 $request->file('anexo')->move(public_path('uploads'), $filename);
-            }else{
+            } else {
                 $filename = null;
             }
 
-            $data = $request->all();
-            $data['anexo'] = $filename;
+            foreach ($request->input('pessoa_id') as $pessoa_id) {
+                $data = $request->all();
+                $data['pessoa_id'] = $pessoa_id[0];
+                $data['anexo'] = $filename;
 
-            ProcessosSituacaoDisciplinar::create($data);
+                ProcessosSituacaoDisciplinar::create($data);
+            }
 
             return response()->json(['success' => 'Processo criado com sucesso'], 201);
         } catch (\Throwable $th) {

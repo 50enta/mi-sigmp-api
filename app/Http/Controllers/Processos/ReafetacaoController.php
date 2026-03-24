@@ -89,6 +89,7 @@ class ReafetacaoController extends Controller
 
             $data = $request->except(['cargo']);
             $data['despacho'] = $filename;
+            $data['pessoa_id'] = $request->input('pessoa_id')[0];
 
             $reaf = Reafetacao::create($data);
 

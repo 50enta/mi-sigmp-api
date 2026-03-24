@@ -61,7 +61,7 @@ class FalecimentosController extends Controller
             ->when(request('createdAt'), function ($q, $createdAt) {
                 $q->whereDate('falecimentos.created_at', $createdAt);
             });
-            
+
         $registros = $paging
             ? $query->paginate($pageSize, ['*'], 'page', $page)
             : $query->simplePaginate($pageSize, ['*'], 'page', $page);
@@ -77,6 +77,7 @@ class FalecimentosController extends Controller
 
             $data = $request->all();
             $data['certidaoObito'] = $filename;
+            $data['pessoa_id'] = $request->input('pessoa_id')[0];
 
             Falecimentos::create($data);
 

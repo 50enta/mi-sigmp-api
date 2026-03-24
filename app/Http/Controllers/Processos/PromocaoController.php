@@ -82,6 +82,7 @@ class PromocaoController extends Controller
 
             $data = $request->all();
             $data['despacho'] = $filename;
+            $data['pessoa_id'] = $request->input('pessoa_id')[0];
 
             Promocao::create($data);
 

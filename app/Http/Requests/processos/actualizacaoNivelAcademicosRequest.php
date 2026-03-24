@@ -23,7 +23,8 @@ class ActualizacaoNivelAcademicosRequest extends FormRequest
     {
         return [
             'certificado' => 'required',
-            'pessoa_id' => 'required|exists:pessoas,id',
+            'pessoa_id' => 'required|array',
+            'pessoa_id.*' => 'required|exists:pessoas,id',
             'instituicao' => 'required',
             'abertoPor' => 'required|exists:pessoas,id',
             'curso' => 'required',

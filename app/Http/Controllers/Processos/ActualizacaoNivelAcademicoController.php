@@ -81,12 +81,13 @@ class ActualizacaoNivelAcademicoController extends Controller
 
             $data = $request->all();
             $data['certificado'] = $filename;
+            $data['pessoa_id'] = $request->input('pessoa_id')[0];
 
             ActualizacaoNivelAcademico::create($data);
 
             return response()->json(['success' => 'Processo de continuacao com estudos criado com sucesso!'], 201);
         } catch (\Throwable $th) {
-            return response()->json(['error' => 'Ocorreu um erro inesperado'.$th], 500);
+            return response()->json(['error' => 'Ocorreu um erro inesperado' . $th], 500);
         }
     }
 }

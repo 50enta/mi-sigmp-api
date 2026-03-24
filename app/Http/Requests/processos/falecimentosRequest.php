@@ -25,7 +25,8 @@ class FalecimentosRequest extends FormRequest
             'certidaoObito' => 'required',
             'dataMorte' => 'required|date',
             'causaDaMorte' => 'required',
-            'pessoa_id' => 'required|exists:pessoas,id',
+            'pessoa_id' => 'required|array',
+            'pessoa_id.*' => 'required|exists:pessoas,id',
             'abertoPor' => 'required|exists:pessoas,id',
         ];
     }

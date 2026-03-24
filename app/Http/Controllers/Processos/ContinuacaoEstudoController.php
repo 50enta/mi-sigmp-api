@@ -86,7 +86,8 @@ class ContinuacaoEstudoController extends Controller
 
             $data = $request->all();
             $data['despacho'] = $filename;
-
+            $data['pessoa_id'] = $request->input('pessoa_id')[0];
+            
             ContinuacaoEstudo::create($data);
 
             return response()->json(['success' => 'Processo de continuacao com estudos criado com sucesso!'], 201);
