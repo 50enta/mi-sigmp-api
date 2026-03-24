@@ -78,12 +78,16 @@ class ExoneracaoController extends Controller
     public function newProcess(ExoneracaoRequest $request)
     {
         try {
-            $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
-            $request->file('despacho')->move(public_path('uploads'), $filename);
-
             $data = $request->all();
-            $data['despacho'] = $filename;
-            $data['pessoa_id'] = $request->input('pessoa_id')[0];
+
+            if ($request->file('despacho') != null) {
+                $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
+                $request->file('despacho')->move(public_path('uploads'), $filename);
+                
+                $data['despacho'] = $filename;
+            }
+
+            $data['pessoa_id'] = $request->input('pessoa_id')[0][0];
 
             Exoneracao::create($data);
 
@@ -92,7 +96,7 @@ class ExoneracaoController extends Controller
 
             return response()->json(['success' => 'Processo criado com sucesso'], 201);
         } catch (\Throwable $th) {
-            return response(['error' => 'Ocorreu um erro inesperado' . $th], 500);
+            return response(['error' => 'Ocorreu um erro inesperado'], 500);
         }
     }
 }

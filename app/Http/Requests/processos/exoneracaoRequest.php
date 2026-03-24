@@ -25,7 +25,6 @@ class ExoneracaoRequest extends FormRequest
             'pessoa_id' => 'required|array',
             'pessoa_id.*' => 'required|exists:pessoas,id',
             'motivo' => 'required|string',
-            'data' => 'required|date',
             'abertoPor' => 'required|exists:pessoas,id',
             'nrProcesso' => 'required|string',
             'nrDespacho' => 'required',

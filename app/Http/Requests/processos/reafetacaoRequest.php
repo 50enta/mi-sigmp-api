@@ -27,7 +27,6 @@ class ReafetacaoRequest extends FormRequest
             'pessoa_id' => 'required|array',
             'pessoa_id.*' => 'required|exists:pessoas,id',
             'motivo' => 'required|string',
-            'data' => 'required|date',
             'cargo' => 'required',
             'abertoPor' => 'required|exists:pessoas,id',
             'nrProcesso' => 'required|string',

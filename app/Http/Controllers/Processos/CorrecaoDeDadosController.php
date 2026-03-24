@@ -72,7 +72,6 @@ class CorrecaoDeDadosController extends Controller
 
             return response()->json(['data' => $registros], 200);
         } catch (\Throwable $th) {
-            dd($th);
             return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
         }
     }

@@ -67,8 +67,6 @@ class SituacaoDisciplinarController extends Controller
                 $q->whereDate('gestao_disciplinars.created_at', $createdAt);
             });
 
-
-
         $registros = $paging
             ? $query->paginate($pageSize, ['*'], 'page', $page)
             : $query->simplePaginate($pageSize, ['*'], 'page', $page);
@@ -79,17 +77,16 @@ class SituacaoDisciplinarController extends Controller
     public function newProcess(SituacaoDisciplinarRequest $request)
     {
         try {
+            $data = $request->all();
+            
             if (null !== $request->file('anexo')) {
                 $filename = time() . '_' . $request->file('anexo')->getClientOriginalName();
                 $request->file('anexo')->move(public_path('uploads'), $filename);
-            } else {
-                $filename = null;
+                $data['anexo'] = $filename;
             }
 
             foreach ($request->input('pessoa_id') as $pessoa_id) {
-                $data = $request->all();
-                $data['pessoa_id'] = $pessoa_id[0];
-                $data['anexo'] = $filename;
+                $data['pessoa_id'] = $pessoa_id[0][0];
 
                 ProcessosSituacaoDisciplinar::create($data);
             }

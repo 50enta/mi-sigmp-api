@@ -77,11 +77,13 @@ class PromocaoController extends Controller
     public function newProcess(PromocaoRequest $request)
     {
         try {
-            $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
-            $request->file('despacho')->move(public_path('uploads'), $filename);
-
             $data = $request->all();
-            $data['despacho'] = $filename;
+
+            if (null !== $request->file('despacho')) {
+                $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
+                $request->file('despacho')->move(public_path('uploads'), $filename);
+            }
+
             $data['pessoa_id'] = $request->input('pessoa_id')[0];
 
             Promocao::create($data);

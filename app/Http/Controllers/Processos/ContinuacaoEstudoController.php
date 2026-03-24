@@ -81,13 +81,13 @@ class ContinuacaoEstudoController extends Controller
     public function newProcess(EstudosRequest $request)
     {
         try {
-            $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
-            $request->file('despacho')->move(public_path('uploads'), $filename);
-
             $data = $request->all();
-            $data['despacho'] = $filename;
-            $data['pessoa_id'] = $request->input('pessoa_id')[0];
-            
+
+            if (null !== $request->file('despacho')) {
+                $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
+                $request->file('despacho')->move(public_path('uploads'), $filename);
+            }
+
             ContinuacaoEstudo::create($data);
 
             return response()->json(['success' => 'Processo de continuacao com estudos criado com sucesso!'], 201);
