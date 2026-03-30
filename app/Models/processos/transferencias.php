@@ -29,7 +29,11 @@ class Transferencias extends Model
         'data',
         'systemId',
         'nrDespacho',
-        'dataDespacho'
+        'dataDespacho',
+        'despacho',
+        'nrDespachoPermutador',
+        'dataDespachoPermutador',
+        'permutadorDespacho'
     ];
 
     public function pessoa()

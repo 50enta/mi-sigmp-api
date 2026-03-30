@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('local_id');
             $table->uuid('pessoa_id');
-            $table->enum('cargo', ['Chefe do posto', 'Motorista', 'Outro'])->nullable();
+            $table->string('cargo')->nullable();
             $table->string('transferencia_id')->nullable();
             $table->string('reafetacao_id')->nullable();
             $table->string('despacho')->nullable();

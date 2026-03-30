@@ -78,7 +78,6 @@ class TransferenciasController extends Controller
 
             return response()->json(['data' => $registros], 200);
         } catch (\Throwable $th) {
-            dd($th);
             return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
         }
     }
@@ -88,12 +87,35 @@ class TransferenciasController extends Controller
         try {
 
             $data = $request->all();
-            $reaf = Transferencias::create($data);
+
+            if (null !== $request->file('despacho')) {
+                $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
+                $request->file('despacho')->move(public_path('uploads'), $filename);
+                $data['despacho'] = $filename;
+            }
+
+            if (null !== $request->file('permutadorDespacho')) {
+                $filename = time() . '_' . $request->file('permutadorDespacho')->getClientOriginalName();
+                $request->file('permutadorDespacho')->move(public_path('uploads'), $filename);
+                $data['permutadorDespacho'] = $filename;
+            }
+
+            if (null !== $request->input('permutador')) {
+                $data['permutador'] = $request->input('permutador')[0][0];
+            }
+
+            $data['pessoa_id'] = (int) (
+                is_array($data['pessoa_id'])
+                ? $data['pessoa_id'][0]
+                : $data['pessoa_id']
+            );
+
+            Transferencias::create($data);
 
             return response()->json(['success' => 'Transferência criada com sucesso!'], 201);
         } catch (\Throwable $th) {
-            dd($th);
-            return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
+            // dd($th);
+            return response()->json([$data['pessoa_id'][0], $th->getMessage()], 500);
         }
     }
 }
