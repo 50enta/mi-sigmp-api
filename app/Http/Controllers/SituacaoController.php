@@ -36,6 +36,8 @@ class SituacaoController extends Controller
                 'id' => (string) Str::uuid(),
                 'situacao' => $estado,
                 'pessoa_id' => $id,
+                'created_at'=> now(),
+                'updated_at'=> now()
             ];
 
             DB::table('situacao_pessoas')->insert($data);
