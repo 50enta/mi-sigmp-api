@@ -269,9 +269,11 @@ class PessoaController extends Controller
                 ->select(
                     'pessoas.*',
                     'local_afectos.local_id',
-                    'local_afectos.cargo'
-                )    
-                ->whereIn('pessoas.id', $latest)         
+                    'local_afectos.cargo',
+                    'categoria_policias.categoria_id',
+                    'especialidade_pessoas.especialidade_id'
+                )
+                ->whereIn('pessoas.id', $latest)
                 // Left join com local_afectos (ativo)
                 ->leftJoin('local_afectos', function ($join) {
                     $join->on('pessoas.id', '=', 'local_afectos.pessoa_id')
@@ -280,6 +282,8 @@ class PessoaController extends Controller
                                 ->orWhere('local_afectos.dataFim', '>=', now());
                         });
                 })
+                ->leftJoin('especialidade_pessoas', 'especialidade_pessoas.pessoa_id', '=', 'pessoas.id')
+                ->leftJoin('categoria_policias', 'categoria_policias.pessoa_id', '=', 'pessoas.id')
                 ->when($query, function ($q, $nome) {
                     $q->where('pessoas.nomeCompleto', 'LIKE', "%{$nome}%");
                 })

@@ -78,7 +78,7 @@ class SituacaoDisciplinarController extends Controller
     {
         try {
             $data = $request->all();
-            
+
             if (null !== $request->file('anexo')) {
                 $filename = time() . '_' . $request->file('anexo')->getClientOriginalName();
                 $request->file('anexo')->move(public_path('uploads'), $filename);
@@ -86,14 +86,14 @@ class SituacaoDisciplinarController extends Controller
             }
 
             foreach ($request->input('pessoa_id') as $pessoa_id) {
-                $data['pessoa_id'] = $pessoa_id[0][0];
-
+                $data['pessoa_id'] = $pessoa_id;
+                
                 ProcessosSituacaoDisciplinar::create($data);
             }
-
-            return response()->json(['success' => 'Processo criado com sucesso'], 201);
+            return response()->json(['success' => 'Processo disciplinar criado com sucesso'], 201);
         } catch (\Throwable $th) {
-            return response(['error' => 'Ocorreu um erro inesperado'], 500);
+            return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
         }
     }
 }
+

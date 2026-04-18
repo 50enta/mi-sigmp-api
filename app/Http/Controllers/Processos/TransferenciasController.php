@@ -101,7 +101,7 @@ class TransferenciasController extends Controller
             }
 
             if (null !== $request->input('permutador')) {
-                $data['permutador'] = $request->input('permutador')[0][0];
+                $data['permutador'] = $request->input('permutador')[0];
             }
 
             $data['pessoa_id'] = (int) (

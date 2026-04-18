@@ -87,7 +87,7 @@ class ExoneracaoController extends Controller
                 $data['despacho'] = $filename;
             }
 
-            $data['pessoa_id'] = $request->input('pessoa_id')[0][0];
+            $data['pessoa_id'] = $request->input('pessoa_id')[0];
 
             Exoneracao::create($data);
 
