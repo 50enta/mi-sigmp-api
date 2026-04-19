@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Processos;
 
+use App\Http\Controllers\CategoriaEspecialidadeController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Processos\PromocaoRequest;
+use App\Models\CategoriaPolicia;
 use App\Models\Processos\Promocao;
 use Illuminate\Http\Request;
 
@@ -85,12 +87,32 @@ class PromocaoController extends Controller
             }
 
             $data['pessoa_id'] = $request->input('pessoa_id')[0];
+            $data['dataDespacho'] = date('Y-m-d', strtotime($request->input('dataDespacho')));
 
-            Promocao::create($data);
+            $promo = Promocao::create($data);
 
-            return response()->json(['success' => 'Processo criado com sucesso'], 201);
+            $new = [
+                "nrProcesso" => $promo->nrProcesso,
+                "categoria_id" => $promo->novaCategoria,
+                "pessoa_id" => $promo->pessoa_id,
+                "nrDespacho" => $promo->nrDespacho,
+                "despacho" => null !== $request->file('despacho') ? $filename : null,
+                "dataInicio" => $promo->dataDespacho,
+                "obs" => null !== $request->input('obs') ? $data['obs'] : null,
+            ];
+
+            $updateCate = new CategoriaEspecialidadeController();
+            
+            if ($updateCate->updateCatEsp($new) == 1) {
+                return response()->json(['success' => 'Processo de promoção registado com sucesso'], 201);
+            } else {
+                Promocao::find($promo->systemId)->delete();
+                return response()->json(['error' => 'Ocorreu um erro ao registar o processo de promoção'], 500);
+            }
+            
         } catch (\Throwable $th) {
-            return response(['error' => 'Ocorreu um erro inesperado'], 500);
+            dd($th);
+            return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
         }
     }
 }

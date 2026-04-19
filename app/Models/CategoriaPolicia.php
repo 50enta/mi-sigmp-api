@@ -20,9 +20,11 @@ class CategoriaPolicia extends Model
         'categoria_id',
         'pessoa_id',
         'despacho',
+        'nrDespacho',
         'dataInicio',
         'dataFim',
         'obs',
+        'nrProcesso',
     ];
 
     protected static function boot()

@@ -24,7 +24,8 @@ class PromocaoRequest extends FormRequest
         return [
             'pessoa_id' => 'required|array',
             'pessoa_id.*' => 'required|exists:pessoas,id',
-            'proposta' => 'required|string',
+            'categoriaActual' => 'required|string',
+            'novaCategoria' => 'required|string',
             'abertoPor' => 'required|exists:pessoas,id',
             'nrProcesso' => 'required|string',
             'nrDespacho' => 'required',

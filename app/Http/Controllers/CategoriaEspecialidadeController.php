@@ -53,6 +53,9 @@ class CategoriaEspecialidadeController extends Controller
         }
     }
 
+
+
+
     function getCatEspHistory(Request $request)
     {
         try {
@@ -70,6 +73,34 @@ class CategoriaEspecialidadeController extends Controller
             return response()->json(['categorias' => $categoria, 'especialidades' => $especialidades], 200);
         } catch (\Throwable $th) {
             //throw $th;
+        }
+    }
+
+    function updateCatEsp($request)
+    {
+        try {
+            DB::table('categoria_policias')
+                ->where('pessoa_id', $request['pessoa_id'])
+                ->where(function ($query) {
+                    $query->whereNull('dataFim')
+                        ->orWhere('activo', true);
+                })
+                ->update(['dataFim' => $request['dataInicio'], 'activo' => false]);
+
+            DB::table('categoria_policias')
+                ->insert([
+                    'id' => (string) Str::uuid(),
+                    'pessoa_id' => $request['pessoa_id'],
+                    'categoria_id'  => $request['categoria_id'],
+                    'dataInicio'  => $request['dataInicio'],
+                    'obs'     => isset($request['obs']) ? $request['obs'] : null,
+                    'despacho' => $request['despacho'],
+                    'nrDespacho' => $request['nrDespacho']
+                ]);
+
+            return 1;
+        } catch (\Throwable $th) {
+            return 0;
         }
     }
 }

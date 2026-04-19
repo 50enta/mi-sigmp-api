@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->boolean('activo')->default(true);
             $table->string('despacho')->nullable();
+            $table->string('nrProcesso')->nullable();
             $table->date('dataInicio')->nullable();
             $table->date('dataFim')->nullable();
             $table->uuid('especialidade_id');
