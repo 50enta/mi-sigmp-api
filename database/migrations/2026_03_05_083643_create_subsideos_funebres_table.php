@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::create('subsideos_funebres', function (Blueprint $table) {
             $table->id();
+            $table->enum('estado', ['aberto', 'fechado'])->default('fechado');
+            $table->string('systemId');
+            $table->string('nrProcesso');
+            $table->uuid('pessoa_id');
+            $table->string('abertoPor');
+            $table->string('beneficiarios');
+            $table->enum('tipoPensao', ['Morte', 'Sobrevivencia']);
+            $table->string('documento')->nullable();
+            $table->string('referenciaDocumento');
             $table->timestamps();
         });
     }

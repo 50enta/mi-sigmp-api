@@ -16,6 +16,7 @@ use App\Http\Controllers\Processos\PensoesController;
 use App\Http\Controllers\Processos\PromocaoController;
 use App\Http\Controllers\Processos\ReafetacaoController;
 use App\Http\Controllers\Processos\SituacaoDisciplinarController;
+use App\Http\Controllers\Processos\SubsideosFunebresController;
 use App\Http\Controllers\Processos\TransferenciasController;
 
 route::post('login', sessionController::class . '@login');
@@ -133,5 +134,13 @@ Route::prefix('reservaAposentadoActivo')->group(function () {
     Route::get('/{id}', [PensoesController::class, 'show']);
     Route::get('/', [PensoesController::class, 'index']);
     Route::put('/{id}', [PensoesController::class, 'update']);
+});
+
+Route::prefix('subsidioFunebre')->group(function () {
+    Route::post('/', [SubsideosFunebresController::class, 'newProcess']);
+    Route::get('/stats', [SubsideosFunebresController::class, 'stats']);
+    Route::get('/{id}', [SubsideosFunebresController::class, 'show']);
+    Route::get('/', [SubsideosFunebresController::class, 'index']);
+    Route::put('/{id}', [SubsideosFunebresController::class, 'update']);
 });
 //});
