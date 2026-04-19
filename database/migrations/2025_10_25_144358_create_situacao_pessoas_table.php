@@ -24,6 +24,7 @@ return new class extends Migration
             ])->default('Activo');
             $table->uuid('pessoa_id');
             $table->string('despacho')->nullable();
+            $table->string('nrProcesso')->nullable();
             $table->text('obs')->nullable();
             $table->foreign('pessoa_id')->references('id')->on('pessoas')->onDelete('cascade');
             $table->timestamps();

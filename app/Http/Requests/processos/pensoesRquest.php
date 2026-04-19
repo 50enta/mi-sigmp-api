@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class PromocaoRequest extends FormRequest
+class PensoesRquest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +22,11 @@ class PromocaoRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'estadoActual' => 'required|string',
+            'novoEstado' => 'required|string|different:estadoActual',
             'pessoa_id' => 'required|array',
             'pessoa_id.*' => 'required|exists:pessoas,id',
-            'categoriaActual' => 'required|string',
-            'novaCategoria' => 'required|string|different:categoriaActual', // ⭐
+            'motivo' => 'required|string',
             'abertoPor' => 'required|exists:pessoas,id',
             'nrProcesso' => 'required|string',
             'nrDespacho' => 'required',
@@ -39,14 +40,15 @@ class PromocaoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'novaCategoria.different' => 'A nova categoria deve ser diferente da categoria actual.',
+            'novoEstado.different' => 'A novo estado deve ser diferente da actual.',
             'nrDespacho' => 'O número do despacho é obrigatório',
             'dataDespacho' => 'A data de despacho é obrigatória',
             'pessoa_id' => 'A pessoa é obrigatória.',
-            'proposta' => 'O proposta é obrigatório.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
-            'data' => 'A data é obrigatória e deve ser uma data válida.',
+            'motivo' => 'O motivo do processo pensoe é obrigatório.',
             'nrProcesso' => 'O número do processo é obrigatório',
+            'novoEstado' => 'O novo estado é obrigatório.',
+            'estadoActual' => 'O estado actual é obrigatório.',
         ];
     }
 

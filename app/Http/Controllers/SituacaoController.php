@@ -29,15 +29,17 @@ class SituacaoController extends Controller
     }
 
 
-    public function addDefaultStatus($id, $estado = 'Activo')
+    public function addDefaultStatus($id, $estado = 'Activo', $despacho = null, $nrProcesso = null)
     {
         try {
             $data = [
                 'id' => (string) Str::uuid(),
                 'situacao' => $estado,
                 'pessoa_id' => $id,
-                'created_at'=> now(),
-                'updated_at'=> now()
+                'despacho' => $despacho,
+                'nrProcesso' => $nrProcesso,
+                'created_at' => now(),
+                'updated_at' => now()
             ];
 
             DB::table('situacao_pessoas')->insert($data);

@@ -12,6 +12,7 @@ use App\Http\Controllers\Processos\ContinuacaoEstudoController;
 use App\Http\Controllers\Processos\CorrecaoDeDadosController;
 use App\Http\Controllers\Processos\ExoneracaoController;
 use App\Http\Controllers\Processos\FalecimentosController;
+use App\Http\Controllers\Processos\PensoesController;
 use App\Http\Controllers\Processos\PromocaoController;
 use App\Http\Controllers\Processos\ReafetacaoController;
 use App\Http\Controllers\Processos\SituacaoDisciplinarController;
@@ -124,5 +125,13 @@ Route::prefix('falecimento')->group(function () {
     Route::get('/{id}', [FalecimentosController::class, 'show']);
     Route::get('/', [FalecimentosController::class, 'index']);
     Route::put('/{id}', [FalecimentosController::class, 'update']);
+});
+
+Route::prefix('gestaoPensaoReserva')->group(function () {
+    Route::post('/', [PensoesController::class, 'newProcess']);
+    Route::get('/stats', [PensoesController::class, 'stats']);
+    Route::get('/{id}', [PensoesController::class, 'show']);
+    Route::get('/', [PensoesController::class, 'index']);
+    Route::put('/{id}', [PensoesController::class, 'update']);
 });
 //});
