@@ -127,7 +127,7 @@ Route::prefix('falecimento')->group(function () {
     Route::put('/{id}', [FalecimentosController::class, 'update']);
 });
 
-Route::prefix('gestaoPensaoReserva')->group(function () {
+Route::prefix('reservaAposentadoActivo')->group(function () {
     Route::post('/', [PensoesController::class, 'newProcess']);
     Route::get('/stats', [PensoesController::class, 'stats']);
     Route::get('/{id}', [PensoesController::class, 'show']);

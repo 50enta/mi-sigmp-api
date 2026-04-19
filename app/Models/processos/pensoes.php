@@ -16,7 +16,8 @@ class Pensoes extends Model
     protected $processPrefix = 'GPR';
 
     protected $fillable = [
-        'estado',
+        'novoEstado',
+        'estadoActual',
         'nrProcesso',
         'systemId',
         'nrDespacho',

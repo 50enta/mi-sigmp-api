@@ -40,7 +40,7 @@ class PensoesRquest extends FormRequest
     public function messages(): array
     {
         return [
-            'novoEstado.different' => 'A novo estado deve ser diferente da actual.',
+            'novoEstado.different' => 'O novo estado deve ser diferente da actual.',
             'nrDespacho' => 'O número do despacho é obrigatório',
             'dataDespacho' => 'A data de despacho é obrigatória',
             'pessoa_id' => 'A pessoa é obrigatória.',

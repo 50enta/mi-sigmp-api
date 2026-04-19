@@ -42,11 +42,9 @@ class PensoesController extends Controller
                 'pensoes.*',
                 'p.nomeCompleto as pessoaNome',
                 'ab.nomeCompleto as abertoPorNome',
-                'locals.nome as localNome'
             )
             ->leftJoin('pessoas as p', 'p.id', '=', 'pensoes.pessoa_id')
             ->leftJoin('pessoas as ab', 'ab.id', '=', 'pensoes.abertoPor')
-            ->leftJoin('locals', 'locals.id', '=', 'pensoes.origem')
 
             ->when(request('nomeAgente'), function ($q, $nomeAgente) {
                 $q->where('p.nomeCompleto', 'like', "%$nomeAgente%");
@@ -92,7 +90,7 @@ class PensoesController extends Controller
 
                 Pensoes::create($data);
                 $sitController = new SituacaoController();
-                $sitController->addDefaultStatus($pessoa_id, $data['estadoActual'], $data['nrDespacho'], $data['nrProcesso']);
+                $sitController->addDefaultStatus($pessoa_id, $data['novoEstado'], $data['nrDespacho'], $data['nrProcesso']);
             }
             
             return response()->json(['success' => 'Processo criado com sucesso'], 201);
