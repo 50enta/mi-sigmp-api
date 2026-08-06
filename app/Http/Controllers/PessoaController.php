@@ -46,11 +46,16 @@ class PessoaController extends Controller
         }
     }
 
-    function getByEspecialidade($year, $previousYear)
+    function getByEspecialidade($year, $previousYear, $estado = null)
     {
         try {
             return DB::table('pessoas')
                 ->join('especialidade_pessoas as cp', 'cp.pessoa_id', '=', 'pessoas.id')
+                ->when($estado, function ($q) use ($estado) {
+                    $q->join('situacao_pessoas as sp', 'sp.pessoa_id', '=', 'pessoas.id')
+                        ->whereNull('sp.deleted_at')
+                        ->where('sp.situacao', $estado);
+                })
                 ->whereNull('pessoas.deleted_at')
                 ->whereNull('cp.deleted_at')
                 ->select(
@@ -90,6 +95,34 @@ class PessoaController extends Controller
         try {
             $year = $request->input('year', now()->year);
             $previousYear = $year - 1;
+            $estado = $request->input('estado');
+            $section = $request->input('section');
+
+            if ($section === 'provincia') {
+                $pessoasProvincia = Pessoa::query()
+                    ->whereNull('pessoas.deleted_at')
+                    ->when($estado, function ($q) use ($estado) {
+                        $q->join('situacao_pessoas as sp', 'sp.pessoa_id', '=', 'pessoas.id')
+                            ->whereNull('sp.deleted_at')
+                            ->where('sp.situacao', $estado);
+                    })
+                    ->select(
+                        'pessoas.provincia as provincia',
+                        'pessoas.genero as genero',
+                        DB::raw("SUM(CASE WHEN YEAR(pessoas.created_at) <= $year THEN 1 ELSE 0 END) as total"),
+                        DB::raw("SUM(CASE WHEN YEAR(pessoas.created_at) <= $previousYear THEN 1 ELSE 0 END) as previous_total")
+                    )
+                    ->groupBy('pessoas.provincia', 'pessoas.genero')
+                    ->get();
+
+                return response()->json(['pessoasProvincia' => $pessoasProvincia], 200);
+            }
+
+            if ($section === 'especialidade') {
+                $pessoasEspecialidade = $this->getByEspecialidade($year, $previousYear, $estado);
+
+                return response()->json(['pessoasEspecialidade' => $pessoasEspecialidade], 200);
+            }
 
             $totalCurrent = Pessoa::whereNull('deleted_at')->count();
 
@@ -102,20 +135,25 @@ class PessoaController extends Controller
                 : null;
 
             $pessoasProvincia = Pessoa::query()
-                ->whereNull('deleted_at')
+                ->whereNull('pessoas.deleted_at')
+                ->when($estado, function ($q) use ($estado) {
+                    $q->join('situacao_pessoas as sp', 'sp.pessoa_id', '=', 'pessoas.id')
+                        ->whereNull('sp.deleted_at')
+                        ->where('sp.situacao', $estado);
+                })
                 ->select(
-                    'provincia',
-                    'genero',
-                    DB::raw("SUM(CASE WHEN YEAR(created_at) <= $year THEN 1 ELSE 0 END) as total"),
-                    DB::raw("SUM(CASE WHEN YEAR(created_at) <= $previousYear THEN 1 ELSE 0 END) as previous_total")
+                    'pessoas.provincia as provincia',
+                    'pessoas.genero as genero',
+                    DB::raw("SUM(CASE WHEN YEAR(pessoas.created_at) <= $year THEN 1 ELSE 0 END) as total"),
+                    DB::raw("SUM(CASE WHEN YEAR(pessoas.created_at) <= $previousYear THEN 1 ELSE 0 END) as previous_total")
                 )
-                ->groupBy('provincia', 'genero')
+                ->groupBy('pessoas.provincia', 'pessoas.genero')
                 ->get();
 
             return response()->json([
                 'pessoas' => ['total' => $totalCurrent, 'variation' => $rateChange],
                 'pessoasPorEstado' => $this->getByEstado($year, $previousYear),
-                'pessoasEspecialidade' => $this->getByEspecialidade($year, $previousYear),
+                'pessoasEspecialidade' => $this->getByEspecialidade($year, $previousYear, $estado),
                 'pessoasProvincia' => $pessoasProvincia
             ], 200);
         } catch (\Throwable $th) {
