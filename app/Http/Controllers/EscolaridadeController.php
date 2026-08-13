@@ -15,6 +15,7 @@ class EscolaridadeController extends Controller
     public function saveEscolaridade(StoreFormacaoRequest $request)
     {
         try {
+            DB::beginTransaction();
             if ($request->file('formacoesComplementares.certificadoComplementar')) {
                 $filename = time() . 'comple' . $request->file('formacoesComplementares.certificadoComplementar')->getClientOriginalName();
                 $request->file('formacoesComplementares.certificadoComplementar')->move(public_path('uploads'), $filename);
@@ -92,9 +93,14 @@ class EscolaridadeController extends Controller
             $pessoa = new PessoaController();
             $pessoa->updateStep(2, $request['formacaoAcademica']['pessoa_id']);
 
+            DB::commit();
+
             return response()->json(['success' => true], 201);
         } catch (\Throwable $th) {
-            return response()->json(['error' => 'Error inesperado'.$th], 500);
+            DB::rollBack();
+            report($th);
+
+            return response()->json(['error' => 'Erro inesperado'], 500);
         }
     }
 

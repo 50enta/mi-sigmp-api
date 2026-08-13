@@ -22,7 +22,7 @@ class ActualizacaoNivelAcademicosRequest extends ProcessRequest
     public function rules(): array
     {
         return [
-            'certificado' => 'required',
+            'certificado' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'pessoa_id' => 'required|array',
             'pessoa_id.*' => 'required|exists:pessoas,id',
             'instituicao' => 'required',

@@ -123,3 +123,37 @@ it('enforces the same eligibility rules when a process is created', function () 
         ->and(fn () => $eligibility->ensureEligible(ProcessAgentEligibility::CONTINUAR_ESTUDOS, $estudante->id))
         ->toThrow(ValidationException::class);
 });
+
+it('opens a study continuation process without requiring a digital dispatch file', function () {
+    $registrar = pessoaComSituacao('Agente Registador', 'NIP20013', 'Activo');
+    $agente = pessoaComSituacao('Agente Estudante Novo', 'NIP20014', 'Activo');
+
+    $user = User::query()->forceCreate([
+        'activo' => true,
+        'ja_acedeu' => true,
+        'pessoa_id' => $registrar->id,
+        'acesso' => 'admin',
+        'email' => fake()->unique()->safeEmail(),
+        'password' => 'password',
+    ]);
+
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/continuarEstudos', [
+        'pessoa_id' => [$agente->id],
+        'instituicao' => 'Instituicao de Teste',
+        'curso' => 'Curso de Teste',
+        'nivelPretendido' => 'Licenciatura',
+        'data' => now()->toDateString(),
+        'nrProcesso' => 'PROC-SEM-FICHEIRO',
+        'nrDespacho' => 'DESP-001',
+        'dataDespacho' => now()->toDateString(),
+    ])->assertCreated();
+
+    $this->assertDatabaseHas('continuacao_estudos', [
+        'pessoa_id' => $agente->id,
+        'nrProcesso' => 'PROC-SEM-FICHEIRO',
+        'estado' => 'aberto',
+        'despacho' => null,
+    ]);
+});

@@ -31,7 +31,8 @@ class ReafetacaoRequest extends ProcessRequest
             'abertoPor' => 'required|exists:pessoas,id',
             'nrProcesso' => 'required|string',
             'nrDespacho' => 'required',
-            'dataDespacho' => 'required',
+            'dataDespacho' => 'required|date',
+            'despacho' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ];
     }
 

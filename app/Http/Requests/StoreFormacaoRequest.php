@@ -23,22 +23,27 @@ class StoreFormacaoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // === Formação Acadêmica ===
-            // 'formacaoAcademica.nivel' => 'required|string',
-            // 'formacaoAcademica.curso' => 'required|string|max:255',
-            // 'formacaoAcademica.instituicao' => 'required|string|max:255',
-            // 'formacaoAcademica.dataInicio' => 'required|date', 
-            // 'formacaoAcademica.dataFim' => 'nullable|date|after_or_equal:formacaoAcademica.dataInicio',
-            // 'formacaoAcademica.pessoa_id' => 'required|exists:pessoas,id',
+            'formacaoAcademica' => 'required|array',
+            'formacaoAcademica.nivel' => 'required|string',
+            'formacaoAcademica.curso' => 'required|string|max:255',
+            'formacaoAcademica.instituicao' => 'required|string|max:255',
+            'formacaoAcademica.dataInicio' => 'required|date',
+            'formacaoAcademica.dataFim' => 'nullable|date|after_or_equal:formacaoAcademica.dataInicio',
+            'formacaoAcademica.pessoa_id' => 'required|uuid|exists:pessoas,id',
+            'formacaoAcademica.certificado' => 'nullable|file|mimes:pdf,jpeg,png,jpg|max:10240',
 
-            // Se o certificado for um upload de arquivo:
-            // 'formacaoAcademica.certificadoFormacaoAcademica' => 'required|file|mimes:pdf,jpeg,png,jpg|max:10240', // 10MB máx
+            'formacaoPolicia.pessoa_id' => 'nullable|uuid|exists:pessoas,id',
+            'formacaoPolicia.dataInicioBasico' => 'required_with:formacaoPolicia.basico|nullable|date',
+            'formacaoPolicia.dataConclusaoBasico' => 'nullable|date|after_or_equal:formacaoPolicia.dataInicioBasico',
+            'formacaoPolicia.dataInicioMedio' => 'required_with:formacaoPolicia.medio|nullable|date',
+            'formacaoPolicia.dataConclusaoMedio' => 'nullable|date|after_or_equal:formacaoPolicia.dataInicioMedio',
+            'formacaoPolicia.dataInicioSuperior' => 'required_with:formacaoPolicia.superior|nullable|date',
+            'formacaoPolicia.dataConclusaoSuperior' => 'nullable|date|after_or_equal:formacaoPolicia.dataInicioSuperior',
 
-            // === Formação Policial ===
-            // 'formacaoPolicia.curso' => 'required|string|max:255',
-            // Adicione outros campos policiais se necessário, ex:
-            // 'formacaoPolicia.instituicao' => 'required|string|max:255',
-            // 'formacaoPolicia.dataConclusao' => 'required|date',
+            'formacoesComplementares.pessoa_id' => 'nullable|uuid|exists:pessoas,id',
+            'formacoesComplementares.instituicaoComplementar' => 'required_with:formacoesComplementares.cursoComplementar|nullable|string|max:255',
+            'formacoesComplementares.anoConclusaoComplementar' => 'required_with:formacoesComplementares.cursoComplementar|nullable|integer|min:1900|max:'.date('Y'),
+            'formacoesComplementares.certificadoComplementar' => 'nullable|file|mimes:pdf,jpeg,png,jpg|max:10240',
         ];
     }
 

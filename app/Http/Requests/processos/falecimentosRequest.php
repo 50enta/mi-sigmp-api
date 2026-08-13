@@ -22,7 +22,7 @@ class FalecimentosRequest extends ProcessRequest
     public function rules(): array
     {
         return [
-            'certidaoObito' => 'required',
+            'certidaoObito' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'dataMorte' => 'required|date',
             'causaDaMorte' => 'required',
             'pessoa_id' => 'required|array',

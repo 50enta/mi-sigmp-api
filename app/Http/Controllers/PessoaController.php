@@ -235,6 +235,7 @@ class PessoaController extends Controller
     public function store(PessoaRequest $request)
     {
         try {
+            DB::beginTransaction();
             $data = $request->input('info');
             $data['nip'] = NipGenerator::generate();
             $pessoa = Pessoa::create($data);
@@ -242,8 +243,11 @@ class PessoaController extends Controller
             $sitController = new SituacaoController;
             $sitController->addDefaultStatus($pessoa->id);
 
+            DB::commit();
+
             return response(['pessoa' => $pessoa], 201);
         } catch (\Throwable $th) {
+            DB::rollBack();
 
             return response(['error' => 'Error inesperado'], 500);
         }

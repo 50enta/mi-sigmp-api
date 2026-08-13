@@ -18,16 +18,18 @@ class StoreEspecialidadeCategoriaRequest extends FormRequest
 
             // === Grupo Especialidade ===
             'especialidade' => 'required|array',
+            'especialidade.pessoa_id' => 'required|uuid|exists:pessoas,id',
             'especialidade.especialidade' => 'required|string|max:255',
             'especialidade.dataNomeacaoEsp' => 'required|date',
-            // 'especialidade.despachoEsp' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240', // 10MB
+            'especialidade.despachoEsp' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'especialidade.observacoesEsp' => 'nullable|string|max:1000',
 
             // === Grupo Categoria ===
             'categoria' => 'required|array',
+            'categoria.pessoa_id' => 'required|uuid|exists:pessoas,id',
             'categoria.categoria' => 'required|string|max:255',
             'categoria.dataNomeacaoCat' => 'required|date',
-            // 'categoria.despachoCat' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'categoria.despachoCat' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'categoria.observacoesCat' => 'nullable|string|max:1000',
         ];
     }

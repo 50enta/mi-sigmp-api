@@ -86,8 +86,9 @@ class ContinuacaoEstudoController extends Controller
         app(ProcessAgentEligibility::class)->ensureEligible(ProcessAgentEligibility::CONTINUAR_ESTUDOS, $pessoaId);
 
         try {
-            $data = $request->all();
+            $data = $request->validated();
             $data['pessoa_id'] = $pessoaId;
+            $data['estado'] = 'aberto';
 
             if ($request->file('despacho') !== null) {
                 $filename = time().'_'.$request->file('despacho')->getClientOriginalName();
@@ -99,7 +100,9 @@ class ContinuacaoEstudoController extends Controller
 
             return response()->json(['success' => 'Processo de continuacao com estudos criado com sucesso!'], 201);
         } catch (\Throwable $th) {
-            return response()->json(['error' => 'Ocorreu um erro inesperado'.$th], 500);
+            report($th);
+
+            return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
         }
     }
 }

@@ -29,7 +29,9 @@ class ContinuacaoEstudo extends Model
         'nrProcesso',
         'systemId',
         'nrDespacho',
-        'dataDespacho'
+        'dataDespacho',
+        'data',
+        'estado',
     ];
 
     public function pessoa()

@@ -23,6 +23,8 @@ class localAfetosRequest extends FormRequest
     {
         return [
             'localEfuncoes.dataInicio' => 'required|date',
+            'localEfuncoes.dataFim' => 'nullable|date|after_or_equal:localEfuncoes.dataInicio',
+            'localEfuncoes.despacho' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'localEfuncoes.local_id' => 'required|uuid|exists:locals,id',
             'localEfuncoes.pessoa_id' => 'required|exists:pessoas,id',
         ];

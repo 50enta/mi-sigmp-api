@@ -25,11 +25,14 @@ class EstudosRequest extends ProcessRequest
             'pessoa_id' => 'required|array',
             'pessoa_id.*' => 'required|exists:pessoas,id',
             'instituicao' => 'required',
+            'curso' => 'required|string|max:255',
+            'nivelPretendido' => 'required|string|max:255',
             'data' => 'required|date',
             'abertoPor' => 'required|exists:pessoas,id',
             'nrProcesso' => 'required|string',
-            'nrDespacho' => 'required',
-            'dataDespacho' => 'required',
+            'nrDespacho' => 'required|string|max:255',
+            'dataDespacho' => 'required|date',
+            'despacho' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ];
     }
 
