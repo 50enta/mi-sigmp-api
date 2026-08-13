@@ -6,96 +6,113 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\mailController;
 use App\Http\Utils\User\generatePassword;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Exception;
 
 class sessionController extends Controller
 {
-    function enpointTest()
+    public function endpointTest(): JsonResponse
     {
-        return response(['message' => 'Endpoint testado com sucesso!']);
+        return response()->json(['message' => 'Endpoint testado com sucesso!']);
     }
 
-    function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
-        try {
-            $valid = $request->validate([
-                'email' => 'required|email|max:100',
-                'password' => 'required|string'
-            ]);
+        $credentials = $request->validate([
+            'email' => ['required', 'email', 'max:100'],
+            'password' => ['required', 'string'],
+        ]);
 
-            $user = User::where('users.email', $valid['email'])
-                ->where('users.activo', 1)
-                ->join('pessoas', 'pessoas.id', '=', 'users.pessoa_id')
-                ->select('users.*', 'pessoas.*') // IMPORTANTE
-                ->first();
-
-            if (!$user || !Hash::check($valid['password'], $user->password)) {
-                return response(['error' => 'Email ou senha invalidos!'], 401);
-            } else {
-                try {
-                    $token = $user->createToken('near_miss_api_login_token')->plainTextToken;
-                    return response(['token' => $token, 'user' => $user]);
-                } catch (Exception $e) {
-                    return response(['error' => 'Ocorreu um erro ao fazer login!.' . $e], 401);
-                }
-            }
-        } catch (\Illuminate\Validation\ValidationException $th) {
-            return response(['error' => 'Ocorreu erro inesperado!' . $th], 401);
+        if (! Auth::attempt([...$credentials, 'activo' => true])) {
+            return response()->json(['message' => 'Email ou senha invalidos!'], 401);
         }
+
+        $request->session()->regenerate();
+
+        return response()->json([
+            'user' => $this->userPayload($request->user()),
+        ]);
     }
 
-    function requestPassword(Request $request)
+    public function user(Request $request): JsonResponse
+    {
+        return response()->json([
+            'user' => $this->userPayload($request->user()),
+        ]);
+    }
+
+    public function requestPassword(Request $request): JsonResponse
     {
         try {
             $request->validate([
-                'email' => 'required|email',
+                'email' => ['required', 'email'],
             ]);
 
-            $email = User::select('email', 'id')
-                ->where('email', '=', $request->email)
-                ->get();
+            $user = User::query()->where('email', $request->string('email'))->first();
 
-            if (sizeof($email) > 0) {
-                $passwordGenrator = new generatePassword();
-                $pass = $passwordGenrator->returnRandomString();
-                $mail = new mailController();
-
-                if ($mail->passwordReset($email[0]->email, $pass) == 1) {
-                    User::where('id', $email[0]->id)
-                        ->update([
-                            'password' => Hash::make($pass),
-                            'ja_acedeu' => '0'
-                        ]);
-                    return response(['success' => 'Foi enviado um codigo no seu email para a reposicao da senha!']);
-                } else {
-                    return response(['error' => 'Ocorreu um erro ao fazer a requisicao da nova senha!'], 500);
-                }
-            } else {
-                return response(['error' => 'O email introduzido não existe!']);
-            }
-        } catch (\Illuminate\Validation\ValidationException $th) {
-            return response(['error' => 'Email introduzido e invalido']);
-        }
-    }
-
-    function logout(Request $request)
-    {
-        $request->user()->currentAccessToken()->delete();
-    }
-
-    function checkToken(Request $request)
-    {
-        try {
-            $user = $request->user();
             if ($user) {
-                return response(['valid' => true]);
-            } else {
-                return response(['valid' => false], 401);
+                $passwordGenerator = new generatePassword;
+                $temporaryPassword = $passwordGenerator->returnRandomString();
+                $mail = new mailController;
+
+                if ($mail->passwordReset($user->email, $temporaryPassword) === 1) {
+                    $user->forceFill([
+                        'password' => Hash::make($temporaryPassword),
+                        'ja_acedeu' => false,
+                    ])->save();
+                }
             }
-        } catch (Exception $e) {
-            return response(['valid' => false, 'error' => 'Erro ao verificar token'], 500);
+
+            // Keep this response identical whether or not the account exists.
+            return response()->json([
+                'success' => 'Se o email existir, recebera instrucoes para recuperar a senha.',
+            ]);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json(['message' => 'Nao foi possivel processar o pedido.'], 500);
         }
+    }
+
+    public function logout(Request $request): Response
+    {
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        Auth::forgetGuards();
+
+        return response()->noContent();
+    }
+
+    public function checkToken(Request $request): JsonResponse
+    {
+        return response()->json([
+            'valid' => true,
+            'user' => $this->userPayload($request->user()),
+        ]);
+    }
+
+    /**
+     * Preserve the person id expected by existing process forms while keeping
+     * the authentication user's database id available separately.
+     *
+     * @return array<string, mixed>
+     */
+    private function userPayload(User $user): array
+    {
+        $user->loadMissing('pessoa');
+
+        return [
+            ...($user->pessoa?->toArray() ?? []),
+            'id' => $user->pessoa_id,
+            'userId' => $user->getKey(),
+            'email' => $user->email,
+            'acesso' => $user->acesso,
+            'activo' => (bool) $user->activo,
+            'jaAcedeu' => (bool) $user->ja_acedeu,
+        ];
     }
 }
