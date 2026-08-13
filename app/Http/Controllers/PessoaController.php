@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\pessoaRequest;
 use App\Models\Pessoa;
+use App\Services\ProcessAgentEligibility;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 
 class PessoaController extends Controller
 {
-    function getByEstado($year, $previousYear)
+    public function getByEstado($year, $previousYear)
     {
         try {
             $uncomplete = DB::table('pessoas')
@@ -32,10 +32,11 @@ class PessoaController extends Controller
                     $item->rate_change = $item->previous_total > 0
                         ? (($item->total - $item->previous_total) / $item->previous_total) * 100
                         : null;
+
                     return $item;
                 });
 
-            $byStatus[] = (object)[
+            $byStatus[] = (object) [
                 'situacao' => 'Incompleto',
                 'total' => $uncomplete,
             ];
@@ -46,7 +47,7 @@ class PessoaController extends Controller
         }
     }
 
-    function getByEspecialidade($year, $previousYear, $estado = null)
+    public function getByEspecialidade($year, $previousYear, $estado = null)
     {
         try {
             return DB::table('pessoas')
@@ -90,7 +91,7 @@ class PessoaController extends Controller
         }
     }
 
-    function getDashData(Request $request)
+    public function getDashData(Request $request)
     {
         try {
             $year = $request->input('year', now()->year);
@@ -154,7 +155,7 @@ class PessoaController extends Controller
                 'pessoas' => ['total' => $totalCurrent, 'variation' => $rateChange],
                 'pessoasPorEstado' => $this->getByEstado($year, $previousYear),
                 'pessoasEspecialidade' => $this->getByEspecialidade($year, $previousYear, $estado),
-                'pessoasProvincia' => $pessoasProvincia
+                'pessoasProvincia' => $pessoasProvincia,
             ], 200);
         } catch (\Throwable $th) {
             throw $th;
@@ -221,7 +222,6 @@ class PessoaController extends Controller
                 $q->where('situacao_pessoas.situacao', $situacao);
             });
 
-
         $pessoas = $paging
             ? $query->paginate($pageSize, [], 'page', $page)
             : $query->simplePaginate($pageSize, [], 'page', $page);
@@ -239,7 +239,7 @@ class PessoaController extends Controller
             $data['nip'] = NipGenerator::generate();
             $pessoa = Pessoa::create($data);
 
-            $sitController = new SituacaoController();
+            $sitController = new SituacaoController;
             $sitController->addDefaultStatus($pessoa->id);
 
             return response(['pessoa' => $pessoa], 201);
@@ -274,7 +274,7 @@ class PessoaController extends Controller
             return response()->json($pessoa, 200);
         } catch (\Throwable $th) {
             dd($th);
-            //throw $th;
+            // throw $th;
         }
     }
 
@@ -289,9 +289,14 @@ class PessoaController extends Controller
         }
     }
 
-    public function search($query)
+    public function search(Request $request, string $query)
     {
         try {
+            $validated = $request->validate([
+                'processo' => ['nullable', 'in:exonerar,subsidioFunebre,continuarEstudos'],
+            ]);
+            $processo = $validated['processo'] ?? null;
+
             $pessoas = Pessoa::query()
                 ->select(
                     'pessoas.*',
@@ -304,13 +309,25 @@ class PessoaController extends Controller
                 )
 
                 // Join com a situação mais recente
+                ->selectSub(function ($subquery) {
+                    $subquery->from('continuacao_estudos')
+                        ->selectRaw('COUNT(*)')
+                        ->whereColumn('continuacao_estudos.pessoa_id', 'pessoas.id')
+                        ->where('continuacao_estudos.estado', 'aberto')
+                        ->whereNull('continuacao_estudos.deleted_at');
+                }, 'continuacao_estudo_em_andamento')
+
+                // Join com a situacao mais recente, independentemente do estado.
                 ->leftJoin('situacao_pessoas as sp', function ($join) {
                     $join->on('pessoas.id', '=', 'sp.pessoa_id')
-                        ->whereIn('sp.situacao', ['Activo', 'Reserva', 'Aposentado', 'Suspenso'])
-                        ->whereRaw('sp.created_at = (
-                SELECT MAX(sp2.created_at)
+                        ->whereNull('sp.deleted_at')
+                        ->whereRaw('sp.id = (
+                SELECT sp2.id
                 FROM situacao_pessoas sp2
                 WHERE sp2.pessoa_id = pessoas.id
+                AND sp2.deleted_at IS NULL
+                ORDER BY sp2.created_at DESC, sp2.id DESC
+                LIMIT 1
             )');
                 })
 
@@ -329,17 +346,34 @@ class PessoaController extends Controller
                 ->when($query, function ($q, $nome) {
                     $q->where('pessoas.nomeCompleto', 'LIKE', "%{$nome}%");
                 })
-                ->get();
+                ->get()
+                ->map(function ($pessoa) use ($processo) {
+                    $eligibility = app(ProcessAgentEligibility::class)->evaluate(
+                        $processo,
+                        $pessoa->situacao,
+                        (bool) $pessoa->continuacao_estudo_em_andamento,
+                    );
+
+                    $pessoa->selecaoBloqueada = $eligibility['blocked'];
+                    $pessoa->motivoBloqueio = $eligibility['reason'];
+
+                    return $pessoa;
+                });
 
             return response()->json(['pessoas' => $pessoas], 200);
-        } catch (\Throwable $th) {
-            dd($th);
-            //throw $th;
+        } catch (\Illuminate\Validation\ValidationException $exception) {
+            throw $exception;
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json(['message' => 'Nao foi possivel pesquisar os agentes.'], 500);
         }
     }
+
     /**
      * Remove the specified resource from storage.
-     */    public function destroy($id)
+     */
+    public function destroy($id)
     {
         $pessoa = Pessoa::findOrFail($id);
         $pessoa->delete();

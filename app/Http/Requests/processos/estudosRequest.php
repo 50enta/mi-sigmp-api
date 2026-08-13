@@ -3,10 +3,10 @@
 namespace App\Http\Requests\Processos;
 
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\ProcessRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class EstudosRequest extends FormRequest
+class EstudosRequest extends ProcessRequest
 {
     /**
      * Determine if the user is authorized to make this request.

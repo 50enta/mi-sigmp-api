@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Processos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Processos\EstudosRequest;
 use App\Models\Processos\ContinuacaoEstudo;
+use App\Services\ProcessAgentEligibility;
 use Illuminate\Http\Request;
 
 class ContinuacaoEstudoController extends Controller
 {
-
     public function stats(Request $request)
     {
         try {
@@ -27,6 +27,7 @@ class ContinuacaoEstudoController extends Controller
             return response()->json(['data' => $stats], 200);
         } catch (\Throwable $th) {
             dd($th);
+
             return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
         }
     }
@@ -74,25 +75,31 @@ class ContinuacaoEstudoController extends Controller
             return response()->json(['data' => $registros], 200);
         } catch (\Throwable $th) {
             dd($th);
+
             return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
         }
     }
 
     public function newProcess(EstudosRequest $request)
     {
+        $pessoaId = $request->input('pessoa_id')[0];
+        app(ProcessAgentEligibility::class)->ensureEligible(ProcessAgentEligibility::CONTINUAR_ESTUDOS, $pessoaId);
+
         try {
             $data = $request->all();
+            $data['pessoa_id'] = $pessoaId;
 
-            if (null !== $request->file('despacho')) {
-                $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
+            if ($request->file('despacho') !== null) {
+                $filename = time().'_'.$request->file('despacho')->getClientOriginalName();
                 $request->file('despacho')->move(public_path('uploads'), $filename);
+                $data['despacho'] = $filename;
             }
 
             ContinuacaoEstudo::create($data);
 
             return response()->json(['success' => 'Processo de continuacao com estudos criado com sucesso!'], 201);
         } catch (\Throwable $th) {
-            return response()->json(['error' => 'Ocorreu um erro inesperado' . $th], 500);
+            return response()->json(['error' => 'Ocorreu um erro inesperado'.$th], 500);
         }
     }
 }
