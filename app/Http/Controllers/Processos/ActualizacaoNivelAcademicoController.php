@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Processos;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Processos\ActualizacaoNivelAcademicosRequest;
+use App\Models\Escolaridade;
 use App\Models\Processos\ActualizacaoNivelAcademico;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ActualizacaoNivelAcademicoController extends Controller
 {
@@ -76,6 +78,8 @@ class ActualizacaoNivelAcademicoController extends Controller
     public function newProcess(ActualizacaoNivelAcademicosRequest $request)
     {
         try {
+            DB::beginTransaction();
+
             $filename = time() . '_' . $request->file('certificado')->getClientOriginalName();
             $request->file('certificado')->move(public_path('uploads'), $filename);
 
@@ -85,8 +89,20 @@ class ActualizacaoNivelAcademicoController extends Controller
 
             ActualizacaoNivelAcademico::create($data);
 
-            return response()->json(['success' => 'Processo de continuacao com estudos criado com sucesso!'], 201);
+            Escolaridade::create([
+                'pessoa_id'   => $data['pessoa_id'],
+                'nivel'       => $data['nivel'],
+                'instituicao' => $data['instituicao'],
+                'curso'       => $data['curso'],
+                'certificado' => $filename,
+                'dataFim'     => $data['dataDeConclusao'] ?? null,
+            ]);
+
+            DB::commit();
+
+            return response()->json(['success' => 'Processo de atualização académica criado com sucesso!'], 201);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json(['error' => 'Ocorreu um erro inesperado' . $th], 500);
         }
     }
