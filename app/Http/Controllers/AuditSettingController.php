@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AuditSetting;
 use App\Models\AuditTrail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class AuditSettingController extends Controller
 {
@@ -48,9 +49,17 @@ class AuditSettingController extends Controller
 
     public function logs(Request $request)
     {
+        $filters = $request->validate([
+            'event' => ['nullable', 'in:read,create,update,delete'],
+            'occurred_at' => ['nullable', 'date'],
+        ]);
+
         $logs = AuditTrail::query()
             ->with('pessoa:id,nomeCompleto,nip')
-            ->when($request->input('event'), fn ($q, $event) => $q->where('event', $event))
+            ->when($filters['event'] ?? null, fn ($q, $event) => $q->where('event', $event))
+            ->when($filters['occurred_at'] ?? null, function ($q, $occurredAt) {
+                $q->where('created_at', '>=', Carbon::parse($occurredAt));
+            })
             ->when($request->input('search'), function ($q, $search) {
                 $q->where(fn ($query) => $query
                     ->where('path', 'like', "%{$search}%")
