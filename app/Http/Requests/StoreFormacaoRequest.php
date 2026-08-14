@@ -29,10 +29,10 @@ class StoreFormacaoRequest extends FormRequest
             'formacaoAcademica.instituicao' => 'required|string|max:255',
             'formacaoAcademica.dataInicio' => 'required|date',
             'formacaoAcademica.dataFim' => 'nullable|date|after_or_equal:formacaoAcademica.dataInicio',
-            'formacaoAcademica.pessoa_id' => 'required|uuid|exists:pessoas,id',
+            'formacaoAcademica.pessoa_id' => 'required|exists:pessoas,id',
             'formacaoAcademica.certificado' => 'nullable|file|mimes:pdf,jpeg,png,jpg|max:10240',
 
-            'formacaoPolicia.pessoa_id' => 'nullable|uuid|exists:pessoas,id',
+            'formacaoPolicia.pessoa_id' => 'nullable|exists:pessoas,id',
             'formacaoPolicia.dataInicioBasico' => 'required_with:formacaoPolicia.basico|nullable|date',
             'formacaoPolicia.dataConclusaoBasico' => 'nullable|date|after_or_equal:formacaoPolicia.dataInicioBasico',
             'formacaoPolicia.dataInicioMedio' => 'required_with:formacaoPolicia.medio|nullable|date',
@@ -40,7 +40,7 @@ class StoreFormacaoRequest extends FormRequest
             'formacaoPolicia.dataInicioSuperior' => 'required_with:formacaoPolicia.superior|nullable|date',
             'formacaoPolicia.dataConclusaoSuperior' => 'nullable|date|after_or_equal:formacaoPolicia.dataInicioSuperior',
 
-            'formacoesComplementares.pessoa_id' => 'nullable|uuid|exists:pessoas,id',
+            'formacoesComplementares.pessoa_id' => 'nullable|exists:pessoas,id',
             'formacoesComplementares.instituicaoComplementar' => 'required_with:formacoesComplementares.cursoComplementar|nullable|string|max:255',
             'formacoesComplementares.anoConclusaoComplementar' => 'required_with:formacoesComplementares.cursoComplementar|nullable|integer|min:1900|max:'.date('Y'),
             'formacoesComplementares.certificadoComplementar' => 'nullable|file|mimes:pdf,jpeg,png,jpg|max:10240',

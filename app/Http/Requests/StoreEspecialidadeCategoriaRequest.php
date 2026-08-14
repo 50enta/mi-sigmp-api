@@ -14,11 +14,9 @@ class StoreEspecialidadeCategoriaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'pessoa_id' => 'required|uuid|exists:pessoas,id',
-
             // === Grupo Especialidade ===
             'especialidade' => 'required|array',
-            'especialidade.pessoa_id' => 'required|uuid|exists:pessoas,id',
+            'especialidade.pessoa_id' => 'required|exists:pessoas,id',
             'especialidade.especialidade' => 'required|string|max:255',
             'especialidade.dataNomeacaoEsp' => 'required|date',
             'especialidade.despachoEsp' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
@@ -26,7 +24,7 @@ class StoreEspecialidadeCategoriaRequest extends FormRequest
 
             // === Grupo Categoria ===
             'categoria' => 'required|array',
-            'categoria.pessoa_id' => 'required|uuid|exists:pessoas,id',
+            'categoria.pessoa_id' => 'required|exists:pessoas,id',
             'categoria.categoria' => 'required|string|max:255',
             'categoria.dataNomeacaoCat' => 'required|date',
             'categoria.despachoCat' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
