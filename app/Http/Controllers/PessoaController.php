@@ -297,7 +297,7 @@ class PessoaController extends Controller
     {
         try {
             $validated = $request->validate([
-                'processo' => ['nullable', 'in:exonerar,subsidioFunebre,continuarEstudos'],
+                'processo' => ['nullable', 'in:exonerar,subsidioFunebre,continuarEstudos,reservaAposentadoActivo'],
             ]);
             $processo = $validated['processo'] ?? null;
 

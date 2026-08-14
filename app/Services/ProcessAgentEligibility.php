@@ -13,20 +13,27 @@ class ProcessAgentEligibility
 
     public const SUBSIDIO_FUNEBRE = 'subsidioFunebre';
 
+    public const RESERVA_APOSENTADO_ACTIVO = 'reservaAposentadoActivo';
+
     /**
      * @return array{blocked: bool, reason: string|null}
      */
     public function evaluate(?string $processo, ?string $situacao, bool $continuacaoEmAndamento): array
     {
+        $isMorto = strtolower(trim((string) $situacao)) === 'morto';
+
         return match ($processo) {
-            self::EXONERAR => in_array($situacao, ['Exonerado', 'Morto'], true)
+            self::EXONERAR => in_array(strtolower(trim((string) $situacao)), ['exonerado', 'morto'], true)
                 ? ['blocked' => true, 'reason' => "Agente com situação {$situacao} não pode ser exonerado."]
                 : ['blocked' => false, 'reason' => null],
-            self::SUBSIDIO_FUNEBRE => $situacao === 'Morto'
+            self::SUBSIDIO_FUNEBRE => $isMorto
                 ? ['blocked' => true, 'reason' => 'O agente já se encontra na situação Morto.']
                 : ['blocked' => false, 'reason' => null],
             self::CONTINUAR_ESTUDOS => $continuacaoEmAndamento
                 ? ['blocked' => true, 'reason' => 'O agente já possui um processo de Continuação dos Estudos em andamento.']
+                : ['blocked' => false, 'reason' => null],
+            self::RESERVA_APOSENTADO_ACTIVO => $isMorto
+                ? ['blocked' => true, 'reason' => 'Um agente morto não pode ser activado, colocado na reserva ou aposentado.']
                 : ['blocked' => false, 'reason' => null],
             default => ['blocked' => false, 'reason' => null],
         };
