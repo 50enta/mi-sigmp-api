@@ -20,7 +20,16 @@ class AuditTrail extends Model
         'pessoa_id',
         'info',
         'status',
+        'event',
+        'method',
+        'path',
+        'ip_address',
+        'user_agent',
+        'http_status',
+        'metadata',
     ];
+
+    protected $casts = ['metadata' => 'array'];
 
     protected static function boot()
     {
@@ -33,7 +42,7 @@ class AuditTrail extends Model
 
     public function pessoa()
     {
-        return $this->belongsTo(Pessoa::class, 'ipessoa_id');
+        return $this->belongsTo(Pessoa::class, 'pessoa_id');
     }
 
 }

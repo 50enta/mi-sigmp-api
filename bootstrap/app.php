@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->statefulApi();
+        $middleware->alias([
+            'audit' => \App\Http\Middleware\AuditRequests::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

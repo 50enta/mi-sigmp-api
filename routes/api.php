@@ -20,6 +20,7 @@ use App\Http\Controllers\Session\sessionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Processos\ProcessRecordController;
 use App\Http\Controllers\Processos\AssentoBiograficoController;
+use App\Http\Controllers\AuditSettingController;
 
 Route::post('login', [sessionController::class, 'login'])->middleware('throttle:5,1');
 
@@ -27,12 +28,16 @@ Route::get('endpointTest', [sessionController::class, 'endpointTest']);
 
 Route::post('passwordRequest', [sessionController::class, 'requestPassword'])->middleware('throttle:5,1');
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::get('user', [sessionController::class, 'user']);
 
     Route::post('checkToken', [sessionController::class, 'checkToken']);
 
     Route::post('logout', [sessionController::class, 'logout']);
+
+    Route::get('audit-settings', [AuditSettingController::class, 'show']);
+    Route::put('audit-settings', [AuditSettingController::class, 'update']);
+    Route::get('audit-logs', [AuditSettingController::class, 'logs']);
 
     Route::prefix('pessoas')->group(function () {
         Route::post('/', [PessoaController::class, 'store']);
