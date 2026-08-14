@@ -175,16 +175,7 @@ class PessoaController extends Controller
         $previousYear = $year - 1;
 
         $query = Pessoa::query()
-            ->select(
-                'pessoas.*',
-                'situacao_pessoas.situacao',
-                'categoria_policias.categoria_id',
-                'especialidade_pessoas.especialidade_id'
-            )
-            ->leftJoin('especialidade_pessoas', 'especialidade_pessoas.pessoa_id', '=', 'pessoas.id')
-            ->leftJoin('categoria_policias', 'categoria_policias.pessoa_id', '=', 'pessoas.id')
-            ->leftJoin('situacao_pessoas', 'situacao_pessoas.pessoa_id', '=', 'pessoas.id')
-            ->leftJoin('curso_policias', 'curso_policias.pessoa_id', '=', 'pessoas.id')
+            ->with(['categoriaAtual', 'especialidadeAtual', 'situacaoAtual'])
 
             // nome completo
             ->when(request('nomeCompleto'), function ($q, $nome) {
@@ -203,28 +194,48 @@ class PessoaController extends Controller
 
             // especialidade
             ->when(request('especialidade'), function ($q, $especialidade) {
-                $q->where('especialidade_pessoas.especialidade_id', $especialidade);
-                // ou ->where('especialidade_pessoas.especialidade', $especialidade)
+                $q->whereHas('especialidadeAtual', function ($q) use ($especialidade) {
+                    $q->where('especialidade_id', $especialidade);
+                });
             })
 
             // categoria
             ->when(request('categoria'), function ($q, $categoria) {
-                $q->where('categoria_policias.categoria_id', $categoria);
+                $q->whereHas('categoriaAtual', function ($q) use ($categoria) {
+                    $q->where('categoria_id', $categoria);
+                });
             })
 
             // curso
             ->when(request('curso'), function ($q, $curso) {
-                $q->where('curso_policias.curso_id', $curso);
+                $q->whereHas('cursosPoliciais', function ($q) use ($curso) {
+                    $q->where('curso_id', $curso);
+                });
             })
 
             // situação (ENUM)
             ->when(request('situacao'), function ($q, $situacao) {
-                $q->where('situacao_pessoas.situacao', $situacao);
-            });
+                $q->whereHas('situacaoAtual', function ($q) use ($situacao) {
+                    $q->where('situacao', $situacao);
+                });
+            })
+            ->orderBy('pessoas.created_at')
+            ->orderBy('pessoas.id');
 
         $pessoas = $paging
-            ? $query->paginate($pageSize, [], 'page', $page)
-            : $query->simplePaginate($pageSize, [], 'page', $page);
+            ? $query->paginate($pageSize, ['pessoas.*'], 'page', $page)
+            : $query->simplePaginate($pageSize, ['pessoas.*'], 'page', $page);
+
+        $pessoas->through(function (Pessoa $pessoa) {
+            $pessoa->setAttribute('situacao', $pessoa->situacaoAtual?->situacao);
+            $pessoa->setAttribute('categoria_id', $pessoa->categoriaAtual?->categoria_id);
+            $pessoa->setAttribute('especialidade_id', $pessoa->especialidadeAtual?->especialidade_id);
+            $pessoa->unsetRelation('situacaoAtual');
+            $pessoa->unsetRelation('categoriaAtual');
+            $pessoa->unsetRelation('especialidadeAtual');
+
+            return $pessoa;
+        });
 
         return response()->json(['pessoas' => $pessoas, 'pessoasPorEstado' => $this->getByEstado($year, $previousYear)], 200);
     }
@@ -302,17 +313,9 @@ class PessoaController extends Controller
             $processo = $validated['processo'] ?? null;
 
             $pessoas = Pessoa::query()
-                ->select(
-                    'pessoas.*',
-                    'local_afectos.local_id',
-                    'local_afectos.cargo',
-                    'categoria_policias.categoria_id',
-                    'especialidade_pessoas.especialidade_id',
-                    'sp.situacao',
-                    'sp.created_at as situacao_created_at'
-                )
+                ->with(['categoriaAtual', 'especialidadeAtual', 'localTrabalhoAtual', 'situacaoAtual'])
+                ->select('pessoas.*')
 
-                // Join com a situação mais recente
                 ->selectSub(function ($subquery) {
                     $subquery->from('continuacao_estudos')
                         ->selectRaw('COUNT(*)')
@@ -321,37 +324,19 @@ class PessoaController extends Controller
                         ->whereNull('continuacao_estudos.deleted_at');
                 }, 'continuacao_estudo_em_andamento')
 
-                // Join com a situacao mais recente, independentemente do estado.
-                ->leftJoin('situacao_pessoas as sp', function ($join) {
-                    $join->on('pessoas.id', '=', 'sp.pessoa_id')
-                        ->whereNull('sp.deleted_at')
-                        ->whereRaw('sp.id = (
-                SELECT sp2.id
-                FROM situacao_pessoas sp2
-                WHERE sp2.pessoa_id = pessoas.id
-                AND sp2.deleted_at IS NULL
-                ORDER BY sp2.created_at DESC, sp2.id DESC
-                LIMIT 1
-            )');
-                })
-
-                // ⭐ Garantir que só pegue pessoas com situação válida
-                ->whereNotNull('sp.id')
-
-                ->leftJoin('local_afectos', function ($join) {
-                    $join->on('pessoas.id', '=', 'local_afectos.pessoa_id')
-                        ->where(function ($q) {
-                            $q->whereNull('local_afectos.dataFim')
-                                ->orWhere('local_afectos.dataFim', '>=', now());
-                        });
-                })
-                ->leftJoin('especialidade_pessoas', 'especialidade_pessoas.pessoa_id', '=', 'pessoas.id')
-                ->leftJoin('categoria_policias', 'categoria_policias.pessoa_id', '=', 'pessoas.id')
+                ->whereHas('situacaoAtual')
                 ->when($query, function ($q, $nome) {
                     $q->where('pessoas.nomeCompleto', 'LIKE', "%{$nome}%");
                 })
                 ->get()
                 ->map(function ($pessoa) use ($processo) {
+                    $pessoa->setAttribute('local_id', $pessoa->localTrabalhoAtual?->local_id);
+                    $pessoa->setAttribute('cargo', $pessoa->localTrabalhoAtual?->cargo);
+                    $pessoa->setAttribute('categoria_id', $pessoa->categoriaAtual?->categoria_id);
+                    $pessoa->setAttribute('especialidade_id', $pessoa->especialidadeAtual?->especialidade_id);
+                    $pessoa->setAttribute('situacao', $pessoa->situacaoAtual?->situacao);
+                    $pessoa->setAttribute('situacao_created_at', $pessoa->situacaoAtual?->created_at);
+
                     $eligibility = app(ProcessAgentEligibility::class)->evaluate(
                         $processo,
                         $pessoa->situacao,
@@ -360,6 +345,10 @@ class PessoaController extends Controller
 
                     $pessoa->selecaoBloqueada = $eligibility['blocked'];
                     $pessoa->motivoBloqueio = $eligibility['reason'];
+                    $pessoa->unsetRelation('localTrabalhoAtual');
+                    $pessoa->unsetRelation('categoriaAtual');
+                    $pessoa->unsetRelation('especialidadeAtual');
+                    $pessoa->unsetRelation('situacaoAtual');
 
                     return $pessoa;
                 });
