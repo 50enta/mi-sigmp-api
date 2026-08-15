@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Processos\Ferias;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -93,6 +94,16 @@ class Pessoa extends Model
     {
         return $this->hasOne(SituacaoPessoa::class, 'pessoa_id')
             ->latestOfMany('created_at');
+    }
+
+    public function feriasAtuais(): HasOne
+    {
+        $hoje = today()->toDateString();
+
+        return $this->hasOne(Ferias::class, 'pessoa_id')
+            ->whereDate('dataInicio', '<=', $hoje)
+            ->whereDate('dataFim', '>=', $hoje)
+            ->latestOfMany('dataInicio');
     }
 
     public function cursosPoliciais(): HasMany

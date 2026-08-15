@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Processos\ProcessRecordController;
 use App\Http\Controllers\Processos\AssentoBiograficoController;
 use App\Http\Controllers\AuditSettingController;
+use App\Http\Controllers\Processos\FeriasController;
 
 Route::post('login', [sessionController::class, 'login'])->middleware('throttle:5,1');
 
@@ -171,5 +172,15 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
         Route::get('/{id}', [AssentoBiograficoController::class, 'show']);
         Route::put('/{id}', [ProcessRecordController::class, 'update'])->defaults('process', 'assentoBiografico');
         Route::delete('/{id}', [ProcessRecordController::class, 'destroy'])->defaults('process', 'assentoBiografico');
+    });
+
+    Route::prefix('ferias')->group(function () {
+        Route::post('/', [FeriasController::class, 'newProcess']);
+        Route::get('/stats', [FeriasController::class, 'stats']);
+        Route::get('/saldo', [FeriasController::class, 'balance']);
+        Route::get('/', [FeriasController::class, 'index']);
+        Route::get('/{id}', [FeriasController::class, 'show']);
+        Route::put('/{id}', [FeriasController::class, 'update']);
+        Route::delete('/{id}', [FeriasController::class, 'destroy']);
     });
 });
