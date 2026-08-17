@@ -29,6 +29,7 @@ class PessoaController extends Controller
                 ->groupBy('sp.situacao')
                 ->get()
                 ->map(function ($item) {
+                    $item->change = $item->total - $item->previous_total;
                     $item->rate_change = $item->previous_total > 0
                         ? (($item->total - $item->previous_total) / $item->previous_total) * 100
                         : null;
@@ -131,7 +132,9 @@ class PessoaController extends Controller
                 return response()->json(['pessoasEspecialidade' => $pessoasEspecialidade], 200);
             }
 
-            $totalCurrent = Pessoa::whereNull('deleted_at')->count();
+            $totalCurrent = Pessoa::whereNull('deleted_at')
+                ->whereYear('created_at', '<=', $year)
+                ->count();
 
             $totalPrevious = Pessoa::whereNull('deleted_at')
                 ->whereYear('created_at', '<=', $previousYear)
@@ -156,7 +159,11 @@ class PessoaController extends Controller
                 ->get();
 
             return response()->json([
-                'pessoas' => ['total' => $totalCurrent, 'variation' => $rateChange],
+                'pessoas' => [
+                    'total' => $totalCurrent,
+                    'change' => $totalCurrent - $totalPrevious,
+                    'variation' => $rateChange,
+                ],
                 'pessoasPorEstado' => $this->getByEstado($year, $previousYear),
                 'pessoasEspecialidade' => $this->getByEspecialidade($year, $previousYear, $estado),
                 'pessoasProvincia' => $pessoasProvincia,

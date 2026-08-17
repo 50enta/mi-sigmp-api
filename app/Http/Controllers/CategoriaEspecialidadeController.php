@@ -29,6 +29,7 @@ class CategoriaEspecialidadeController extends Controller
                     'pessoa_id' => $request['especialidade']['pessoa_id'],
                     'especialidade_id'  => $request['especialidade']['especialidade'],
                     'dataInicio'  => $request['especialidade']['dataNomeacaoEsp'],
+                    'nrDespacho' => $request['especialidade']['nrDespachoEsp'],
                     'dataFim'     => isset($request['especialidade']['dataFim']) ? $request['especialidade']['dataFim'] : null,
                     'obs'     => isset($request['especialidade']['observacoesEsp']) ? $request['especialidade']['observacoesEsp'] : null,
                     'despacho' => $filename ?? null
@@ -40,6 +41,7 @@ class CategoriaEspecialidadeController extends Controller
                     'pessoa_id' => $request['categoria']['pessoa_id'],
                     'categoria_id'  => $request['categoria']['categoria'],
                     'dataInicio'  => $request['categoria']['dataNomeacaoCat'],
+                    'nrDespacho' => $request['categoria']['nrDespachoCat'],
                     'obs'     => isset($request['categoria']['observacoesCat']) ? $request['categoria']['observacoesCat'] : null,
                     'dataFim'     => isset($request['categoria']['dataFim']) ? $request['categoria']['dataFim'] : null,
                     'despacho' => $catFileName ?? null

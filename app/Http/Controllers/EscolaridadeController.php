@@ -32,7 +32,7 @@ class EscolaridadeController extends Controller
                     'pessoa_id' => $request['formacaoAcademica']['pessoa_id'],
                     'nivel'       => $request['formacaoAcademica']['nivel'],
                     'instituicao' => $request['formacaoAcademica']['instituicao'],
-                    'curso'       => $request['formacaoAcademica']['curso'],
+                    'curso'       => $request['formacaoAcademica']['curso'] ?? null,
                     'dataInicio'  => $request['formacaoAcademica']['dataInicio'],
                     'dataFim'     => isset($request['formacaoAcademica']['dataFim']) ? $request['formacaoAcademica']['dataFim'] : null,
                     'certificado' => $certificado ?? null,

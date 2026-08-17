@@ -25,7 +25,7 @@ class StoreFormacaoRequest extends FormRequest
         return [
             'formacaoAcademica' => 'required|array',
             'formacaoAcademica.nivel' => 'required|string',
-            'formacaoAcademica.curso' => 'required|string|max:255',
+            'formacaoAcademica.curso' => 'exclude_if:formacaoAcademica.nivel,elementar|exclude_if:formacaoAcademica.nivel,basico|required|string|max:255',
             'formacaoAcademica.instituicao' => 'required|string|max:255',
             'formacaoAcademica.dataInicio' => 'required|date',
             'formacaoAcademica.dataFim' => 'nullable|date|after_or_equal:formacaoAcademica.dataInicio',

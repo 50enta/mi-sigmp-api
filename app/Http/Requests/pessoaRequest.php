@@ -36,7 +36,7 @@ class PessoaRequest extends FormRequest
             ],
             'info.nomeMae' => 'nullable|string|max:255',
             'info.nomePai' => 'nullable|string|max:255',
-            'info.dataNasc' => 'required|date',
+            'info.dataNasc' => 'required|date|before_or_equal:' . now()->subYears(18)->toDateString(),
             'info.nuit' => 'required|string|max:20',
             'info.estadoCivil' => 'nullable|in:Solteiro,Casado,Divorciado,Viuvo',
             'info.grupoSangue' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
@@ -44,7 +44,7 @@ class PessoaRequest extends FormRequest
             'info.provincia' => 'required|in:Maputo Cidade,Maputo Provincia,Gaza,Inhambane,Sofala,Manica,Zambezia,Nampula,Tete,Cabo Delgado,Niassa',
             'info.residencia' => 'nullable|string|max:255',
             'info.genero' => 'required|in:Masculino,Feminino',
-            'info.BI' => 'required|string|max:50',
+            'info.BI' => ['required', 'string', 'max:50', 'regex:/^\d+[A-Za-z]$/'],
             'info.altura' => 'nullable|numeric|min:0|max:3',
             'info.linguas' => 'nullable|string',
         ];
@@ -61,6 +61,7 @@ class PessoaRequest extends FormRequest
 
             'info.dataNasc.required' => 'A data de nascimento é obrigatória.',
             'info.dataNasc.date' => 'A data de nascimento deve ser uma data válida.',
+            'info.dataNasc.before_or_equal' => 'O agente deve ter pelo menos 18 anos.',
 
             'info.nuit.required' => 'O NUIT é obrigatório.',
             'info.nuit.max' => 'O NUIT não pode exceder 20 caracteres.',
@@ -79,6 +80,7 @@ class PessoaRequest extends FormRequest
 
             'info.BI.required' => 'O número do BI é obrigatório.',
             'info.BI.max' => 'O número do BI não pode exceder 50 caracteres.',
+            'info.BI.regex' => 'O BI deve conter apenas dígitos e terminar com uma letra.',
 
             'info.altura.numeric' => 'A altura deve ser um número.',
             'info.altura.min' => 'A altura não pode ser inferior a 0.',
