@@ -1,16 +1,21 @@
 <?php
 
+use App\Http\Controllers\AuditSettingController;
 use App\Http\Controllers\CategoriaEspecialidadeController;
+use App\Http\Controllers\CursoController;
 use App\Http\Controllers\EscolaridadeController;
 use App\Http\Controllers\LocalAfectoController;
 use App\Http\Controllers\LocalController;
 use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\Processos\ActualizacaoNivelAcademicoController;
+use App\Http\Controllers\Processos\AssentoBiograficoController;
 use App\Http\Controllers\Processos\ContinuacaoEstudoController;
 use App\Http\Controllers\Processos\CorrecaoDeDadosController;
 use App\Http\Controllers\Processos\ExoneracaoController;
 use App\Http\Controllers\Processos\FalecimentosController;
+use App\Http\Controllers\Processos\FeriasController;
 use App\Http\Controllers\Processos\PensoesController;
+use App\Http\Controllers\Processos\ProcessRecordController;
 use App\Http\Controllers\Processos\PromocaoController;
 use App\Http\Controllers\Processos\ReafetacaoController;
 use App\Http\Controllers\Processos\SituacaoDisciplinarController;
@@ -18,10 +23,6 @@ use App\Http\Controllers\Processos\SubsideosFunebresController;
 use App\Http\Controllers\Processos\TransferenciasController;
 use App\Http\Controllers\Session\sessionController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Processos\ProcessRecordController;
-use App\Http\Controllers\Processos\AssentoBiograficoController;
-use App\Http\Controllers\AuditSettingController;
-use App\Http\Controllers\Processos\FeriasController;
 
 Route::post('login', [sessionController::class, 'login'])->middleware('throttle:5,1');
 
@@ -65,6 +66,10 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
 
     Route::get('/locaisAfectos', [LocalAfectoController::class, 'index']);
     Route::get('/escolaridades', [EscolaridadeController::class, 'index']);
+
+    Route::get('/cursos/cancelados', [CursoController::class, 'cancelled']);
+    Route::patch('/cursos/{id}/cancelar', [CursoController::class, 'cancel']);
+    Route::apiResource('/cursos', CursoController::class);
 
     Route::prefix('disciplinar')->group(function () {
         Route::post('/', [SituacaoDisciplinarController::class, 'newProcess']);

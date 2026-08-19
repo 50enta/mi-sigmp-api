@@ -6,6 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class StoreFormacaoRequest extends FormRequest
 {
@@ -23,16 +24,34 @@ class StoreFormacaoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'formacaoAcademica' => 'required|array',
-            'formacaoAcademica.nivel' => 'required|string',
-            'formacaoAcademica.curso' => 'exclude_if:formacaoAcademica.nivel,elementar|exclude_if:formacaoAcademica.nivel,basico|required|string|max:255',
-            'formacaoAcademica.instituicao' => 'required|string|max:255',
-            'formacaoAcademica.dataInicio' => 'required|date',
+            'formacaoAcademica' => 'required_without_all:formacaoPolicia.basico,formacaoPolicia.medio,formacaoPolicia.superior|nullable|array',
+            'formacaoAcademica.nivel' => 'required_with:formacaoAcademica|string',
+            'formacaoAcademica.curso' => 'exclude_if:formacaoAcademica.nivel,elementar|exclude_if:formacaoAcademica.nivel,basico|required_with:formacaoAcademica|string|max:255',
+            'formacaoAcademica.instituicao' => 'required_with:formacaoAcademica|string|max:255',
+            'formacaoAcademica.dataInicio' => 'required_with:formacaoAcademica|date',
             'formacaoAcademica.dataFim' => 'nullable|date|after_or_equal:formacaoAcademica.dataInicio',
-            'formacaoAcademica.pessoa_id' => 'required|exists:pessoas,id',
+            'formacaoAcademica.pessoa_id' => 'required_with:formacaoAcademica|exists:pessoas,id',
             'formacaoAcademica.certificado' => 'nullable|file|mimes:pdf,jpeg,png,jpg|max:10240',
 
-            'formacaoPolicia.pessoa_id' => 'nullable|exists:pessoas,id',
+            'formacaoPolicia.pessoa_id' => 'required_with:formacaoPolicia.basico,formacaoPolicia.medio,formacaoPolicia.superior|nullable|exists:pessoas,id',
+            'formacaoPolicia.cursoBasico' => [
+                'required_with:formacaoPolicia.basico',
+                'nullable',
+                Rule::exists('cursos', 'id')->where(fn ($query) => $query
+                    ->whereNull('deleted_at')->where('cancelado', false)->where('categoria', 'basico')),
+            ],
+            'formacaoPolicia.cursoMedio' => [
+                'required_with:formacaoPolicia.medio',
+                'nullable',
+                Rule::exists('cursos', 'id')->where(fn ($query) => $query
+                    ->whereNull('deleted_at')->where('cancelado', false)->where('categoria', 'medio')),
+            ],
+            'formacaoPolicia.cursoSuperior' => [
+                'required_with:formacaoPolicia.superior',
+                'nullable',
+                Rule::exists('cursos', 'id')->where(fn ($query) => $query
+                    ->whereNull('deleted_at')->where('cancelado', false)->where('categoria', 'superior')),
+            ],
             'formacaoPolicia.dataInicioBasico' => 'required_with:formacaoPolicia.basico|nullable|date',
             'formacaoPolicia.dataConclusaoBasico' => 'nullable|date|after_or_equal:formacaoPolicia.dataInicioBasico',
             'formacaoPolicia.dataInicioMedio' => 'required_with:formacaoPolicia.medio|nullable|date',
@@ -92,7 +111,7 @@ class StoreFormacaoRequest extends FormRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Erro de validação',
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ], 422));
     }
 }
