@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\pessoaRequest;
+use App\Http\Requests\PessoaRequest;
 use App\Models\Pessoa;
 use App\Services\ProcessAgentEligibility;
 use Illuminate\Http\Request;

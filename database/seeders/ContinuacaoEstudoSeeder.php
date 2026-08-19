@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
-use App\Models\ContinuacaoEstudo;
+use App\Models\Processos\ContinuacaoEstudo;
 use App\Models\Pessoa;
 
 class ContinuacaoEstudoSeeder extends Seeder

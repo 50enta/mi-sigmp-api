@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\localRequest;
+use App\Http\Requests\LocalRequest;
 use App\Models\Local;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
