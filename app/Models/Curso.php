@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -54,6 +55,11 @@ class Curso extends Model
         }
 
         return $this->dataFim?->isBefore(today()) ? 'finalizado' : 'em_curso';
+    }
+
+    public function formacoesPoliciais(): HasMany
+    {
+        return $this->hasMany(FormacaoPolicial::class, 'curso_id');
     }
 
     protected static function boot()

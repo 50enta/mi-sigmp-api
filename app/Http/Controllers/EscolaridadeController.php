@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreFormacaoRequest;
+use App\Models\FormacaoPolicial;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -36,55 +37,14 @@ class EscolaridadeController extends Controller
                 ]);
             }
 
-            // save nivel basico, matalane
-            if (isset($request['formacaoPolicia']['basico'])) {
-                $cursoBasico = isset($request['formacaoPolicia']['cursoBasico'])
-                    ? \App\Models\Curso::find($request['formacaoPolicia']['cursoBasico'])
-                    : null;
-                $formacaoPolicialBasico = DB::table('formacaoPolicial')
-                    ->insertGetId([
-                        'id' => (string) Str::uuid(),
-                        'pessoa_id' => $request['formacaoPolicia']['pessoa_id'],
-                        'instituicao' => $request['formacaoPolicia']['basico'],
-                        'curso' => $cursoBasico?->descricao,
-                        'curso_id' => $cursoBasico?->id,
-                        'dataInicio' => $request['formacaoPolicia']['dataInicioBasico'],
-                        'dataConclusao' => isset($request['formacaoPolicia']['dataConclusaoBasico']) ? $request['formacaoPolicia']['dataConclusaoBasico'] : null,
+            foreach (['cursoBasico', 'cursoMedio', 'cursoSuperior'] as $campoCurso) {
+                $cursoId = $request->input("formacaoPolicia.$campoCurso");
+                if ($cursoId) {
+                    FormacaoPolicial::create([
+                        'pessoa_id' => $request->input('formacaoPolicia.pessoa_id'),
+                        'curso_id' => $cursoId,
                     ]);
-            }
-
-            // save nivel medio, esapol
-            if (isset($request['formacaoPolicia']['medio'])) {
-                $cursoMedio = isset($request['formacaoPolicia']['cursoMedio'])
-                    ? \App\Models\Curso::find($request['formacaoPolicia']['cursoMedio'])
-                    : null;
-                $formacaoPolicialMedio = DB::table('formacaoPolicial')
-                    ->insertGetId([
-                        'id' => (string) Str::uuid(),
-                        'pessoa_id' => $request['formacaoPolicia']['pessoa_id'],
-                        'instituicao' => $request['formacaoPolicia']['medio'],
-                        'curso' => $cursoMedio?->descricao,
-                        'curso_id' => $cursoMedio?->id,
-                        'dataInicio' => $request['formacaoPolicia']['dataInicioMedio'],
-                        'dataConclusao' => isset($request['formacaoPolicia']['dataConclusaoMedio']) ? $request['formacaoPolicia']['dataConclusaoMedio'] : null,
-                    ]);
-            }
-
-            // save nivel superior, acipol
-            if (isset($request['formacaoPolicia']['superior'])) {
-                $cursoSuperior = isset($request['formacaoPolicia']['cursoSuperior'])
-                    ? \App\Models\Curso::find($request['formacaoPolicia']['cursoSuperior'])
-                    : null;
-                $formacaoPolicialSuperior = DB::table('formacaoPolicial')
-                    ->insertGetId([
-                        'id' => (string) Str::uuid(),
-                        'pessoa_id' => $request['formacaoPolicia']['pessoa_id'],
-                        'instituicao' => $request['formacaoPolicia']['superior'],
-                        'curso' => $cursoSuperior?->descricao,
-                        'curso_id' => $cursoSuperior?->id,
-                        'dataInicio' => $request['formacaoPolicia']['dataInicioSuperior'],
-                        'dataConclusao' => isset($request['formacaoPolicia']['dataConclusaoSuperior']) ? $request['formacaoPolicia']['dataConclusaoSuperior'] : null,
-                    ]);
+                }
             }
 
             if (isset($request['formacoesComplementares']['cursoComplementar'])) {
@@ -125,9 +85,21 @@ class EscolaridadeController extends Controller
                 ->get();
 
             $fPolicial = DB::table('formacaoPolicial')
-                ->orderBy('formacaoPolicial.dataConclusao', 'desc')
+                ->join('cursos', 'cursos.id', '=', 'formacaoPolicial.curso_id')
+                ->orderByDesc('cursos.dataFim')
                 ->where('formacaoPolicial.pessoa_id', $request->query('pessoa_id'))
-                ->select('*')
+                ->select([
+                    'formacaoPolicial.id',
+                    'formacaoPolicial.pessoa_id',
+                    'formacaoPolicial.curso_id',
+                    'formacaoPolicial.created_at',
+                    'formacaoPolicial.updated_at',
+                    'cursos.descricao as curso',
+                    'cursos.categoria',
+                    'cursos.local',
+                    'cursos.dataInicio',
+                    'cursos.dataFim as dataConclusao',
+                ])
                 ->get();
 
             $fComplementares = DB::table('formacoesComplementares')

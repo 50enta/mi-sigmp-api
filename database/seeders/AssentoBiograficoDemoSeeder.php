@@ -76,10 +76,11 @@ class AssentoBiograficoDemoSeeder extends Seeder
                 ['id' => '8fcb60d8-8ae6-4b54-bb9e-1e54aca0ab12', 'nivel' => 'Mestrado', 'instituicao' => 'UJC', 'curso' => 'Segurança Pública', 'dataInicio' => '2021-02-01', 'dataFim' => '2023-12-15', 'certificado' => 'certificado-demo-mestrado.pdf'],
             ], $now);
 
-            $this->replaceHistory('formacaoPolicial', $pessoaId, [[
-                'id' => '8fcb60d8-8ae6-4b54-bb9e-1e54aca0ab13', 'instituicao' => 'matalane',
-                'curso' => 'Curso Básico da Polícia', 'dataInicio' => '2009-02-02', 'dataConclusao' => '2009-12-18',
-            ]], $now);
+            $cursoBasicoId = DB::table('cursos')->where('categoria', 'basico')->value('id');
+            $this->replaceHistory('formacaoPolicial', $pessoaId, $cursoBasicoId ? [[
+                'id' => '8fcb60d8-8ae6-4b54-bb9e-1e54aca0ab13',
+                'curso_id' => $cursoBasicoId,
+            ]] : [], $now);
 
             $this->replaceHistory('formacoesComplementares', $pessoaId, [[
                 'id' => '8fcb60d8-8ae6-4b54-bb9e-1e54aca0ab14', 'cursoComplementar' => 'Fiscalização e Segurança Rodoviária',

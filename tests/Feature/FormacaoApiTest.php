@@ -3,6 +3,7 @@
 use App\Models\Curso;
 use App\Models\Pessoa;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
 
@@ -70,10 +71,7 @@ test('grava apenas uma formacao policial', function () {
     $this->postJson('/api/escolaridades', [
         'formacaoPolicia' => [
             'pessoa_id' => $pessoa->id,
-            'basico' => 'matalane',
             'cursoBasico' => $curso->id,
-            'dataInicioBasico' => '2026-01-12',
-            'dataConclusaoBasico' => '2026-12-18',
         ],
     ])->assertCreated();
 
@@ -82,5 +80,38 @@ test('grava apenas uma formacao policial', function () {
         'pessoa_id' => $pessoa->id,
         'curso_id' => $curso->id,
     ]);
+    expect(Schema::hasColumns('formacaoPolicial', ['instituicao', 'curso', 'dataInicio', 'dataConclusao']))->toBeFalse();
+
+    $this->getJson('/api/escolaridades?pessoa_id='.$pessoa->id)
+        ->assertOk()
+        ->assertJsonPath('fPolicial.0.curso_id', $curso->id)
+        ->assertJsonPath('fPolicial.0.curso', $curso->descricao)
+        ->assertJsonPath('fPolicial.0.categoria', 'basico')
+        ->assertJsonPath('fPolicial.0.local', 'Matalane')
+        ->assertJsonPath('fPolicial.0.dataInicio', '2026-01-12')
+        ->assertJsonPath('fPolicial.0.dataConclusao', '2026-12-18');
     expect($pessoa->fresh()->stepFinished)->toBe(2);
+});
+
+test('rejeita um curso que nao pertence ao nivel da seccao', function () {
+    $pessoa = pessoaParaFormacao();
+    $curso = Curso::create([
+        'descricao' => 'Curso de Oficiais',
+        'dataInicio' => '2026-01-12',
+        'dataFim' => '2026-12-18',
+        'categoria' => 'superior',
+        'numero_despacho' => '10/CFO/2026',
+        'documento_despacho' => 'seed/despacho.pdf',
+        'local' => 'ACIPOL',
+    ]);
+
+    $this->postJson('/api/escolaridades', [
+        'formacaoPolicia' => [
+            'pessoa_id' => $pessoa->id,
+            'cursoBasico' => $curso->id,
+        ],
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors('formacaoPolicia.cursoBasico');
+
+    $this->assertDatabaseCount('formacaoPolicial', 0);
 });
