@@ -16,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'audit' => \App\Http\Middleware\AuditRequests::class,
         ]);
+        $middleware->prependToPriorityList(
+            \Illuminate\Routing\Middleware\ThrottleRequests::class,
+            \App\Http\Middleware\AuditRequests::class,
+        );
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

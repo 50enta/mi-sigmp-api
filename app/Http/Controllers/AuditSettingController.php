@@ -22,6 +22,7 @@ class AuditSettingController extends Controller
             'log_creates' => ['required', 'boolean'],
             'log_updates' => ['required', 'boolean'],
             'log_deletes' => ['required', 'boolean'],
+            'log_logins' => ['required', 'boolean'],
             'capture_ip' => ['required', 'boolean'],
             'capture_user_agent' => ['required', 'boolean'],
             'retention_days' => ['required', 'integer', 'min:30', 'max:3650'],
@@ -50,7 +51,7 @@ class AuditSettingController extends Controller
     public function logs(Request $request)
     {
         $filters = $request->validate([
-            'event' => ['nullable', 'in:read,create,update,delete'],
+            'event' => ['nullable', 'in:read,create,update,delete,login'],
             'occurred_at' => ['nullable', 'date'],
         ]);
 

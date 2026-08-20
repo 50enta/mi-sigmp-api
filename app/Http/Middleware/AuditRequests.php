@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\AuditSetting;
 use App\Models\AuditTrail;
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -48,7 +49,8 @@ class AuditRequests
             return $response;
         }
 
-        $event = $this->eventFor($request->method());
+        $isLogin = $request->is('api/login');
+        $event = $isLogin ? 'login' : $this->eventFor($request->method());
 
         try {
             Cache::remember('audit-retention-cleanup', now()->addDay(), function () use ($settings) {
@@ -61,14 +63,25 @@ class AuditRequests
             report($exception);
         }
 
-        if (!$settings->enabled || !$event || !$settings->{"log_{$event}"} || $request->is('api/audit*')) {
+        $settingKey = $isLogin ? 'log_logins' : "log_{$event}";
+
+        if (!$settings->enabled || !$event || !$settings->{$settingKey} || $request->is('api/audit*')) {
             return $response;
         }
 
         try {
+            $pessoaId = $auditContext['pessoa_id'];
+            if ($isLogin && $request->filled('email')) {
+                $pessoaId = User::query()
+                    ->where('email', $request->input('email'))
+                    ->value('pessoa_id');
+            }
+
             AuditTrail::create([
-                'pessoa_id' => $auditContext['pessoa_id'],
-                'info' => strtoupper($request->method()) . ' ' . $request->path(),
+                'pessoa_id' => $pessoaId,
+                'info' => $isLogin
+                    ? ($response->isSuccessful() ? 'Início de sessão bem-sucedido' : 'Tentativa de início de sessão falhada')
+                    : strtoupper($request->method()) . ' ' . $request->path(),
                 'status' => $response->isSuccessful() ? 'sucesso' : 'falha',
                 'event' => rtrim($event, 's'),
                 'method' => $request->method(),

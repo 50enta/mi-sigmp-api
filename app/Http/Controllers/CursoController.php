@@ -64,7 +64,7 @@ class CursoController extends Controller
             'dataFim' => 'required|date|after_or_equal:dataInicio',
             'categoria' => ['required', Rule::in(['basico', 'medio', 'superior'])],
             'numero_despacho' => 'required|string|max:100',
-            'documento_despacho' => 'required|file|mimes:pdf,jpeg,jpg,png|max:10240',
+            'documento_despacho' => 'nullable|file|mimes:pdf,jpeg,jpg,png|max:10240',
             'local' => 'required|string|max:255',
             'total_esperado' => 'nullable|integer|min:0',
         ]);
@@ -74,7 +74,9 @@ class CursoController extends Controller
         }
 
         $data = $validation->validated();
-        $data['documento_despacho'] = $this->storeDocumento($request);
+        if ($request->hasFile('documento_despacho')) {
+            $data['documento_despacho'] = $this->storeDocumento($request);
+        }
         $curso = Curso::create($data);
 
         return response()->json(['message' => 'Curso criado com sucesso!', 'curso' => $curso], 201);
@@ -112,7 +114,7 @@ class CursoController extends Controller
             'dataFim' => 'required|date|after_or_equal:dataInicio',
             'categoria' => ['required', Rule::in(['basico', 'medio', 'superior'])],
             'numero_despacho' => 'required|string|max:100',
-            'documento_despacho' => [Rule::requiredIf(! $curso->documento_despacho), 'nullable', 'file', 'mimes:pdf,jpeg,jpg,png', 'max:10240'],
+            'documento_despacho' => ['nullable', 'file', 'mimes:pdf,jpeg,jpg,png', 'max:10240'],
             'local' => 'required|string|max:255',
             'total_esperado' => 'nullable|integer|min:0',
         ]);
