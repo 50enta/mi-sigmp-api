@@ -29,6 +29,10 @@ class TransferenciaRequest extends ProcessRequest
             'regime' => 'required',
             'abertoPor' => 'required|exists:pessoas,id',
             'nrProcesso' => 'required|string',
+            'nrDespacho' => 'required|string|max:255',
+            'dataDespacho' => 'required|date',
+            'nrDespachoPermutador' => 'required_if:regime,permuta|nullable|string|max:255',
+            'dataDespachoPermutador' => 'required_if:regime,permuta|nullable|date',
         ];
     }
 
@@ -44,6 +48,10 @@ class TransferenciaRequest extends ProcessRequest
             'pessoa_id' => 'O agente é obrigatório.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
             'nrProcesso' => 'O número do processo é obrigatório',
+            'nrDespacho.required' => 'O número do despacho é obrigatório.',
+            'dataDespacho.required' => 'A data do despacho é obrigatória.',
+            'nrDespachoPermutador.required_if' => 'O número do despacho do membro da permuta é obrigatório.',
+            'dataDespachoPermutador.required_if' => 'A data do despacho do membro da permuta é obrigatória.',
         ];
     }
 

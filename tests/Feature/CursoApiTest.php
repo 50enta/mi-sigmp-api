@@ -19,6 +19,7 @@ function cursoPayload(array $overrides = []): array
         'dataFim' => today()->addMonths(6)->toDateString(),
         'categoria' => 'basico',
         'numero_despacho' => '12/MI/2026',
+        'data_despacho' => today()->toDateString(),
         'documento_despacho' => UploadedFile::fake()->create('despacho.pdf', 20, 'application/pdf'),
         'local' => 'Matalane',
         'especialidade' => 'Ordem e Segurança Pública',
@@ -55,6 +56,7 @@ test('valida os campos obrigatorios do curso', function () {
             'dataFim',
             'categoria',
             'numero_despacho',
+            'data_despacho',
             'documento_despacho',
             'local',
         ]);
@@ -69,6 +71,7 @@ test('actualiza cancela lista cancelados e elimina um curso', function () {
         'dataFim' => today()->subDay()->toDateString(),
         'categoria' => 'basico',
         'numero_despacho' => '13/MI/2026',
+        'data_despacho' => today()->toDateString(),
         'local' => 'Matalane',
         'total_esperado' => 275,
     ])->assertOk()

@@ -24,6 +24,8 @@ class EspecialidadePessoa extends Model
         'pessoa_id',
         'despacho',
         'nrProcesso',
+        'nrDespacho',
+        'dataDespacho',
         'dataInicio',
         'dataFim',
         'obs',

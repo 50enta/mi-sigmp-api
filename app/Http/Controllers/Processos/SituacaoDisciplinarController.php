@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Processos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Processos\SituacaoDisciplinarRequest;
 use App\Models\Processos\SituacaoDisciplinar as ProcessosSituacaoDisciplinar;
+use App\Models\LocalAfecto;
 use Illuminate\Http\Request;
 
 class SituacaoDisciplinarController extends Controller
@@ -85,9 +86,29 @@ class SituacaoDisciplinarController extends Controller
                 $data['anexo'] = $filename;
             }
 
+            $afectacoesActuais = collect($request->input('pessoa_id'))->mapWithKeys(function ($pessoa_id) {
+                $afectacao = LocalAfecto::query()
+                    ->where('pessoa_id', $pessoa_id)
+                    ->whereDate('dataInicio', '<=', today())
+                    ->where(function ($query) {
+                        $query->whereNull('dataFim')->orWhereDate('dataFim', '>=', today());
+                    })
+                    ->orderByDesc('dataInicio')
+                    ->first();
+
+                return [$pessoa_id => $afectacao];
+            });
+
+            if ($afectacoesActuais->contains(fn ($afectacao) => ! $afectacao)) {
+                return response()->json([
+                    'message' => 'Um dos agentes seleccionados não tem afectação actual registada.',
+                    'errors' => ['origem' => ['Todos os agentes devem ter uma afectação actual registada.']],
+                ], 422);
+            }
+
             foreach ($request->input('pessoa_id') as $pessoa_id) {
                 $data['pessoa_id'] = $pessoa_id;
-                
+                $data['origem'] = $afectacoesActuais->get($pessoa_id)->local_id;
                 ProcessosSituacaoDisciplinar::create($data);
             }
             return response()->json(['success' => 'Processo disciplinar criado com sucesso'], 201);
@@ -96,4 +117,3 @@ class SituacaoDisciplinarController extends Controller
         }
     }
 }
-

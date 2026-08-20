@@ -21,6 +21,7 @@ class CategoriaPolicia extends Model
         'pessoa_id',
         'despacho',
         'nrDespacho',
+        'dataDespacho',
         'dataInicio',
         'dataFim',
         'obs',

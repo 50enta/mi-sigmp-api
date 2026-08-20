@@ -20,6 +20,7 @@ class StoreEspecialidadeCategoriaRequest extends FormRequest
             'especialidade.especialidade' => 'required|string|max:255',
             'especialidade.dataNomeacaoEsp' => 'required|date',
             'especialidade.nrDespachoEsp' => 'required|string|max:255',
+            'especialidade.dataDespachoEsp' => 'required|date',
             'especialidade.despachoEsp' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'especialidade.observacoesEsp' => 'nullable|string|max:1000',
 
@@ -29,6 +30,7 @@ class StoreEspecialidadeCategoriaRequest extends FormRequest
             'categoria.categoria' => 'required|string|max:255',
             'categoria.dataNomeacaoCat' => 'required|date',
             'categoria.nrDespachoCat' => 'required|string|max:255',
+            'categoria.dataDespachoCat' => 'required|date',
             'categoria.despachoCat' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'categoria.observacoesCat' => 'nullable|string|max:1000',
         ];
@@ -45,6 +47,7 @@ class StoreEspecialidadeCategoriaRequest extends FormRequest
             'especialidade.dataNomeacaoEsp.required' => 'A data de nomeação da especialidade é obrigatória.',
             'especialidade.dataNomeacaoEsp.date' => 'A data de nomeação da especialidade deve ser válida.',
             'especialidade.nrDespachoEsp.required' => 'O número do despacho da especialidade é obrigatório.',
+            'especialidade.dataDespachoEsp.required' => 'A data do despacho da especialidade é obrigatória.',
             'especialidade.despachoEsp.required' => 'O despacho da especialidade é obrigatório.',
             'especialidade.despachoEsp.file' => 'O despacho deve ser um arquivo.',
             'especialidade.despachoEsp.mimes' => 'O despacho deve ser PDF, JPG, JPEG ou PNG.',
@@ -55,6 +58,7 @@ class StoreEspecialidadeCategoriaRequest extends FormRequest
             'categoria.dataNomeacaoCat.required' => 'A data de nomeação da categoria é obrigatória.',
             'categoria.dataNomeacaoCat.date' => 'A data de nomeação da categoria deve ser válida.',
             'categoria.nrDespachoCat.required' => 'O número do despacho da categoria é obrigatório.',
+            'categoria.dataDespachoCat.required' => 'A data do despacho da categoria é obrigatória.',
             'categoria.despachoCat.required' => 'O despacho da categoria é obrigatório.',
             'categoria.despachoCat.mimes' => 'O despacho da categoria deve ser PDF, JPG, JPEG ou PNG.',
             'categoria.despachoCat.max' => 'O despacho da categoria não pode exceder 10MB.',
@@ -69,6 +73,7 @@ class StoreEspecialidadeCategoriaRequest extends FormRequest
             'especialidade.especialidade' => 'especialidade',
             'especialidade.dataNomeacaoEsp' => 'data de nomeação (especialidade)',
             'especialidade.nrDespachoEsp' => 'número do despacho (especialidade)',
+            'especialidade.dataDespachoEsp' => 'data do despacho (especialidade)',
             'especialidade.despachoEsp' => 'despacho (especialidade)',
             'especialidade.observacoesEsp' => 'observações (especialidade)',
 
@@ -76,6 +81,7 @@ class StoreEspecialidadeCategoriaRequest extends FormRequest
             'categoria.dataNomeacaoCat' => 'data de nomeação (categoria)',
             'categoria.despachoCat' => 'despacho (categoria)',
             'categoria.nrDespachoCat' => 'número do despacho (categoria)',
+            'categoria.dataDespachoCat' => 'data do despacho (categoria)',
             'categoria.observacoesCat' => 'observações (categoria)',
         ];
     }

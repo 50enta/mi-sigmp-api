@@ -25,7 +25,7 @@ class SituacaoDisciplinarRequest extends ProcessRequest
             'proposta' => 'required|string',
             'pessoa_id' => 'required|array',
             'pessoa_id.*' => 'required|exists:pessoas,id',
-            'origem' => 'required|string',
+            'origem' => 'nullable|string',
             'abertoPor' => 'required|exists:pessoas,id',
             'nrProcesso' => 'required|string',
             'infraccao' => 'required|string',

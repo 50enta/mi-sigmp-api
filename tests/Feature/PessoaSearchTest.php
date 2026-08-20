@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Services\ProcessAgentEligibility;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\Sanctum;
 
@@ -155,5 +156,51 @@ it('opens a study continuation process without requiring a digital dispatch file
         'nrProcesso' => 'PROC-SEM-FICHEIRO',
         'estado' => 'aberto',
         'despacho' => null,
+    ]);
+});
+
+it('uses the agents current workplace as the disciplinary process origin', function () {
+    $registrar = pessoaComSituacao('Agente Registador Disciplinar', 'NIP20015', 'Activo');
+    $agente = pessoaComSituacao('Agente Disciplinar', 'NIP20016', 'Activo');
+    $localId = (string) Str::uuid();
+
+    DB::table('locals')->insert([
+        'id' => $localId,
+        'nome' => 'Comando Provincial de Teste',
+        'nivel' => 2,
+        'activo' => true,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    DB::table('local_afectos')->insert([
+        'id' => (string) Str::uuid(),
+        'local_id' => $localId,
+        'pessoa_id' => $agente->id,
+        'dataInicio' => today()->subMonth()->toDateString(),
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $user = User::query()->forceCreate([
+        'activo' => true,
+        'ja_acedeu' => true,
+        'pessoa_id' => $registrar->id,
+        'acesso' => 'admin',
+        'email' => fake()->unique()->safeEmail(),
+        'password' => 'password',
+    ]);
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/disciplinar', [
+        'pessoa_id' => [$agente->id],
+        'nrProcesso' => 'PD-001',
+        'origem' => (string) Str::uuid(),
+        'infraccao' => 'Infracção de teste',
+        'proposta' => 'Proposta de teste',
+    ])->assertCreated();
+
+    $this->assertDatabaseHas('gestao_disciplinars', [
+        'pessoa_id' => $agente->id,
+        'origem' => $localId,
     ]);
 });

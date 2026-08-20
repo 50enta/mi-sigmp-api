@@ -33,6 +33,7 @@ class Curso extends Model
         'local',
         'categoria',
         'numero_despacho',
+        'data_despacho',
         'documento_despacho',
         'total_esperado',
         'cancelado',
@@ -43,6 +44,7 @@ class Curso extends Model
         return [
             'dataInicio' => 'date:Y-m-d',
             'dataFim' => 'date:Y-m-d',
+            'data_despacho' => 'date:Y-m-d',
             'total_esperado' => 'integer',
             'cancelado' => 'boolean',
         ];

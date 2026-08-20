@@ -337,7 +337,7 @@ class PessoaController extends Controller
             $processo = $validated['processo'] ?? null;
 
             $pessoas = Pessoa::query()
-                ->with(['categoriaAtual', 'especialidadeAtual', 'localTrabalhoAtual', 'situacaoAtual', 'feriasAtuais'])
+                ->with(['categoriaAtual', 'especialidadeAtual', 'localTrabalhoAtual.local', 'situacaoAtual', 'feriasAtuais'])
                 ->select('pessoas.*')
 
                 ->selectSub(function ($subquery) {
@@ -355,6 +355,7 @@ class PessoaController extends Controller
                 ->get()
                 ->map(function ($pessoa) use ($processo) {
                     $pessoa->setAttribute('local_id', $pessoa->localTrabalhoAtual?->local_id);
+                    $pessoa->setAttribute('localTrabalho', $pessoa->localTrabalhoAtual?->local?->nome);
                     $pessoa->setAttribute('cargo', $pessoa->localTrabalhoAtual?->cargo);
                     $pessoa->setAttribute('categoria_id', $pessoa->categoriaAtual?->categoria_id);
                     $pessoa->setAttribute('especialidade_id', $pessoa->especialidadeAtual?->especialidade_id);
