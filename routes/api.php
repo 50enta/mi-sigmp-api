@@ -24,7 +24,7 @@ use App\Http\Controllers\Processos\TransferenciasController;
 use App\Http\Controllers\Session\sessionController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('login', [sessionController::class, 'login'])->middleware('throttle:5,1');
+Route::post('login', [sessionController::class, 'login'])->middleware(['audit', 'throttle:5,1']);
 
 Route::get('endpointTest', [sessionController::class, 'endpointTest']);
 

@@ -13,8 +13,19 @@ class PessoaController extends Controller
     public function getByEstado($year, $previousYear)
     {
         try {
-            $uncomplete = DB::table('pessoas')
-                ->where('stepFinished', '<', 4)
+            $uncompleteQuery = DB::table('pessoas')
+                ->whereNull('deleted_at')
+                ->where(function ($query) {
+                    $query->where('stepFinished', '<', 4)
+                        ->orWhereNull('stepFinished');
+                });
+
+            $uncomplete = (clone $uncompleteQuery)
+                ->whereYear('created_at', '<=', $year)
+                ->count();
+
+            $previousUncomplete = (clone $uncompleteQuery)
+                ->whereYear('created_at', '<=', $previousYear)
                 ->count();
 
             $byStatus = DB::table('pessoas')
@@ -40,6 +51,8 @@ class PessoaController extends Controller
             $byStatus[] = (object) [
                 'situacao' => 'Incompleto',
                 'total' => $uncomplete,
+                'previous_total' => $previousUncomplete,
+                'change' => $uncomplete - $previousUncomplete,
             ];
 
             $byStatus[] = (object) [

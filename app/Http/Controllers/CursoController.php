@@ -75,7 +75,9 @@ class CursoController extends Controller
         }
 
         $data = $validation->validated();
-        $data['documento_despacho'] = $this->storeDocumento($request);
+        if ($request->hasFile('documento_despacho')) {
+            $data['documento_despacho'] = $this->storeDocumento($request);
+        }
         $curso = Curso::create($data);
 
         return response()->json(['message' => 'Curso criado com sucesso!', 'curso' => $curso], 201);
