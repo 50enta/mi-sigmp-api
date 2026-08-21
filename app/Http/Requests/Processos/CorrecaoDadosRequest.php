@@ -30,7 +30,6 @@ class CorrecaoDadosRequest extends ProcessRequest
             'abertoPor' => 'required|exists:pessoas,id',
             'dataNasc' => 'required_if:tipoCorrecao,1',
             'novoNome' => 'required_if:tipoCorrecao,0',
-            'nrProcesso' => 'required|string',
         ];
     }
 
@@ -47,7 +46,6 @@ class CorrecaoDadosRequest extends ProcessRequest
             'data' => 'A data é obrigatória e deve ser uma data válida.',
             'dataNasc' => 'A nova data de nascimento é obrigatória',
             'novoNome' => 'O novo nome é obrigatório',
-            'nrProcesso' => 'O número do processo é obrigatório',
         ];
     }
 

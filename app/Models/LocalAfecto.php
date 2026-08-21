@@ -20,6 +20,8 @@ class LocalAfecto extends Model
         'local_id',
         'pessoa_id',
         'despacho',
+        'nrDespacho',
+        'dataDespacho',
         'dataInicio',
         'dataFim',
         'isTransferencia',

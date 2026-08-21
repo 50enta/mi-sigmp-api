@@ -29,7 +29,6 @@ class EstudosRequest extends ProcessRequest
             'nivelPretendido' => 'required|string|max:255',
             'data' => 'required|date',
             'abertoPor' => 'required|exists:pessoas,id',
-            'nrProcesso' => 'required|string',
             'nrDespacho' => 'required|string|max:255',
             'dataDespacho' => 'required|date',
             'despacho' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
@@ -48,7 +47,6 @@ class EstudosRequest extends ProcessRequest
             'instituicao' => 'A instituição é obrigatória.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
             'data' => 'A data é obrigatória e deve ser uma data válida.',
-            'nrProcesso' => 'O número do processo é obrigatório',
         ];
     }
 

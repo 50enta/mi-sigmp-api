@@ -94,7 +94,7 @@ class ReafetacaoController extends Controller
             $reaf = Reafetacao::create($data);
 
             $newLocalData = [
-                "reafetacao_id" => $reaf->nrProcesso,
+                "reafetacao_id" => $reaf->systemId,
                 "cargo" => $request->input('cargo'),
                 "local_id" => $request->input('destino'),
                 "pessoa_id" => $request->input('pessoa_id'),

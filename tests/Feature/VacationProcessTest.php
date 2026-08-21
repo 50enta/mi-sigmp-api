@@ -77,6 +77,21 @@ it('accumulates unused annual entitlement and records the remaining balance', fu
         ->assertJsonPath('data.balance', 60);
 });
 
+it('generates the process number from systemId without receiving nrProcesso', function () {
+    $person = vacationPerson('NIP-FERIAS-AUTO');
+
+    $response = $this->postJson('/api/ferias', [
+        'pessoa_id' => [$person->id],
+        'dataInicio' => '2026-08-01',
+        'dataFim' => '2026-08-10',
+    ])->assertCreated();
+
+    $systemId = $response->json('data.systemId');
+
+    expect($systemId)->toBe('FER-0001/2026')
+        ->and($response->json('data.nrProcesso'))->toBe($systemId);
+});
+
 it('accepts an existing legacy person identifier without requiring UUID format', function () {
     DB::table('pessoas')->insert([
         'id' => 'agente-legado-1',

@@ -27,7 +27,6 @@ class SituacaoDisciplinarRequest extends ProcessRequest
             'pessoa_id.*' => 'required|exists:pessoas,id',
             'origem' => 'nullable|string',
             'abertoPor' => 'required|exists:pessoas,id',
-            'nrProcesso' => 'required|string',
             'infraccao' => 'required|string',
         ];
     }
@@ -42,7 +41,6 @@ class SituacaoDisciplinarRequest extends ProcessRequest
             'pessoa_id' => 'A pessoa é obrigatória.',
             'origem' => 'A origem é obrigatória.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
-            'nrProcesso' => 'O número do processo é obrigatório',
             'infraccao' => 'A infraccao cometida é um campo obrigatório',
         ];
     }

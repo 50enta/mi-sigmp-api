@@ -14,7 +14,6 @@ class AssentoBiograficoRequest extends ProcessRequest
     public function rules(): array
     {
         return [
-            'nrProcesso' => ['required', 'string', 'max:100'],
             'pessoa_id' => ['required', 'array', 'size:1'],
             'pessoa_id.0' => ['required', 'exists:pessoas,id'],
             'tipoRegisto' => ['required', 'string', 'max:100'],
@@ -28,7 +27,6 @@ class AssentoBiograficoRequest extends ProcessRequest
     public function messages(): array
     {
         return [
-            'nrProcesso.required' => 'O número do processo é obrigatório.',
             'pessoa_id.required' => 'Seleccione um agente.',
             'tipoRegisto.required' => 'O tipo de registo é obrigatório.',
             'dataRegisto.required' => 'A data do registo é obrigatória.',

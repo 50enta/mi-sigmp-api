@@ -28,7 +28,6 @@ class PensoesRquest extends ProcessRequest
             'pessoa_id.*' => 'required|exists:pessoas,id',
             'motivo' => 'required|string',
             'abertoPor' => 'required|exists:pessoas,id',
-            'nrProcesso' => 'required|string',
             'nrDespacho' => 'required',
             'dataDespacho' => 'required|date',
             'despacho' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
@@ -47,7 +46,6 @@ class PensoesRquest extends ProcessRequest
             'pessoa_id' => 'A pessoa é obrigatória.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
             'motivo' => 'O motivo do processo pensoe é obrigatório.',
-            'nrProcesso' => 'O número do processo é obrigatório',
             'novoEstado' => 'O novo estado é obrigatório.',
             'estadoActual' => 'O estado actual é obrigatório.',
         ];

@@ -96,9 +96,9 @@ class PensoesController extends Controller
                 $data['pessoa_id'] = $pessoa_id;
                 $data['dataDespacho'] = date('Y-m-d', strtotime($request->input('dataDespacho')));
 
-                Pensoes::create($data);
+                $pensao = Pensoes::create($data);
                 $sitController = new SituacaoController();
-                $sitController->addDefaultStatus($pessoa_id, $data['novoEstado'], $data['nrDespacho'], $data['nrProcesso']);
+                $sitController->addDefaultStatus($pessoa_id, $data['novoEstado'], $data['nrDespacho'], $pensao->systemId);
             }
             
             return response()->json(['success' => 'Processo criado com sucesso'], 201);

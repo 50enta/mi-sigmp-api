@@ -27,7 +27,6 @@ class PromocaoRequest extends ProcessRequest
             'categoriaActual' => 'required|string',
             'novaCategoria' => 'required|string|different:categoriaActual', // ⭐
             'abertoPor' => 'required|exists:pessoas,id',
-            'nrProcesso' => 'required|string',
             'nrDespacho' => 'required',
             'dataDespacho' => 'required|date',
             'despacho' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
@@ -47,7 +46,6 @@ class PromocaoRequest extends ProcessRequest
             'proposta' => 'O proposta é obrigatório.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
             'data' => 'A data é obrigatória e deve ser uma data válida.',
-            'nrProcesso' => 'O número do processo é obrigatório',
         ];
     }
 

@@ -29,7 +29,6 @@ class ReafetacaoRequest extends ProcessRequest
             'motivo' => 'required|string',
             'cargo' => 'required',
             'abertoPor' => 'required|exists:pessoas,id',
-            'nrProcesso' => 'required|string',
             'nrDespacho' => 'required',
             'dataDespacho' => 'required|date',
             'despacho' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
@@ -51,7 +50,6 @@ class ReafetacaoRequest extends ProcessRequest
             'motivo' => 'O motivo é obrigatório.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
             'data' => 'A data é obrigatória e deve ser uma data válida.',
-            'nrProcesso' => 'O número do processo é obrigatório',
         ];
     }
 

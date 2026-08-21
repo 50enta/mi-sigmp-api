@@ -14,7 +14,6 @@ class FeriasRequest extends ProcessRequest
     public function rules(): array
     {
         return [
-            'nrProcesso' => ['required', 'string', 'max:255'],
             'pessoa_id' => ['required', 'array', 'size:1'],
             'pessoa_id.0' => ['required', 'exists:pessoas,id'],
             'dataInicio' => ['required', 'date_format:Y-m-d'],
@@ -27,7 +26,6 @@ class FeriasRequest extends ProcessRequest
     public function messages(): array
     {
         return [
-            'nrProcesso.required' => 'O número do processo é obrigatório.',
             'pessoa_id.required' => 'O agente é obrigatório.',
             'pessoa_id.size' => 'Seleccione apenas um agente.',
             'dataInicio.required' => 'A data de início é obrigatória.',

@@ -146,14 +146,17 @@ it('opens a study continuation process without requiring a digital dispatch file
         'curso' => 'Curso de Teste',
         'nivelPretendido' => 'Licenciatura',
         'data' => now()->toDateString(),
-        'nrProcesso' => 'PROC-SEM-FICHEIRO',
         'nrDespacho' => 'DESP-001',
         'dataDespacho' => now()->toDateString(),
     ])->assertCreated();
 
+    $processo = DB::table('continuacao_estudos')->where('pessoa_id', $agente->id)->first();
+
+    expect($processo->systemId)->toStartWith('CE-')
+        ->and($processo->nrProcesso)->toBe($processo->systemId);
+
     $this->assertDatabaseHas('continuacao_estudos', [
         'pessoa_id' => $agente->id,
-        'nrProcesso' => 'PROC-SEM-FICHEIRO',
         'estado' => 'aberto',
         'despacho' => null,
     ]);
