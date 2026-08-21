@@ -33,6 +33,10 @@ class CorrecaoDeDados extends Model
         'despacho'
     ];
 
+    protected $casts = [
+        'tipoCorrecao' => 'integer',
+    ];
+
     public function pessoa()
     {
         return $this->belongsTo(Pessoa::class, 'pessoa_id');

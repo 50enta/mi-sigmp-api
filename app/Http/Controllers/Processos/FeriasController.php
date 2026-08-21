@@ -82,7 +82,9 @@ class FeriasController extends Controller
 
     public function newProcess(FeriasRequest $request)
     {
-        $record = DB::transaction(function () use ($request) {
+        $despacho = $this->storeDispatch($request);
+
+        $record = DB::transaction(function () use ($request, $despacho) {
             $pessoa = Pessoa::query()->lockForUpdate()->findOrFail($request->validated('pessoa_id')[0]);
             $period = $this->vacations->validatePeriod(
                 $pessoa,
@@ -91,8 +93,9 @@ class FeriasController extends Controller
             );
 
             return Ferias::query()->create([
-                ...$request->safe()->only(['nrProcesso', 'dataInicio', 'dataFim', 'observacoes', 'abertoPor']),
+                ...$request->safe()->only(['dataInicio', 'dataFim', 'nrDespacho', 'dataDespacho', 'observacoes', 'abertoPor']),
                 'pessoa_id' => $pessoa->id,
+                'despacho' => $despacho,
                 'estado' => 'fechado',
                 'diasFerias' => $period['days'],
                 'saldoAntes' => $period['balance_before'],
@@ -105,7 +108,9 @@ class FeriasController extends Controller
 
     public function update(FeriasRequest $request, string $id)
     {
-        $record = DB::transaction(function () use ($request, $id) {
+        $despacho = $this->storeDispatch($request);
+
+        $record = DB::transaction(function () use ($request, $id, $despacho) {
             $ferias = Ferias::query()->lockForUpdate()->findOrFail($id);
             $pessoa = Pessoa::query()->lockForUpdate()->findOrFail($request->validated('pessoa_id')[0]);
             $period = $this->vacations->validatePeriod(
@@ -115,13 +120,19 @@ class FeriasController extends Controller
                 $ferias->id,
             );
 
-            $ferias->fill([
-                ...$request->safe()->only(['nrProcesso', 'dataInicio', 'dataFim', 'observacoes', 'abertoPor']),
+            $data = [
+                ...$request->safe()->only(['dataInicio', 'dataFim', 'nrDespacho', 'dataDespacho', 'observacoes', 'abertoPor']),
                 'pessoa_id' => $pessoa->id,
                 'diasFerias' => $period['days'],
                 'saldoAntes' => $period['balance_before'],
                 'saldoDepois' => $period['balance_after'],
-            ])->save();
+            ];
+
+            if ($despacho !== null) {
+                $data['despacho'] = $despacho;
+            }
+
+            $ferias->fill($data)->save();
 
             return $ferias;
         });
@@ -134,5 +145,18 @@ class FeriasController extends Controller
         Ferias::query()->findOrFail($id)->delete();
 
         return response()->json(['success' => 'Processo de férias removido com sucesso!'], 200);
+    }
+
+    private function storeDispatch(FeriasRequest $request): ?string
+    {
+        if (! $request->hasFile('despacho')) {
+            return null;
+        }
+
+        $file = $request->file('despacho');
+        $filename = time().'_'.$file->getClientOriginalName();
+        $file->move(public_path('uploads'), $filename);
+
+        return $filename;
     }
 }

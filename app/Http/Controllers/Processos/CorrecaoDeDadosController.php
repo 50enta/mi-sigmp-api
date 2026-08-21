@@ -88,7 +88,7 @@ class CorrecaoDeDadosController extends Controller
 
             CorrecaoDeDados::create($data);
 
-            return response()->json(['success' => 'Processo de continuacao com estudos criado com sucesso!'], 201);
+            return response()->json(['success' => 'Processo de correção de dados criado com sucesso!'], 201);
         } catch (\Throwable $th) {
             return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
         }

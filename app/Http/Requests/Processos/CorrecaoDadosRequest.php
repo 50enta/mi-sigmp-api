@@ -25,7 +25,7 @@ class CorrecaoDadosRequest extends ProcessRequest
             'comprovativo' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'pessoa_id' => 'required|array',
             'pessoa_id.*' => 'required|exists:pessoas,id',
-            'tipoCorrecao' => 'required|string',
+            'tipoCorrecao' => 'required|in:0,1',
             'motivoEobs' => 'required|string',
             'abertoPor' => 'required|exists:pessoas,id',
             'dataNasc' => 'required_if:tipoCorrecao,1',

@@ -27,6 +27,9 @@ class Ferias extends Model
         'pessoa_id',
         'dataInicio',
         'dataFim',
+        'nrDespacho',
+        'dataDespacho',
+        'despacho',
         'diasFerias',
         'saldoAntes',
         'saldoDepois',
@@ -37,6 +40,7 @@ class Ferias extends Model
     protected $casts = [
         'dataInicio' => 'date:Y-m-d',
         'dataFim' => 'date:Y-m-d',
+        'dataDespacho' => 'date:Y-m-d',
         'diasFerias' => 'integer',
         'saldoAntes' => 'integer',
         'saldoDepois' => 'integer',

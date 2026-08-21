@@ -18,6 +18,9 @@ class FeriasRequest extends ProcessRequest
             'pessoa_id.0' => ['required', 'exists:pessoas,id'],
             'dataInicio' => ['required', 'date_format:Y-m-d'],
             'dataFim' => ['required', 'date_format:Y-m-d', 'after_or_equal:dataInicio'],
+            'nrDespacho' => ['required', 'string', 'max:255'],
+            'dataDespacho' => ['required', 'date_format:Y-m-d'],
+            'despacho' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
             'observacoes' => ['nullable', 'string', 'max:2000'],
             'abertoPor' => ['required', 'exists:pessoas,id'],
         ];
@@ -31,6 +34,8 @@ class FeriasRequest extends ProcessRequest
             'dataInicio.required' => 'A data de início é obrigatória.',
             'dataFim.required' => 'A data de fim é obrigatória.',
             'dataFim.after_or_equal' => 'A data de fim deve ser igual ou posterior à data de início.',
+            'nrDespacho.required' => 'O número do despacho é obrigatório.',
+            'dataDespacho.required' => 'A data do despacho é obrigatória.',
         ];
     }
 }

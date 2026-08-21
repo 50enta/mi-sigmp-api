@@ -8,6 +8,7 @@ use App\Services\VacationService;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\UploadedFile;
 use Laravel\Sanctum\Sanctum;
 
 uses(RefreshDatabase::class);
@@ -43,6 +44,8 @@ function vacationPayload(Pessoa $person, string $number, string $start, string $
         'pessoa_id' => [$person->id],
         'dataInicio' => $start,
         'dataFim' => $end,
+        'nrDespacho' => "DESP-{$number}",
+        'dataDespacho' => $start,
     ];
 }
 
@@ -84,12 +87,47 @@ it('generates the process number from systemId without receiving nrProcesso', fu
         'pessoa_id' => [$person->id],
         'dataInicio' => '2026-08-01',
         'dataFim' => '2026-08-10',
+        'nrDespacho' => 'DESP-FER-AUTO',
+        'dataDespacho' => '2026-07-25',
     ])->assertCreated();
 
     $systemId = $response->json('data.systemId');
 
     expect($systemId)->toBe('FER-0001/2026')
         ->and($response->json('data.nrProcesso'))->toBe($systemId);
+});
+
+it('requires the dispatch number and date for a vacation process', function () {
+    $person = vacationPerson('NIP-FERIAS-DESPACHO');
+
+    $this->postJson('/api/ferias', [
+        'pessoa_id' => [$person->id],
+        'dataInicio' => '2026-08-01',
+        'dataFim' => '2026-08-10',
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors(['nrDespacho', 'dataDespacho']);
+});
+
+it('stores the vacation dispatch file', function () {
+    $person = vacationPerson('NIP-FERIAS-FICHEIRO');
+    $file = UploadedFile::fake()->create('despacho-ferias.pdf', 100, 'application/pdf');
+
+    $response = $this->post('/api/ferias', [
+        ...vacationPayload($person, 'FER/FICHEIRO', '2026-08-01', '2026-08-10'),
+        'despacho' => $file,
+    ], ['Accept' => 'application/json'])->assertCreated();
+
+    $filename = $response->json('data.despacho');
+    $path = public_path('uploads/'.$filename);
+
+    try {
+        expect($filename)->toEndWith('_despacho-ferias.pdf');
+        $this->assertFileExists($path);
+    } finally {
+        if (is_file($path)) {
+            unlink($path);
+        }
+    }
 });
 
 it('accepts an existing legacy person identifier without requiring UUID format', function () {
