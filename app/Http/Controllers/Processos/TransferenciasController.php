@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Processos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Processos\TransferenciaRequest;
 use App\Models\Processos\Transferencias;
+use App\Services\ProcessAffiliationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TransferenciasController extends Controller
 {
-
     public function stats(Request $request)
     {
         try {
@@ -82,40 +83,63 @@ class TransferenciasController extends Controller
         }
     }
 
-    public function newProcess(TransferenciaRequest $request)
+    public function newProcess(TransferenciaRequest $request, ProcessAffiliationService $affiliations)
     {
-        try {
+        $dispatch = null;
+        if ($request->hasFile('despacho')) {
+            $dispatch = time().'_'.$request->file('despacho')->getClientOriginalName();
+            $request->file('despacho')->move(public_path('uploads'), $dispatch);
+        }
 
-            $data = $request->all();
+        $permutatorDispatch = null;
+        if ($request->hasFile('permutadorDespacho')) {
+            $permutatorDispatch = time().'_'.$request->file('permutadorDespacho')->getClientOriginalName();
+            $request->file('permutadorDespacho')->move(public_path('uploads'), $permutatorDispatch);
+        }
 
-            if (null !== $request->file('despacho')) {
-                $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
-                $request->file('despacho')->move(public_path('uploads'), $filename);
-                $data['despacho'] = $filename;
-            }
+        DB::transaction(function () use ($request, $affiliations, $dispatch, $permutatorDispatch) {
+            $personId = $request->input('pessoa_id')[0];
+            $permutatorId = $request->input('permutador.0');
+            $data = $request->except(['pessoa_id', 'permutador']);
+            $data['pessoa_id'] = $personId;
+            $data['permutador'] = $permutatorId;
+            $data['despacho'] = $dispatch;
+            $data['permutadorDespacho'] = $permutatorDispatch;
 
-            if (null !== $request->file('permutadorDespacho')) {
-                $filename = time() . '_' . $request->file('permutadorDespacho')->getClientOriginalName();
-                $request->file('permutadorDespacho')->move(public_path('uploads'), $filename);
-                $data['permutadorDespacho'] = $filename;
-            }
+            $transfer = Transferencias::query()->create($data);
+            $effectiveDate = $request->input('dataDespacho');
 
-            if (null !== $request->input('permutador')) {
-                $data['permutador'] = $request->input('permutador')[0];
-            }
-
-            $data['pessoa_id'] = (int) (
-                is_array($data['pessoa_id'])
-                ? $data['pessoa_id'][0]
-                : $data['pessoa_id']
+            $affiliations->move(
+                $personId,
+                $request->input('origem'),
+                $request->input('destino'),
+                $effectiveDate,
+                [
+                    'transferencia_id' => $transfer->systemId,
+                    'despacho' => $dispatch,
+                    'nrDespacho' => $request->input('nrDespacho'),
+                    'dataDespacho' => $effectiveDate,
+                    'isTransferencia' => true,
+                ],
             );
 
-            Transferencias::create($data);
+            if ($request->input('regime') === 'permuta') {
+                $affiliations->move(
+                    $permutatorId,
+                    $request->input('destino'),
+                    $request->input('origem'),
+                    $effectiveDate,
+                    [
+                        'transferencia_id' => $transfer->systemId,
+                        'despacho' => $permutatorDispatch,
+                        'nrDespacho' => $request->input('nrDespachoPermutador'),
+                        'dataDespacho' => $request->input('dataDespachoPermutador'),
+                        'isTransferencia' => true,
+                    ],
+                );
+            }
+        });
 
-            return response()->json(['success' => 'Transferência criada com sucesso!'], 201);
-        } catch (\Throwable $th) {
-            // dd($th);
-            return response()->json([$data['pessoa_id'][0], $th->getMessage()], 500);
-        }
+        return response()->json(['success' => 'Transferência criada com sucesso!'], 201);
     }
 }

@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Processos;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Processos\ReafetacaoRequest;
-use App\Models\LocalAfecto;
 use App\Models\Processos\Reafetacao;
+use App\Services\ProcessAffiliationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ReafetacaoController extends Controller
 {
-
     public function stats(Request $request)
     {
         try {
@@ -81,34 +81,38 @@ class ReafetacaoController extends Controller
         }
     }
 
-    public function newProcess(ReafetacaoRequest $request)
+    public function newProcess(ReafetacaoRequest $request, ProcessAffiliationService $affiliations)
     {
-        try {
-            $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
+        $filename = null;
+        if ($request->hasFile('despacho')) {
+            $filename = time().'_'.$request->file('despacho')->getClientOriginalName();
             $request->file('despacho')->move(public_path('uploads'), $filename);
-
-            $data = $request->except(['cargo']);
-            $data['despacho'] = $filename;
-            $data['pessoa_id'] = $request->input('pessoa_id')[0];
-
-            $reaf = Reafetacao::create($data);
-
-            $newLocalData = [
-                "reafetacao_id" => $reaf->systemId,
-                "cargo" => $request->input('cargo'),
-                "local_id" => $request->input('destino'),
-                "pessoa_id" => $request->input('pessoa_id'),
-                "despacho" => $filename,
-                "isReafetacao" => true,
-                "dataInicio" => $request->input('data')
-            ];
-
-            LocalAfecto::create($newLocalData);
-
-            return response()->json(['success' => 'Reacfectação criada com sucesso!'], 201);
-        } catch (\Throwable $th) {
-            dd($th);
-            return response(['error' => 'Ocorreu um erro inesperado'], 500);
         }
+
+        DB::transaction(function () use ($request, $affiliations, $filename) {
+            $personId = $request->input('pessoa_id')[0];
+            $data = $request->except(['cargo', 'pessoa_id']);
+            $data['despacho'] = $filename;
+            $data['pessoa_id'] = $personId;
+
+            $reafectation = Reafetacao::query()->create($data);
+
+            $affiliations->move(
+                $personId,
+                $request->input('origem'),
+                $request->input('destino'),
+                $request->input('dataDespacho'),
+                [
+                    'reafetacao_id' => $reafectation->systemId,
+                    'cargo' => $request->input('cargo'),
+                    'despacho' => $filename,
+                    'nrDespacho' => $request->input('nrDespacho'),
+                    'dataDespacho' => $request->input('dataDespacho'),
+                    'isReafetacao' => true,
+                ],
+            );
+        });
+
+        return response()->json(['success' => 'Reafectação criada com sucesso!'], 201);
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Processos;
 
-use Illuminate\Contracts\Validation\Validator;
 use App\Http\Requests\ProcessRequest;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ReafetacaoRequest extends ProcessRequest
@@ -22,9 +22,9 @@ class ReafetacaoRequest extends ProcessRequest
     public function rules(): array
     {
         return [
-            'origem' => 'required',
-            'destino' => 'required',
-            'pessoa_id' => 'required|array',
+            'origem' => 'required|exists:locals,id',
+            'destino' => 'required|different:origem|exists:locals,id',
+            'pessoa_id' => 'required|array|size:1',
             'pessoa_id.*' => 'required|exists:pessoas,id',
             'motivo' => 'required|string',
             'cargo' => 'required',
@@ -63,7 +63,7 @@ class ReafetacaoRequest extends ProcessRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Erro de validação',
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ], 422));
     }
 }
