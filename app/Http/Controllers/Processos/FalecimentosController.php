@@ -7,10 +7,12 @@ use App\Http\Controllers\SituacaoController;
 use App\Http\Requests\Processos\FalecimentosRequest;
 use App\Models\Processos\Falecimentos;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class FalecimentosController extends Controller
 {
-
     public function stats(Request $request)
     {
         try {
@@ -71,22 +73,34 @@ class FalecimentosController extends Controller
 
     public function newProcess(FalecimentosRequest $request)
     {
-        try {
-            $filename = time() . '_' . $request->file('certidaoObito')->getClientOriginalName();
-            $request->file('certidaoObito')->move(public_path('uploads'), $filename);
+        $uploadedFilePath = null;
 
-            $data = $request->all();
+        try {
+            $filename = Str::uuid().'_'.$request->file('certidaoObito')->getClientOriginalName();
+            $request->file('certidaoObito')->move(public_path('uploads'), $filename);
+            $uploadedFilePath = public_path('uploads/'.$filename);
+
+            $data = $request->validated();
             $data['certidaoObito'] = $filename;
             $data['pessoa_id'] = $request->input('pessoa_id')[0];
 
-            Falecimentos::create($data);
+            DB::transaction(function () use ($data) {
+                Falecimentos::create($data);
 
-            $sitController = new SituacaoController();
-            $sitController->addDefaultStatus($data['pessoa_id'], 'Morto');
+                app(SituacaoController::class)->addDefaultStatus($data['pessoa_id'], 'Morto');
+            });
 
             return response()->json(['success' => 'Falecimento registado com sucesso'], 201);
         } catch (\Throwable $th) {
-            return response(['error' => 'Ocorreu um erro inesperado' . $th], 500);
+            if ($uploadedFilePath !== null) {
+                File::delete($uploadedFilePath);
+            }
+
+            report($th);
+
+            return response()->json([
+                'message' => 'Não foi possível registar o falecimento. Tente novamente.',
+            ], 500);
         }
     }
 }

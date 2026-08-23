@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Situacao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class SituacaoController extends Controller
@@ -28,23 +27,16 @@ class SituacaoController extends Controller
         return response()->json(['situacoes' => $situacoes], 200);
     }
 
-
-    public function addDefaultStatus($id, $estado = 'Activo', $despacho = null, $nrProcesso = null)
+    public function addDefaultStatus($id, $estado = 'Activo', $despacho = null, $nrProcesso = null): void
     {
-        try {
-            $data = [
-                'id' => (string) Str::uuid(),
-                'situacao' => $estado,
-                'pessoa_id' => $id,
-                'despacho' => $despacho,
-                'nrProcesso' => $nrProcesso,
-                'created_at' => now(),
-                'updated_at' => now()
-            ];
-
-            DB::table('situacao_pessoas')->insert($data);
-        } catch (\Throwable $th) {
-            return response(['error' => 'Error inesperado'], 500);
-        }
+        DB::table('situacao_pessoas')->insert([
+            'id' => (string) Str::uuid(),
+            'situacao' => $estado,
+            'pessoa_id' => $id,
+            'despacho' => $despacho,
+            'nrProcesso' => $nrProcesso,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 }

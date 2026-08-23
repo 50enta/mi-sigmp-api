@@ -8,10 +8,11 @@ use App\Models\Escolaridade;
 use App\Models\Processos\ActualizacaoNivelAcademico;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class ActualizacaoNivelAcademicoController extends Controller
 {
-
     public function stats(Request $request)
     {
         try {
@@ -28,8 +29,9 @@ class ActualizacaoNivelAcademicoController extends Controller
 
             return response()->json(['data' => $stats], 200);
         } catch (\Throwable $th) {
-            dd($th);
-            return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
+            report($th);
+
+            return response()->json(['message' => 'Não foi possível carregar as estatísticas.'], 500);
         }
     }
 
@@ -77,33 +79,41 @@ class ActualizacaoNivelAcademicoController extends Controller
 
     public function newProcess(ActualizacaoNivelAcademicosRequest $request)
     {
+        $uploadedFilePath = null;
+
         try {
-            DB::beginTransaction();
-
-            $filename = time() . '_' . $request->file('certificado')->getClientOriginalName();
+            $filename = Str::uuid().'_'.$request->file('certificado')->getClientOriginalName();
             $request->file('certificado')->move(public_path('uploads'), $filename);
+            $uploadedFilePath = public_path('uploads/'.$filename);
 
-            $data = $request->all();
+            $data = $request->validated();
             $data['certificado'] = $filename;
             $data['pessoa_id'] = $request->input('pessoa_id')[0];
 
-            ActualizacaoNivelAcademico::create($data);
+            DB::transaction(function () use ($data, $filename) {
+                ActualizacaoNivelAcademico::create($data);
 
-            Escolaridade::create([
-                'pessoa_id'   => $data['pessoa_id'],
-                'nivel'       => $data['nivel'],
-                'instituicao' => $data['instituicao'],
-                'curso'       => $data['curso'],
-                'certificado' => $filename,
-                'dataFim'     => $data['dataDeConclusao'] ?? null,
-            ]);
-
-            DB::commit();
+                Escolaridade::create([
+                    'pessoa_id' => $data['pessoa_id'],
+                    'nivel' => $data['nivel'],
+                    'instituicao' => $data['instituicao'],
+                    'curso' => $data['curso'],
+                    'certificado' => $filename,
+                    'dataFim' => $data['dataDeConclusao'],
+                ]);
+            });
 
             return response()->json(['success' => 'Processo de atualização académica criado com sucesso!'], 201);
         } catch (\Throwable $th) {
-            DB::rollBack();
-            return response()->json(['error' => 'Ocorreu um erro inesperado' . $th], 500);
+            if ($uploadedFilePath !== null) {
+                File::delete($uploadedFilePath);
+            }
+
+            report($th);
+
+            return response()->json([
+                'message' => 'Não foi possível registar a atualização académica. Tente novamente.',
+            ], 500);
         }
     }
 }

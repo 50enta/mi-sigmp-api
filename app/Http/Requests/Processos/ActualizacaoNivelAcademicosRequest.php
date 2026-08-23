@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Processos;
 
-use Illuminate\Contracts\Validation\Validator;
 use App\Http\Requests\ProcessRequest;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ActualizacaoNivelAcademicosRequest extends ProcessRequest
@@ -29,6 +29,7 @@ class ActualizacaoNivelAcademicosRequest extends ProcessRequest
             'abertoPor' => 'required|exists:pessoas,id',
             'curso' => 'required',
             'nivel' => 'required',
+            'dataDeConclusao' => 'required|date',
         ];
     }
 
@@ -43,7 +44,9 @@ class ActualizacaoNivelAcademicosRequest extends ProcessRequest
             'instituicao' => 'A instituição é obrigatória.',
             'abertoPor' => 'A pessoa que abriu o processo é obrigatória.',
             'curso' => 'O curso é obrigatório',
-            'nível' => 'O nível é obrigatório',
+            'nivel' => 'O nível é obrigatório',
+            'dataDeConclusao.required' => 'A data da conclusão é obrigatória.',
+            'dataDeConclusao.date' => 'A data da conclusão deve ser uma data válida.',
         ];
     }
 
@@ -57,7 +60,7 @@ class ActualizacaoNivelAcademicosRequest extends ProcessRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Erro de validação',
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ], 422));
     }
 }
