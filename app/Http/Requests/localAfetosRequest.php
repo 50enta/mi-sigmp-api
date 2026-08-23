@@ -23,6 +23,10 @@ class localAfetosRequest extends FormRequest
     {
         return [
             'localEfuncoes.dataInicio' => 'required|date',
+            'localEfuncoes.dataFim' => 'nullable|date|after_or_equal:localEfuncoes.dataInicio',
+            'localEfuncoes.nrDespacho' => 'required|string|max:255',
+            'localEfuncoes.dataDespacho' => 'required|date',
+            'localEfuncoes.despacho' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
             'localEfuncoes.local_id' => 'required|uuid|exists:locals,id',
             'localEfuncoes.pessoa_id' => 'required|exists:pessoas,id',
         ];
@@ -37,6 +41,8 @@ class localAfetosRequest extends FormRequest
             'localEfuncoes.pessoa_id.required' => 'A pessoa é obrigatória.',
             'localEfuncoes.local_id.required' => 'O local é obrigatório.',
             'localEfuncoes.dataInicio.required' => 'A data de início é obrigatória.',
+            'localEfuncoes.nrDespacho.required' => 'O número do despacho é obrigatório.',
+            'localEfuncoes.dataDespacho.required' => 'A data do despacho é obrigatória.',
         ];
     }
 

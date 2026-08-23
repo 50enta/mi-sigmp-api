@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -12,24 +12,28 @@ class LocalAfecto extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'local_afectos';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
         'id',
         'local_id',
         'pessoa_id',
+        'cargo',
         'despacho',
+        'nrDespacho',
+        'dataDespacho',
         'dataInicio',
         'dataFim',
         'isTransferencia',
+        'transferencia_id',
         'aprovador',
         'aprovado',
-        'local_origem',
-        'regime',
         'observacoes',
         'isReafetacao',
-        'reafetacao_id'
+        'reafetacao_id',
     ];
 
     protected static function boot()
@@ -50,5 +54,4 @@ class LocalAfecto extends Model
     {
         return $this->belongsTo(Pessoa::class, 'pessoa_id');
     }
-
 }

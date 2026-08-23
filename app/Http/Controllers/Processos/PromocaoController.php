@@ -92,7 +92,7 @@ class PromocaoController extends Controller
             $promo = Promocao::create($data);
 
             $new = [
-                "nrProcesso" => $promo->nrProcesso,
+                "nrProcesso" => $promo->systemId,
                 "categoria_id" => $promo->novaCategoria,
                 "pessoa_id" => $promo->pessoa_id,
                 "nrDespacho" => $promo->nrDespacho,

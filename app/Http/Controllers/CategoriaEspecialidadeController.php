@@ -12,14 +12,15 @@ class CategoriaEspecialidadeController extends Controller
     function saveCatAndEsp(StoreEspecialidadeCategoriaRequest $request)
     {
         try {
+            DB::beginTransaction();
             if ($request->file('especialidade.despachoEsp')) {
                 $filename = time() . '_' . $request->file('especialidade.despachoEsp')->getClientOriginalName();
                 $request->file('especialidade.despachoEsp')->move(public_path('uploads'), $filename);
             }
 
-            if ($request->file('categoria.despachoEsp')) {
-                $catFileName = time() . '_' . $request->file('categoria.despachoEsp')->getClientOriginalName();
-                $request->file('categoria.despachoEsp')->move(public_path('uploads'), $catFileName);
+            if ($request->file('categoria.despachoCat')) {
+                $catFileName = time() . '_' . $request->file('categoria.despachoCat')->getClientOriginalName();
+                $request->file('categoria.despachoCat')->move(public_path('uploads'), $catFileName);
             }
 
             $especialidade = DB::table('especialidade_pessoas') // substitua pelo nome real da sua tabela
@@ -28,6 +29,8 @@ class CategoriaEspecialidadeController extends Controller
                     'pessoa_id' => $request['especialidade']['pessoa_id'],
                     'especialidade_id'  => $request['especialidade']['especialidade'],
                     'dataInicio'  => $request['especialidade']['dataNomeacaoEsp'],
+                    'nrDespacho' => $request['especialidade']['nrDespachoEsp'],
+                    'dataDespacho' => $request['especialidade']['dataDespachoEsp'],
                     'dataFim'     => isset($request['especialidade']['dataFim']) ? $request['especialidade']['dataFim'] : null,
                     'obs'     => isset($request['especialidade']['observacoesEsp']) ? $request['especialidade']['observacoesEsp'] : null,
                     'despacho' => $filename ?? null
@@ -39,6 +42,8 @@ class CategoriaEspecialidadeController extends Controller
                     'pessoa_id' => $request['categoria']['pessoa_id'],
                     'categoria_id'  => $request['categoria']['categoria'],
                     'dataInicio'  => $request['categoria']['dataNomeacaoCat'],
+                    'nrDespacho' => $request['categoria']['nrDespachoCat'],
+                    'dataDespacho' => $request['categoria']['dataDespachoCat'],
                     'obs'     => isset($request['categoria']['observacoesCat']) ? $request['categoria']['observacoesCat'] : null,
                     'dataFim'     => isset($request['categoria']['dataFim']) ? $request['categoria']['dataFim'] : null,
                     'despacho' => $catFileName ?? null
@@ -47,9 +52,14 @@ class CategoriaEspecialidadeController extends Controller
             $pessoa = new PessoaController();
             $pessoa->updateStep(3, $request['especialidade']['pessoa_id']);
 
+            DB::commit();
+
             return response()->json(['success' => true], 201);
         } catch (\Throwable $th) {
-            return response(['error' => 'Error inesperado' . $th], 500);
+            DB::rollBack();
+            report($th);
+
+            return response(['error' => 'Erro inesperado'], 500);
         }
     }
 
@@ -95,7 +105,8 @@ class CategoriaEspecialidadeController extends Controller
                     'dataInicio'  => $request['dataInicio'],
                     'obs'     => isset($request['obs']) ? $request['obs'] : null,
                     'despacho' => $request['despacho'],
-                    'nrDespacho' => $request['nrDespacho']
+                    'nrDespacho' => $request['nrDespacho'],
+                    'dataDespacho' => $request['dataDespacho'],
                 ]);
 
             return 1;

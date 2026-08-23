@@ -42,7 +42,7 @@ class EscalaoPoliciaController extends Controller
         $validation = Validator::make($request->all(), [
             'activo' => 'required|boolean',
             'escala_id' => 'required|uuid|exists:escalas,id',
-            'pessoa_id' => 'required|uuid|exists:pessoas,id',
+            'pessoa_id' => 'required|exists:pessoas,id',
             'despacho' => 'nullable|string|max:255',
             'dataInicio' => 'nullable|date',
             'dataFim' => 'nullable|date',
@@ -84,7 +84,7 @@ class EscalaoPoliciaController extends Controller
         $validation = Validator::make($request->all(), [
             'activo' => 'required|boolean',
             'escala_id' => 'required|uuid|exists:escalas,id',
-            'pessoa_id' => 'required|uuid|exists:pessoas,id',
+            'pessoa_id' => 'required|exists:pessoas,id',
             'despacho' => 'nullable|string|max:255',
             'dataInicio' => 'nullable|date',
             'dataFim' => 'nullable|date',

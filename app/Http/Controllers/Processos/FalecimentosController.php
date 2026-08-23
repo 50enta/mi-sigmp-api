@@ -82,7 +82,7 @@ class FalecimentosController extends Controller
             Falecimentos::create($data);
 
             $sitController = new SituacaoController();
-            $sitController->addDefaultStatus($data['pessoa_id'][0], 'Morto');
+            $sitController->addDefaultStatus($data['pessoa_id'], 'Morto');
 
             return response()->json(['success' => 'Falecimento registado com sucesso'], 201);
         } catch (\Throwable $th) {

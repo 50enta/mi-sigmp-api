@@ -36,14 +36,25 @@ class LocalAfectoController extends Controller
     {
 
         try {
+            DB::beginTransaction();
             $data = $request->input('localEfuncoes');
+
+            if ($request->file('localEfuncoes.despacho')) {
+                $filename = time().'_'.$request->file('localEfuncoes.despacho')->getClientOriginalName();
+                $request->file('localEfuncoes.despacho')->move(public_path('uploads'), $filename);
+                $data['despacho'] = $filename;
+            }
+
             LocalAfecto::create($data);
 
             $pessoa = new PessoaController();
             $pessoa->updateStep(4, $request['localEfuncoes']['pessoa_id']);
 
+            DB::commit();
+
             return response()->json(['success' => true], 201);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json(['error' => 'Error inesperado'], 500);
         }
     }

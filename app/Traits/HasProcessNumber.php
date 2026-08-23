@@ -34,6 +34,12 @@ trait HasProcessNumber
                 // formata 0001
                 $model->systemId = sprintf('%s-%04d/%s', $prefix, $number, $year);
             }
+
+            // Mantém compatibilidade com tabelas antigas cuja coluna nrProcesso
+            // ainda é obrigatória. Para novos registos, o número oficial é o systemId.
+            if (in_array('nrProcesso', $model->getFillable(), true) && empty($model->nrProcesso)) {
+                $model->nrProcesso = $model->systemId;
+            }
         });
     }
 }

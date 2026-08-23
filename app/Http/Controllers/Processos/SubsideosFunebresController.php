@@ -3,15 +3,13 @@
 namespace App\Http\Controllers\Processos;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\SituacaoController;
 use App\Http\Requests\Processos\SubsideoRequest;
-use App\Models\Processos\Pensoes;
 use App\Models\Processos\SubsideosFunebres;
+use App\Services\ProcessAgentEligibility;
 use Illuminate\Http\Request;
 
 class SubsideosFunebresController extends Controller
 {
-
     public function stats(Request $request)
     {
         try {
@@ -76,24 +74,31 @@ class SubsideosFunebresController extends Controller
 
     public function newProcess(SubsideoRequest $request)
     {
+        $pessoaIds = $request->input('pessoa_id');
+
+        foreach ($pessoaIds as $pessoaId) {
+            app(ProcessAgentEligibility::class)->ensureEligible(ProcessAgentEligibility::SUBSIDIO_FUNEBRE, $pessoaId);
+        }
+
         try {
             $data = $request->all();
 
-            if (null !== $request->file('doc')) {
-                $filename = time() . '_' . $request->file('doc')->getClientOriginalName();
+            if ($request->file('doc') !== null) {
+                $filename = time().'_'.$request->file('doc')->getClientOriginalName();
                 $request->file('doc')->move(public_path('uploads'), $filename);
                 $data['documento'] = $filename;
             }
 
-            foreach ($request->input('pessoa_id') as $pessoa_id) {
+            foreach ($pessoaIds as $pessoa_id) {
                 $data['pessoa_id'] = $pessoa_id;
 
                 SubsideosFunebres::create($data);
             }
-            
+
             return response()->json(['success' => 'Processo criado com sucesso'], 201);
         } catch (\Throwable $th) {
             dd($th);
+
             return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
         }
     }

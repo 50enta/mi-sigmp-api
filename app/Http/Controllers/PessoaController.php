@@ -2,19 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\pessoaRequest;
+use App\Http\Requests\PessoaRequest;
 use App\Models\Pessoa;
+use App\Services\ProcessAgentEligibility;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 
 class PessoaController extends Controller
 {
-    function getByEstado($year, $previousYear)
+    public function getByEstado($year, $previousYear)
     {
         try {
-            $uncomplete = DB::table('pessoas')
-                ->where('stepFinished', '<', 4)
+            $uncompleteQuery = DB::table('pessoas')
+                ->whereNull('deleted_at')
+                ->where(function ($query) {
+                    $query->where('stepFinished', '<', 4)
+                        ->orWhereNull('stepFinished');
+                });
+
+            $uncomplete = (clone $uncompleteQuery)
+                ->whereYear('created_at', '<=', $year)
+                ->count();
+
+            $previousUncomplete = (clone $uncompleteQuery)
+                ->whereYear('created_at', '<=', $previousYear)
                 ->count();
 
             $byStatus = DB::table('pessoas')
@@ -29,15 +40,29 @@ class PessoaController extends Controller
                 ->groupBy('sp.situacao')
                 ->get()
                 ->map(function ($item) {
+                    $item->change = $item->total - $item->previous_total;
                     $item->rate_change = $item->previous_total > 0
                         ? (($item->total - $item->previous_total) / $item->previous_total) * 100
                         : null;
+
                     return $item;
                 });
 
-            $byStatus[] = (object)[
+            $byStatus[] = (object) [
                 'situacao' => 'Incompleto',
                 'total' => $uncomplete,
+                'previous_total' => $previousUncomplete,
+                'change' => $uncomplete - $previousUncomplete,
+            ];
+
+            $byStatus[] = (object) [
+                'situacao' => 'Férias',
+                'total' => DB::table('ferias')
+                    ->whereNull('deleted_at')
+                    ->whereDate('dataInicio', '<=', today())
+                    ->whereDate('dataFim', '>=', today())
+                    ->distinct('pessoa_id')
+                    ->count('pessoa_id'),
             ];
 
             return $byStatus;
@@ -46,15 +71,13 @@ class PessoaController extends Controller
         }
     }
 
-    function getByEspecialidade($year, $previousYear, $estado = null)
+    public function getByEspecialidade($year, $previousYear, $estado = null)
     {
         try {
             return DB::table('pessoas')
                 ->join('especialidade_pessoas as cp', 'cp.pessoa_id', '=', 'pessoas.id')
                 ->when($estado, function ($q) use ($estado) {
-                    $q->join('situacao_pessoas as sp', 'sp.pessoa_id', '=', 'pessoas.id')
-                        ->whereNull('sp.deleted_at')
-                        ->where('sp.situacao', $estado);
+                    $this->applySituationFilter($q, $estado);
                 })
                 ->whereNull('pessoas.deleted_at')
                 ->whereNull('cp.deleted_at')
@@ -90,7 +113,7 @@ class PessoaController extends Controller
         }
     }
 
-    function getDashData(Request $request)
+    public function getDashData(Request $request)
     {
         try {
             $year = $request->input('year', now()->year);
@@ -102,9 +125,7 @@ class PessoaController extends Controller
                 $pessoasProvincia = Pessoa::query()
                     ->whereNull('pessoas.deleted_at')
                     ->when($estado, function ($q) use ($estado) {
-                        $q->join('situacao_pessoas as sp', 'sp.pessoa_id', '=', 'pessoas.id')
-                            ->whereNull('sp.deleted_at')
-                            ->where('sp.situacao', $estado);
+                        $this->applySituationFilter($q, $estado);
                     })
                     ->select(
                         'pessoas.provincia as provincia',
@@ -124,7 +145,9 @@ class PessoaController extends Controller
                 return response()->json(['pessoasEspecialidade' => $pessoasEspecialidade], 200);
             }
 
-            $totalCurrent = Pessoa::whereNull('deleted_at')->count();
+            $totalCurrent = Pessoa::whereNull('deleted_at')
+                ->whereYear('created_at', '<=', $year)
+                ->count();
 
             $totalPrevious = Pessoa::whereNull('deleted_at')
                 ->whereYear('created_at', '<=', $previousYear)
@@ -137,9 +160,7 @@ class PessoaController extends Controller
             $pessoasProvincia = Pessoa::query()
                 ->whereNull('pessoas.deleted_at')
                 ->when($estado, function ($q) use ($estado) {
-                    $q->join('situacao_pessoas as sp', 'sp.pessoa_id', '=', 'pessoas.id')
-                        ->whereNull('sp.deleted_at')
-                        ->where('sp.situacao', $estado);
+                    $this->applySituationFilter($q, $estado);
                 })
                 ->select(
                     'pessoas.provincia as provincia',
@@ -151,10 +172,14 @@ class PessoaController extends Controller
                 ->get();
 
             return response()->json([
-                'pessoas' => ['total' => $totalCurrent, 'variation' => $rateChange],
+                'pessoas' => [
+                    'total' => $totalCurrent,
+                    'change' => $totalCurrent - $totalPrevious,
+                    'variation' => $rateChange,
+                ],
                 'pessoasPorEstado' => $this->getByEstado($year, $previousYear),
                 'pessoasEspecialidade' => $this->getByEspecialidade($year, $previousYear, $estado),
-                'pessoasProvincia' => $pessoasProvincia
+                'pessoasProvincia' => $pessoasProvincia,
             ], 200);
         } catch (\Throwable $th) {
             throw $th;
@@ -174,16 +199,7 @@ class PessoaController extends Controller
         $previousYear = $year - 1;
 
         $query = Pessoa::query()
-            ->select(
-                'pessoas.*',
-                'situacao_pessoas.situacao',
-                'categoria_policias.categoria_id',
-                'especialidade_pessoas.especialidade_id'
-            )
-            ->leftJoin('especialidade_pessoas', 'especialidade_pessoas.pessoa_id', '=', 'pessoas.id')
-            ->leftJoin('categoria_policias', 'categoria_policias.pessoa_id', '=', 'pessoas.id')
-            ->leftJoin('situacao_pessoas', 'situacao_pessoas.pessoa_id', '=', 'pessoas.id')
-            ->leftJoin('curso_policias', 'curso_policias.pessoa_id', '=', 'pessoas.id')
+            ->with(['categoriaAtual', 'especialidadeAtual', 'situacaoAtual', 'feriasAtuais'])
 
             // nome completo
             ->when(request('nomeCompleto'), function ($q, $nome) {
@@ -202,29 +218,56 @@ class PessoaController extends Controller
 
             // especialidade
             ->when(request('especialidade'), function ($q, $especialidade) {
-                $q->where('especialidade_pessoas.especialidade_id', $especialidade);
-                // ou ->where('especialidade_pessoas.especialidade', $especialidade)
+                $q->whereHas('especialidadeAtual', function ($q) use ($especialidade) {
+                    $q->where('especialidade_id', $especialidade);
+                });
             })
 
             // categoria
             ->when(request('categoria'), function ($q, $categoria) {
-                $q->where('categoria_policias.categoria_id', $categoria);
+                $q->whereHas('categoriaAtual', function ($q) use ($categoria) {
+                    $q->where('categoria_id', $categoria);
+                });
             })
 
             // curso
             ->when(request('curso'), function ($q, $curso) {
-                $q->where('curso_policias.curso_id', $curso);
+                $q->whereHas('cursosPoliciais', function ($q) use ($curso) {
+                    $q->where('curso_id', $curso);
+                });
             })
 
             // situação (ENUM)
             ->when(request('situacao'), function ($q, $situacao) {
-                $q->where('situacao_pessoas.situacao', $situacao);
-            });
+                if ($this->isVacationSituation($situacao)) {
+                    $q->whereHas('feriasAtuais');
 
+                    return;
+                }
+
+                $q->whereDoesntHave('feriasAtuais')
+                    ->whereHas('situacaoAtual', function ($q) use ($situacao) {
+                        $q->whereRaw('LOWER(situacao) = ?', [mb_strtolower($situacao)]);
+                    });
+            })
+            ->orderBy('pessoas.created_at')
+            ->orderBy('pessoas.id');
 
         $pessoas = $paging
-            ? $query->paginate($pageSize, [], 'page', $page)
-            : $query->simplePaginate($pageSize, [], 'page', $page);
+            ? $query->paginate($pageSize, ['pessoas.*'], 'page', $page)
+            : $query->simplePaginate($pageSize, ['pessoas.*'], 'page', $page);
+
+        $pessoas->through(function (Pessoa $pessoa) {
+            $pessoa->setAttribute('situacao', $pessoa->feriasAtuais ? 'Férias' : $pessoa->situacaoAtual?->situacao);
+            $pessoa->setAttribute('categoria_id', $pessoa->categoriaAtual?->categoria_id);
+            $pessoa->setAttribute('especialidade_id', $pessoa->especialidadeAtual?->especialidade_id);
+            $pessoa->unsetRelation('situacaoAtual');
+            $pessoa->unsetRelation('feriasAtuais');
+            $pessoa->unsetRelation('categoriaAtual');
+            $pessoa->unsetRelation('especialidadeAtual');
+
+            return $pessoa;
+        });
 
         return response()->json(['pessoas' => $pessoas, 'pessoasPorEstado' => $this->getByEstado($year, $previousYear)], 200);
     }
@@ -235,15 +278,19 @@ class PessoaController extends Controller
     public function store(PessoaRequest $request)
     {
         try {
+            DB::beginTransaction();
             $data = $request->input('info');
             $data['nip'] = NipGenerator::generate();
             $pessoa = Pessoa::create($data);
 
-            $sitController = new SituacaoController();
+            $sitController = new SituacaoController;
             $sitController->addDefaultStatus($pessoa->id);
+
+            DB::commit();
 
             return response(['pessoa' => $pessoa], 201);
         } catch (\Throwable $th) {
+            DB::rollBack();
 
             return response(['error' => 'Error inesperado'], 500);
         }
@@ -255,6 +302,7 @@ class PessoaController extends Controller
     public function show($id)
     {
         try {
+            $emFerias = Pessoa::query()->whereKey($id)->whereHas('feriasAtuais')->exists();
             $pessoa = Pessoa::query()
                 ->select(
                     'curso_policias.*',
@@ -271,10 +319,14 @@ class PessoaController extends Controller
                 ->leftJoin('curso_policias', 'curso_policias.pessoa_id', '=', 'pessoas.id')
                 ->get();
 
+            if ($emFerias) {
+                $pessoa->each->setAttribute('situacao', 'Férias');
+            }
+
             return response()->json($pessoa, 200);
         } catch (\Throwable $th) {
             dd($th);
-            //throw $th;
+            // throw $th;
         }
     }
 
@@ -289,61 +341,108 @@ class PessoaController extends Controller
         }
     }
 
-    public function search($query)
+    public function search(Request $request, string $query)
     {
         try {
+            $validated = $request->validate([
+                'processo' => ['nullable', 'in:exonerar,subsidioFunebre,continuarEstudos,reservaAposentadoActivo'],
+            ]);
+            $processo = $validated['processo'] ?? null;
+
             $pessoas = Pessoa::query()
-                ->select(
-                    'pessoas.*',
-                    'local_afectos.local_id',
-                    'local_afectos.cargo',
-                    'categoria_policias.categoria_id',
-                    'especialidade_pessoas.especialidade_id',
-                    'sp.situacao',
-                    'sp.created_at as situacao_created_at'
-                )
+                ->with(['categoriaAtual', 'especialidadeAtual', 'localTrabalhoAtual.local', 'situacaoAtual', 'feriasAtuais'])
+                ->select('pessoas.*')
 
-                // Join com a situação mais recente
-                ->leftJoin('situacao_pessoas as sp', function ($join) {
-                    $join->on('pessoas.id', '=', 'sp.pessoa_id')
-                        ->whereIn('sp.situacao', ['Activo', 'Reserva', 'Aposentado', 'Suspenso'])
-                        ->whereRaw('sp.created_at = (
-                SELECT MAX(sp2.created_at)
-                FROM situacao_pessoas sp2
-                WHERE sp2.pessoa_id = pessoas.id
-            )');
-                })
+                ->selectSub(function ($subquery) {
+                    $subquery->from('continuacao_estudos')
+                        ->selectRaw('COUNT(*)')
+                        ->whereColumn('continuacao_estudos.pessoa_id', 'pessoas.id')
+                        ->where('continuacao_estudos.estado', 'aberto')
+                        ->whereNull('continuacao_estudos.deleted_at');
+                }, 'continuacao_estudo_em_andamento')
 
-                // ⭐ Garantir que só pegue pessoas com situação válida
-                ->whereNotNull('sp.id')
-
-                ->leftJoin('local_afectos', function ($join) {
-                    $join->on('pessoas.id', '=', 'local_afectos.pessoa_id')
-                        ->where(function ($q) {
-                            $q->whereNull('local_afectos.dataFim')
-                                ->orWhere('local_afectos.dataFim', '>=', now());
-                        });
-                })
-                ->leftJoin('especialidade_pessoas', 'especialidade_pessoas.pessoa_id', '=', 'pessoas.id')
-                ->leftJoin('categoria_policias', 'categoria_policias.pessoa_id', '=', 'pessoas.id')
+                ->whereHas('situacaoAtual')
                 ->when($query, function ($q, $nome) {
                     $q->where('pessoas.nomeCompleto', 'LIKE', "%{$nome}%");
                 })
-                ->get();
+                ->get()
+                ->map(function ($pessoa) use ($processo) {
+                    $pessoa->setAttribute('local_id', $pessoa->localTrabalhoAtual?->local_id);
+                    $pessoa->setAttribute('localTrabalho', $pessoa->localTrabalhoAtual?->local?->nome);
+                    $pessoa->setAttribute('cargo', $pessoa->localTrabalhoAtual?->cargo);
+                    $pessoa->setAttribute('categoria_id', $pessoa->categoriaAtual?->categoria_id);
+                    $pessoa->setAttribute('especialidade_id', $pessoa->especialidadeAtual?->especialidade_id);
+                    $pessoa->setAttribute('situacao', $pessoa->feriasAtuais ? 'Férias' : $pessoa->situacaoAtual?->situacao);
+                    $pessoa->setAttribute('situacao_created_at', $pessoa->situacaoAtual?->created_at);
+
+                    $eligibility = app(ProcessAgentEligibility::class)->evaluate(
+                        $processo,
+                        $pessoa->situacao,
+                        (bool) $pessoa->continuacao_estudo_em_andamento,
+                    );
+
+                    $pessoa->selecaoBloqueada = $eligibility['blocked'];
+                    $pessoa->motivoBloqueio = $eligibility['reason'];
+                    $pessoa->unsetRelation('localTrabalhoAtual');
+                    $pessoa->unsetRelation('categoriaAtual');
+                    $pessoa->unsetRelation('especialidadeAtual');
+                    $pessoa->unsetRelation('situacaoAtual');
+                    $pessoa->unsetRelation('feriasAtuais');
+
+                    return $pessoa;
+                });
 
             return response()->json(['pessoas' => $pessoas], 200);
-        } catch (\Throwable $th) {
-            dd($th);
-            //throw $th;
+        } catch (\Illuminate\Validation\ValidationException $exception) {
+            throw $exception;
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json(['message' => 'Nao foi possivel pesquisar os agentes.'], 500);
         }
     }
+
     /**
      * Remove the specified resource from storage.
-     */    public function destroy($id)
+     */
+    public function destroy($id)
     {
         $pessoa = Pessoa::findOrFail($id);
         $pessoa->delete();
 
         return response()->json(['message' => 'Pessoa eliminada com sucesso!'], 200);
+    }
+
+    private function isVacationSituation(?string $situation): bool
+    {
+        return in_array(mb_strtolower(trim((string) $situation)), ['ferias', 'férias'], true);
+    }
+
+    private function applySituationFilter($query, string $situation): void
+    {
+        if ($this->isVacationSituation($situation)) {
+            $query->whereExists(function ($subquery) {
+                $subquery->selectRaw('1')
+                    ->from('ferias')
+                    ->whereColumn('ferias.pessoa_id', 'pessoas.id')
+                    ->whereNull('ferias.deleted_at')
+                    ->whereDate('ferias.dataInicio', '<=', today())
+                    ->whereDate('ferias.dataFim', '>=', today());
+            });
+
+            return;
+        }
+
+        $query->join('situacao_pessoas as sp', 'sp.pessoa_id', '=', 'pessoas.id')
+            ->whereNull('sp.deleted_at')
+            ->whereRaw('LOWER(sp.situacao) = ?', [mb_strtolower($situation)])
+            ->whereNotExists(function ($subquery) {
+                $subquery->selectRaw('1')
+                    ->from('ferias')
+                    ->whereColumn('ferias.pessoa_id', 'pessoas.id')
+                    ->whereNull('ferias.deleted_at')
+                    ->whereDate('ferias.dataInicio', '<=', today())
+                    ->whereDate('ferias.dataFim', '>=', today());
+            });
     }
 }

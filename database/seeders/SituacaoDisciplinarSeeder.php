@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
-use App\Models\SituacaoDisciplinar;
+use App\Models\Processos\SituacaoDisciplinar;
 use App\Models\Pessoa;
 
 class SituacaoDisciplinarSeeder extends Seeder

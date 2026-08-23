@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nrProcesso');
             $table->enum('estado', ['aberto', 'fechado'])->default('fechado');
-            $table->string('despacho');
+            $table->string('despacho')->nullable();
             $table->string('instituicao');
             $table->string('curso');
             $table->string('nivelPretendido');

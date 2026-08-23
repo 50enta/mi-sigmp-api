@@ -42,7 +42,7 @@ class SituacaoPessoaController extends Controller
         $validation = Validator::make($request->all(), [
             'activo' => 'required|boolean',
             'situacao_id' => 'required|uuid|exists:situacoes,id',
-            'pessoa_id' => 'required|uuid|exists:pessoas,id',
+            'pessoa_id' => 'required|exists:pessoas,id',
             'isMudanca' => 'required|boolean',
             'despacho' => 'nullable|string',
             'obs' => 'nullable|string',
@@ -84,7 +84,7 @@ class SituacaoPessoaController extends Controller
         $validation = Validator::make($request->all(), [
             'activo' => 'required|boolean',
             'situacao_id' => 'required|uuid|exists:situacoes,id',
-            'pessoa_id' => 'required|uuid|exists:pessoas,id',
+            'pessoa_id' => 'required|exists:pessoas,id',
             'isMudanca' => 'required|boolean',
             'despacho' => 'nullable|string',
             'obs' => 'nullable|string',

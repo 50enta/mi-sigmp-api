@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\SituacaoController;
 use App\Http\Requests\Processos\ExoneracaoRequest;
 use App\Models\Processos\Exoneracao;
+use App\Services\ProcessAgentEligibility;
 use Illuminate\Http\Request;
 
 class ExoneracaoController extends Controller
 {
-
     public function stats(Request $request)
     {
         try {
@@ -66,8 +66,6 @@ class ExoneracaoController extends Controller
                 $q->whereDate('exoneracaos.created_at', $createdAt);
             });
 
-
-
         $registros = $paging
             ? $query->paginate($pageSize, ['*'], 'page', $page)
             : $query->simplePaginate($pageSize, ['*'], 'page', $page);
@@ -77,21 +75,24 @@ class ExoneracaoController extends Controller
 
     public function newProcess(ExoneracaoRequest $request)
     {
+        $pessoaId = $request->input('pessoa_id')[0];
+        app(ProcessAgentEligibility::class)->ensureEligible(ProcessAgentEligibility::EXONERAR, $pessoaId);
+
         try {
             $data = $request->all();
 
             if ($request->file('despacho') != null) {
-                $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
+                $filename = time().'_'.$request->file('despacho')->getClientOriginalName();
                 $request->file('despacho')->move(public_path('uploads'), $filename);
-                
+
                 $data['despacho'] = $filename;
             }
 
-            $data['pessoa_id'] = $request->input('pessoa_id')[0];
+            $data['pessoa_id'] = $pessoaId;
 
             Exoneracao::create($data);
 
-            $sitCon = new SituacaoController();
+            $sitCon = new SituacaoController;
             $sitCon->addDefaultStatus($data['pessoa_id'], 'Exonerado');
 
             return response()->json(['success' => 'Processo criado com sucesso'], 201);

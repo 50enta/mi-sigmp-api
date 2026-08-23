@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\SituacaoController;
 use App\Http\Requests\Processos\PensoesRquest;
 use App\Models\Processos\Pensoes;
+use App\Services\ProcessAgentEligibility;
 use Illuminate\Http\Request;
 
 class PensoesController extends Controller
@@ -75,6 +76,13 @@ class PensoesController extends Controller
 
     public function newProcess(PensoesRquest $request)
     {
+        foreach ($request->input('pessoa_id') as $pessoaId) {
+            app(ProcessAgentEligibility::class)->ensureEligible(
+                ProcessAgentEligibility::RESERVA_APOSENTADO_ACTIVO,
+                $pessoaId,
+            );
+        }
+
         try {
             $data = $request->all();
 
@@ -88,9 +96,9 @@ class PensoesController extends Controller
                 $data['pessoa_id'] = $pessoa_id;
                 $data['dataDespacho'] = date('Y-m-d', strtotime($request->input('dataDespacho')));
 
-                Pensoes::create($data);
+                $pensao = Pensoes::create($data);
                 $sitController = new SituacaoController();
-                $sitController->addDefaultStatus($pessoa_id, $data['novoEstado'], $data['nrDespacho'], $data['nrProcesso']);
+                $sitController->addDefaultStatus($pessoa_id, $data['novoEstado'], $data['nrDespacho'], $pensao->systemId);
             }
             
             return response()->json(['success' => 'Processo criado com sucesso'], 201);
