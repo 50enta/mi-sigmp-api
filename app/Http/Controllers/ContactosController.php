@@ -3,103 +3,81 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contactos;
+use App\Models\Pessoa;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class ContactosController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
+    public function show(Pessoa $pessoa): JsonResponse
     {
-        $pageSize = $request->input('pageSize', 10);
-        $page = $request->input('page', 1);
-        $paging = filter_var($request->input('paging', true), FILTER_VALIDATE_BOOLEAN);
+        return response()->json([
+            'contactos' => $this->serialize($this->findForPessoa($pessoa)),
+        ]);
+    }
 
-        $query = Contactos::query();
-
-        if ($paging) {
-            $contactos = $query->paginate($pageSize, ['*'], 'page', $page);
-        } else {
-            $contactos = $query->simplePaginate($pageSize, ['*'], 'page', $page);
+    public function update(Request $request, Pessoa $pessoa): JsonResponse
+    {
+        $telefonesInput = $request->input('telefones');
+        if (is_array($telefonesInput)) {
+            $request->merge([
+                'telefones' => collect($telefonesInput)
+                    ->filter(fn ($telefone) => is_string($telefone))
+                    ->map(fn ($telefone) => trim($telefone))
+                    ->filter()
+                    ->values()
+                    ->all(),
+            ]);
         }
 
-        return response()->json(['contactos' => $contactos], 200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nip' => 'required|string',
-            'contactoPrincipal' => 'nullable|string',
-            'contactoAlternativo' => 'nullable|string',
-            'contactoEmergencia' => 'nullable|string',
+        $validated = $request->validate([
+            'email' => ['nullable', 'email', 'max:255'],
+            'telefones' => ['required', 'array', 'min:1'],
+            'telefones.0' => ['required', 'string', 'max:50'],
+            'telefones.*' => ['string', 'max:50', 'distinct'],
         ]);
 
-        return Contactos::create([
-            'id' => (string) Str::uuid(),
-            $request->only([
-                'nip',
-                'contactoPrincipal',
-                'contactoAlternativo',
-                'contactoEmergencia',
-            ]),
+        $telefones = collect($validated['telefones'])
+            ->map(fn ($telefone) => trim((string) $telefone))
+            ->filter()
+            ->values()
+            ->all();
+
+        $contactos = $this->findForPessoa($pessoa) ?? new Contactos;
+        $contactos->fill([
+            'pessoa_id' => $pessoa->id,
+            'nip' => $pessoa->nip,
+            'email' => filled($validated['email'] ?? null) ? trim($validated['email']) : null,
+            'telefones' => $telefones,
+            'contactoPrincipal' => $telefones[0] ?? null,
+            'contactoAlternativo' => $telefones[1] ?? null,
+            'contactoEmergencia' => $telefones[2] ?? null,
+        ])->save();
+
+        return response()->json([
+            'success' => 'Contactos actualizados com sucesso.',
+            'contactos' => $this->serialize($contactos),
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
+    private function findForPessoa(Pessoa $pessoa): ?Contactos
     {
-        return Contactos::findOrFail($id);
+        return Contactos::query()
+            ->where('pessoa_id', $pessoa->id)
+            ->when($pessoa->nip, fn ($query) => $query->orWhere('nip', $pessoa->nip))
+            ->first();
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Contactos $contactos)
+    private function serialize(?Contactos $contactos): array
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
-    {
-        $contacto = Contactos::findOrFail($id);
-
-        $request->validate([
-            'nip' => 'required|string',
-            'contactoPrincipal' => 'nullable|string',
-            'contactoAlternativo' => 'nullable|string',
-            'contactoEmergencia' => 'nullable|string',
-        ]);
-
-        $contacto->update($request->all());
-
-        return $contacto;
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
-    {
-        Contactos::findOrFail($id)->delete();
-        return response()->json(['message' => 'Deleted successfully']);
+        return [
+            'id' => $contactos?->id,
+            'email' => $contactos?->email,
+            'telefones' => $contactos?->telefones ?? array_values(array_filter([
+                $contactos?->contactoPrincipal,
+                $contactos?->contactoAlternativo,
+                $contactos?->contactoEmergencia,
+            ])),
+        ];
     }
 }

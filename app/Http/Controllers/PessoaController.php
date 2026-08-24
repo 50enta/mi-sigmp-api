@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PessoaRequest;
+use App\Models\Contactos;
 use App\Models\Pessoa;
 use App\Services\ProcessAgentEligibility;
 use Illuminate\Http\Request;
@@ -280,8 +281,25 @@ class PessoaController extends Controller
         try {
             DB::beginTransaction();
             $data = $request->input('info');
+            $contactosData = [
+                'email' => $data['email'] ?? null,
+                'telefones' => $data['telefones'] ?? [],
+            ];
+            unset($data['email'], $data['telefones']);
             $data['nip'] = NipGenerator::generate();
             $pessoa = Pessoa::create($data);
+
+            if (filled($contactosData['email']) || count($contactosData['telefones']) > 0) {
+                Contactos::query()->create([
+                    'pessoa_id' => $pessoa->id,
+                    'nip' => $pessoa->nip,
+                    'email' => $contactosData['email'],
+                    'telefones' => $contactosData['telefones'],
+                    'contactoPrincipal' => $contactosData['telefones'][0] ?? null,
+                    'contactoAlternativo' => $contactosData['telefones'][1] ?? null,
+                    'contactoEmergencia' => $contactosData['telefones'][2] ?? null,
+                ]);
+            }
 
             $sitController = new SituacaoController;
             $sitController->addDefaultStatus($pessoa->id);

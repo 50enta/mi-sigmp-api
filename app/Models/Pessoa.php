@@ -116,6 +116,11 @@ class Pessoa extends Model
         return $this->hasMany(FormacaoPolicial::class, 'pessoa_id');
     }
 
+    public function contactos(): HasOne
+    {
+        return $this->hasOne(Contactos::class, 'pessoa_id');
+    }
+
     private function vigenteEm(Builder $query): void
     {
         $hoje = today()->toDateString();

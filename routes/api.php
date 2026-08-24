@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuditSettingController;
 use App\Http\Controllers\CategoriaEspecialidadeController;
+use App\Http\Controllers\ContactosController;
 use App\Http\Controllers\CursoController;
 use App\Http\Controllers\EscolaridadeController;
 use App\Http\Controllers\LocalAfectoController;
@@ -43,6 +44,8 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
 
     Route::prefix('pessoas')->group(function () {
         Route::post('/', [PessoaController::class, 'store']);
+        Route::get('/{pessoa}/contactos', [ContactosController::class, 'show']);
+        Route::put('/{pessoa}/contactos', [ContactosController::class, 'update']);
         Route::get('/{id}', [PessoaController::class, 'show']);
         Route::get('/', [PessoaController::class, 'index']);
         Route::put('/{id}', [PessoaController::class, 'update']);

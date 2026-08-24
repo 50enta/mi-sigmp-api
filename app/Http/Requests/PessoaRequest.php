@@ -8,6 +8,29 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 class PessoaRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $info = $this->input('info', []);
+        if (! is_array($info)) {
+            return;
+        }
+
+        if (array_key_exists('email', $info) && is_string($info['email'])) {
+            $info['email'] = trim($info['email']) ?: null;
+        }
+
+        if (isset($info['telefones']) && is_array($info['telefones'])) {
+            $info['telefones'] = collect($info['telefones'])
+                ->filter(fn ($telefone) => is_string($telefone))
+                ->map(fn ($telefone) => trim($telefone))
+                ->filter()
+                ->values()
+                ->all();
+        }
+
+        $this->merge(['info' => $info]);
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -36,7 +59,7 @@ class PessoaRequest extends FormRequest
             ],
             'info.nomeMae' => 'nullable|string|max:255',
             'info.nomePai' => 'nullable|string|max:255',
-            'info.dataNasc' => 'required|date|before_or_equal:' . now()->subYears(18)->toDateString(),
+            'info.dataNasc' => 'required|date|before_or_equal:'.now()->subYears(18)->toDateString(),
             'info.nuit' => 'required|string|max:20',
             'info.estadoCivil' => 'nullable|in:Solteiro,Casado,Divorciado,Viuvo',
             'info.grupoSangue' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
@@ -47,6 +70,10 @@ class PessoaRequest extends FormRequest
             'info.BI' => ['required', 'string', 'max:50', 'regex:/^\d+[A-Za-z]$/'],
             'info.altura' => 'nullable|numeric|min:0|max:3',
             'info.linguas' => 'nullable|string',
+            'info.email' => 'nullable|email|max:255',
+            'info.telefones' => 'required|array|min:1',
+            'info.telefones.0' => 'required|string|max:50',
+            'info.telefones.*' => 'string|max:50|distinct',
         ];
     }
 
