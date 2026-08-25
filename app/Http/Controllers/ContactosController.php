@@ -2,22 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Contactos;
 use App\Models\Pessoa;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class ContactosController extends Controller
 {
     public function show(Pessoa $pessoa): JsonResponse
     {
         return response()->json([
-            'contactos' => $this->serialize($this->findForPessoa($pessoa)),
+            'contactos' => $this->serialize($pessoa->load('phoneNumbers')),
         ]);
     }
 
     public function update(Request $request, Pessoa $pessoa): JsonResponse
     {
+        $emailInput = $request->input('email');
+        if (is_string($emailInput)) {
+            $request->merge(['email' => trim($emailInput) ?: null]);
+        }
+
         $telefonesInput = $request->input('telefones');
         if (is_array($telefonesInput)) {
             $request->merge([
@@ -30,11 +36,19 @@ class ContactosController extends Controller
             ]);
         }
 
+        $emailRule = Rule::unique('pessoas', 'email')->ignore($pessoa->id);
+        $phoneRule = Rule::unique('pessoa_telefones', 'numero')
+            ->where(fn ($query) => $query->where('pessoa_id', '!=', $pessoa->id));
+
         $validated = $request->validate([
-            'email' => ['nullable', 'email', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255', $emailRule],
             'telefones' => ['required', 'array', 'min:1'],
             'telefones.0' => ['required', 'string', 'max:50'],
-            'telefones.*' => ['string', 'max:50', 'distinct'],
+            'telefones.*' => ['string', 'max:50', 'distinct', $phoneRule],
+        ], [
+            'email.unique' => 'Este email já está registado.',
+            'telefones.*.distinct' => 'O mesmo número de contacto não pode ser repetido.',
+            'telefones.*.unique' => 'Este número de contacto já está registado.',
         ]);
 
         $telefones = collect($validated['telefones'])
@@ -43,41 +57,33 @@ class ContactosController extends Controller
             ->values()
             ->all();
 
-        $contactos = $this->findForPessoa($pessoa) ?? new Contactos;
-        $contactos->fill([
-            'pessoa_id' => $pessoa->id,
-            'nip' => $pessoa->nip,
-            'email' => filled($validated['email'] ?? null) ? trim($validated['email']) : null,
-            'telefones' => $telefones,
-            'contactoPrincipal' => $telefones[0] ?? null,
-            'contactoAlternativo' => $telefones[1] ?? null,
-            'contactoEmergencia' => $telefones[2] ?? null,
-        ])->save();
+        $pessoa = DB::transaction(function () use ($pessoa, $validated, $telefones): Pessoa {
+            $pessoa->update([
+                'email' => filled($validated['email'] ?? null) ? trim($validated['email']) : null,
+            ]);
+            $pessoa->phoneNumbers()->delete();
+            $pessoa->phoneNumbers()->createMany(
+                collect($telefones)->map(fn (string $numero, int $ordem) => [
+                    'numero' => $numero,
+                    'ordem' => $ordem,
+                ])->all(),
+            );
+
+            return $pessoa->load('phoneNumbers');
+        });
 
         return response()->json([
             'success' => 'Contactos actualizados com sucesso.',
-            'contactos' => $this->serialize($contactos),
+            'contactos' => $this->serialize($pessoa),
         ]);
     }
 
-    private function findForPessoa(Pessoa $pessoa): ?Contactos
-    {
-        return Contactos::query()
-            ->where('pessoa_id', $pessoa->id)
-            ->when($pessoa->nip, fn ($query) => $query->orWhere('nip', $pessoa->nip))
-            ->first();
-    }
-
-    private function serialize(?Contactos $contactos): array
+    private function serialize(Pessoa $pessoa): array
     {
         return [
-            'id' => $contactos?->id,
-            'email' => $contactos?->email,
-            'telefones' => $contactos?->telefones ?? array_values(array_filter([
-                $contactos?->contactoPrincipal,
-                $contactos?->contactoAlternativo,
-                $contactos?->contactoEmergencia,
-            ])),
+            'id' => $pessoa->id,
+            'email' => $pessoa->email,
+            'telefones' => $pessoa->phoneNumbers->pluck('numero')->values()->all(),
         ];
     }
 }

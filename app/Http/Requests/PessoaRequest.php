@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class PessoaRequest extends FormRequest
 {
@@ -70,10 +71,10 @@ class PessoaRequest extends FormRequest
             'info.BI' => ['required', 'string', 'max:50', 'regex:/^\d+[A-Za-z]$/'],
             'info.altura' => 'nullable|numeric|min:0|max:3',
             'info.linguas' => 'nullable|string',
-            'info.email' => 'nullable|email|max:255',
+            'info.email' => ['nullable', 'email', 'max:255', Rule::unique('pessoas', 'email')],
             'info.telefones' => 'required|array|min:1',
             'info.telefones.0' => 'required|string|max:50',
-            'info.telefones.*' => 'string|max:50|distinct',
+            'info.telefones.*' => ['string', 'max:50', 'distinct', Rule::unique('pessoa_telefones', 'numero')],
         ];
     }
 
@@ -112,6 +113,10 @@ class PessoaRequest extends FormRequest
             'info.altura.numeric' => 'A altura deve ser um número.',
             'info.altura.min' => 'A altura não pode ser inferior a 0.',
             'info.altura.max' => 'A altura não pode ser superior a 3 metros.',
+
+            'info.email.unique' => 'Este email já está registado.',
+            'info.telefones.*.distinct' => 'O mesmo número de contacto não pode ser repetido.',
+            'info.telefones.*.unique' => 'Este número de contacto já está registado.',
         ];
     }
 

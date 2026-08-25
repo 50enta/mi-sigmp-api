@@ -25,6 +25,7 @@ class Pessoa extends Model
         'id',
         'aprovado',
         'nip',
+        'email',
         'isGerivel',
         'nomeCompleto',
         'nomeMae',
@@ -116,9 +117,9 @@ class Pessoa extends Model
         return $this->hasMany(FormacaoPolicial::class, 'pessoa_id');
     }
 
-    public function contactos(): HasOne
+    public function phoneNumbers(): HasMany
     {
-        return $this->hasOne(Contactos::class, 'pessoa_id');
+        return $this->hasMany(PessoaTelefone::class, 'pessoa_id')->orderBy('ordem');
     }
 
     private function vigenteEm(Builder $query): void

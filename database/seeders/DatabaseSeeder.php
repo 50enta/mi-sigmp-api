@@ -12,31 +12,28 @@ class DatabaseSeeder extends Seeder
      * Seed the application's database.
      */
     public function run()
-{
-    $this->call([
-        EscalaoSeeder::class,
-        ContactosTableSeeder::class,
-        PessoaTableSeeder::class,
-        CategoriaSeeder::class,
-        AuditTrailSeeder::class,
-        CursoSeeder::class,
-        LocalSeeder::class,
-        LocalAfectoSeeder::class,
-        EspecialidadeSeeder::class,
-        EspecialidadePessoaSeeder::class,
-        SituacaoSeeder::class,
-        SituacaoPessoaSeeder::class,
-        CursoPoliciaSeeder::class,
-        CategoriaPoliciaSeeder::class,
-        SituacaoDisciplinarSeeder::class,
-        EscalaoPoliciaSeeder::class,
-        ContinuacaoEstudoSeeder::class,
-        EscolaridadeSeeder::class,
+    {
+        $this->call([
+            EscalaoSeeder::class,
+            PessoaTableSeeder::class,
+            CategoriaSeeder::class,
+            AuditTrailSeeder::class,
+            CursoSeeder::class,
+            LocalSeeder::class,
+            LocalAfectoSeeder::class,
+            EspecialidadeSeeder::class,
+            EspecialidadePessoaSeeder::class,
+            SituacaoSeeder::class,
+            SituacaoPessoaSeeder::class,
+            CursoPoliciaSeeder::class,
+            CategoriaPoliciaSeeder::class,
+            SituacaoDisciplinarSeeder::class,
+            EscalaoPoliciaSeeder::class,
+            ContinuacaoEstudoSeeder::class,
+            EscolaridadeSeeder::class,
 
-        
-
-    ]);
-}
+        ]);
+    }
 
     // public function run(): void
     // {

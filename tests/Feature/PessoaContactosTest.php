@@ -40,13 +40,12 @@ it('creates and returns an agent email and a dynamic list of phone numbers', fun
         ->assertJsonCount(4, 'contactos.telefones')
         ->assertJsonPath('contactos.telefones.3', '+258 87 000 0004');
 
-    $this->assertDatabaseHas('contactos', [
-        'pessoa_id' => $pessoa->id,
+    $this->assertDatabaseHas('pessoas', [
+        'id' => $pessoa->id,
         'email' => 'agente@example.test',
-        'contactoPrincipal' => '+258 84 000 0001',
-        'contactoAlternativo' => '+258 85 000 0002',
-        'contactoEmergencia' => '+258 86 000 0003',
     ]);
+    $this->assertDatabaseHas('pessoa_telefones', ['pessoa_id' => $pessoa->id, 'numero' => '+258 84 000 0001']);
+    $this->assertDatabaseHas('pessoa_telefones', ['pessoa_id' => $pessoa->id, 'numero' => '+258 87 000 0004']);
 });
 
 it('updates the existing record and validates contact data', function () {
@@ -63,7 +62,7 @@ it('updates the existing record and validates contact data', function () {
         ->assertJsonPath('contactos.email', 'segundo@example.test')
         ->assertJsonPath('contactos.telefones.0', '850000002');
 
-    $this->assertDatabaseCount('contactos', 1);
+    $this->assertDatabaseCount('pessoa_telefones', 1);
 
     $this->putJson($url, ['email' => 'email-invalido', 'telefones' => ['840000001', '840000001']])
         ->assertUnprocessable()
@@ -91,10 +90,73 @@ it('stores contacts together with the first agent registration step', function (
 
     $pessoaId = $response->json('pessoa.id');
 
-    $this->assertDatabaseHas('contactos', [
-        'pessoa_id' => $pessoaId,
+    $this->assertDatabaseHas('pessoas', [
+        'id' => $pessoaId,
         'email' => 'registo@example.test',
-        'contactoPrincipal' => '840000001',
-        'contactoAlternativo' => '850000002',
     ]);
+    $this->assertDatabaseHas('pessoa_telefones', ['pessoa_id' => $pessoaId, 'numero' => '840000001']);
+    $this->assertDatabaseHas('pessoa_telefones', ['pessoa_id' => $pessoaId, 'numero' => '850000002']);
+});
+
+it('rejects email and phone numbers already registered by another agent', function () {
+    $firstPerson = Pessoa::query()->create([
+        'nip' => 'NIP-CONTACTOS-UNIQUE-1',
+        'nomeCompleto' => 'Primeiro Agente',
+    ]);
+    $secondPerson = Pessoa::query()->create([
+        'nip' => 'NIP-CONTACTOS-UNIQUE-2',
+        'nomeCompleto' => 'Segundo Agente',
+    ]);
+
+    $this->putJson("/api/pessoas/{$firstPerson->id}/contactos", [
+        'email' => 'unico@example.test',
+        'telefones' => ['840000010'],
+    ])->assertOk();
+
+    $this->putJson("/api/pessoas/{$secondPerson->id}/contactos", [
+        'email' => 'unico@example.test',
+        'telefones' => ['840000010'],
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['email', 'telefones.0']);
+});
+
+it('rejects duplicate email and phone numbers during agent registration', function () {
+    $existingPerson = Pessoa::query()->create([
+        'nip' => 'NIP-CONTACTOS-UNIQUE-REGISTRATION',
+        'nomeCompleto' => 'Agente Existente',
+    ]);
+
+    $this->putJson("/api/pessoas/{$existingPerson->id}/contactos", [
+        'email' => 'registado@example.test',
+        'telefones' => ['840000030'],
+    ])->assertOk();
+
+    $this->postJson('/api/pessoas', [
+        'info' => [
+            'nomeCompleto' => 'Novo Agente',
+            'dataNasc' => now()->subYears(25)->toDateString(),
+            'nuit' => '987654321',
+            'BI' => '987654321A',
+            'provincia' => 'Gaza',
+            'distrito' => 'Xai-Xai',
+            'genero' => 'Masculino',
+            'email' => 'registado@example.test',
+            'telefones' => ['840000030'],
+        ],
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['info.email', 'info.telefones.0']);
+});
+
+it('allows an agent to retain their own email and phone numbers', function () {
+    $pessoa = Pessoa::query()->create([
+        'nip' => 'NIP-CONTACTOS-UNIQUE-3',
+        'nomeCompleto' => 'Agente sem alteração',
+    ]);
+    $url = "/api/pessoas/{$pessoa->id}/contactos";
+    $payload = ['email' => 'proprio@example.test', 'telefones' => ['840000020']];
+
+    $this->putJson($url, $payload)->assertOk();
+    $this->putJson($url, $payload)->assertOk();
 });
