@@ -38,6 +38,7 @@ class LocalAfectoController extends Controller
         try {
             DB::beginTransaction();
             $data = $request->input('localEfuncoes');
+            $data['dataInicio'] = $data['dataDespacho'];
 
             if ($request->file('localEfuncoes.despacho')) {
                 $filename = time().'_'.$request->file('localEfuncoes.despacho')->getClientOriginalName();

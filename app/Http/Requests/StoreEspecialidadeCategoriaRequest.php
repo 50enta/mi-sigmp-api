@@ -18,7 +18,6 @@ class StoreEspecialidadeCategoriaRequest extends FormRequest
             'especialidade' => 'required|array',
             'especialidade.pessoa_id' => 'required|exists:pessoas,id',
             'especialidade.especialidade' => 'required|string|max:255',
-            'especialidade.dataNomeacaoEsp' => 'required|date',
             'especialidade.nrDespachoEsp' => 'required|string|max:255',
             'especialidade.dataDespachoEsp' => 'required|date',
             'especialidade.despachoEsp' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
@@ -28,7 +27,6 @@ class StoreEspecialidadeCategoriaRequest extends FormRequest
             'categoria' => 'required|array',
             'categoria.pessoa_id' => 'required|exists:pessoas,id',
             'categoria.categoria' => 'required|string|max:255',
-            'categoria.dataNomeacaoCat' => 'required|date',
             'categoria.nrDespachoCat' => 'required|string|max:255',
             'categoria.dataDespachoCat' => 'required|date',
             'categoria.despachoCat' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
@@ -44,8 +42,6 @@ class StoreEspecialidadeCategoriaRequest extends FormRequest
 
             'especialidade.required' => 'O bloco de especialidade é obrigatório.',
             'especialidade.especialidade.required' => 'O campo especialidade é obrigatório.',
-            'especialidade.dataNomeacaoEsp.required' => 'A data de nomeação da especialidade é obrigatória.',
-            'especialidade.dataNomeacaoEsp.date' => 'A data de nomeação da especialidade deve ser válida.',
             'especialidade.nrDespachoEsp.required' => 'O número do despacho da especialidade é obrigatório.',
             'especialidade.dataDespachoEsp.required' => 'A data do despacho da especialidade é obrigatória.',
             'especialidade.despachoEsp.required' => 'O despacho da especialidade é obrigatório.',
@@ -55,8 +51,6 @@ class StoreEspecialidadeCategoriaRequest extends FormRequest
 
             'categoria.required' => 'O bloco de categoria é obrigatório.',
             'categoria.categoria.required' => 'O campo categoria é obrigatório.',
-            'categoria.dataNomeacaoCat.required' => 'A data de nomeação da categoria é obrigatória.',
-            'categoria.dataNomeacaoCat.date' => 'A data de nomeação da categoria deve ser válida.',
             'categoria.nrDespachoCat.required' => 'O número do despacho da categoria é obrigatório.',
             'categoria.dataDespachoCat.required' => 'A data do despacho da categoria é obrigatória.',
             'categoria.despachoCat.required' => 'O despacho da categoria é obrigatório.',
@@ -71,14 +65,12 @@ class StoreEspecialidadeCategoriaRequest extends FormRequest
             'pessoa_id' => 'pessoa',
 
             'especialidade.especialidade' => 'especialidade',
-            'especialidade.dataNomeacaoEsp' => 'data de nomeação (especialidade)',
             'especialidade.nrDespachoEsp' => 'número do despacho (especialidade)',
             'especialidade.dataDespachoEsp' => 'data do despacho (especialidade)',
             'especialidade.despachoEsp' => 'despacho (especialidade)',
             'especialidade.observacoesEsp' => 'observações (especialidade)',
 
             'categoria.categoria' => 'categoria',
-            'categoria.dataNomeacaoCat' => 'data de nomeação (categoria)',
             'categoria.despachoCat' => 'despacho (categoria)',
             'categoria.nrDespachoCat' => 'número do despacho (categoria)',
             'categoria.dataDespachoCat' => 'data do despacho (categoria)',
