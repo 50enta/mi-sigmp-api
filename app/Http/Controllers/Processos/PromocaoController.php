@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers\Processos;
 
-use App\Http\Controllers\CategoriaEspecialidadeController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Processos\PromocaoRequest;
 use App\Models\CategoriaPolicia;
 use App\Models\Processos\Promocao;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PromocaoController extends Controller
 {
-
     public function stats(Request $request)
     {
         try {
@@ -67,8 +66,6 @@ class PromocaoController extends Controller
                 $q->whereDate('promocaos.created_at', $createdAt);
             });
 
-
-
         $registros = $paging
             ? $query->paginate($pageSize, ['*'], 'page', $page)
             : $query->simplePaginate($pageSize, ['*'], 'page', $page);
@@ -79,39 +76,50 @@ class PromocaoController extends Controller
     public function newProcess(PromocaoRequest $request)
     {
         try {
-            $data = $request->all();
+            $data = $request->validated();
+            $filename = null;
 
-            if (null !== $request->file('despacho')) {
-                $filename = time() . '_' . $request->file('despacho')->getClientOriginalName();
+            if ($request->hasFile('despacho')) {
+                $filename = time().'_'.$request->file('despacho')->getClientOriginalName();
                 $request->file('despacho')->move(public_path('uploads'), $filename);
             }
 
-            $data['pessoa_id'] = $request->input('pessoa_id')[0];
-            $data['dataDespacho'] = date('Y-m-d', strtotime($request->input('dataDespacho')));
+            DB::transaction(function () use ($data, $filename): void {
+                $personId = $data['pessoa_id'][0];
+                $dispatchDate = $data['dataDespacho'];
+                $promotion = Promocao::query()->create([
+                    ...$data,
+                    'pessoa_id' => $personId,
+                    'despacho' => $filename,
+                ]);
 
-            $promo = Promocao::create($data);
+                CategoriaPolicia::query()
+                    ->where('pessoa_id', $personId)
+                    ->where(function ($query) {
+                        $query->whereNull('dataFim')
+                            ->orWhere('activo', true);
+                    })
+                    ->update([
+                        'dataFim' => $dispatchDate,
+                        'activo' => false,
+                    ]);
 
-            $new = [
-                "nrProcesso" => $promo->systemId,
-                "categoria_id" => $promo->novaCategoria,
-                "pessoa_id" => $promo->pessoa_id,
-                "nrDespacho" => $promo->nrDespacho,
-                "despacho" => null !== $request->file('despacho') ? $filename : null,
-                "dataInicio" => $promo->dataDespacho,
-                "obs" => null !== $request->input('obs') ? $data['obs'] : null,
-            ];
+                CategoriaPolicia::query()->create([
+                    'nrProcesso' => $promotion->systemId,
+                    'categoria_id' => $data['novaCategoria'],
+                    'pessoa_id' => $personId,
+                    'nrDespacho' => $data['nrDespacho'],
+                    'despacho' => $filename,
+                    'dataInicio' => $dispatchDate,
+                    'dataDespacho' => $dispatchDate,
+                    'obs' => $data['obs'] ?? null,
+                ]);
+            });
 
-            $updateCate = new CategoriaEspecialidadeController();
-            
-            if ($updateCate->updateCatEsp($new) == 1) {
-                return response()->json(['success' => 'Processo de promoção registado com sucesso'], 201);
-            } else {
-                Promocao::find($promo->systemId)->delete();
-                return response()->json(['error' => 'Ocorreu um erro ao registar o processo de promoção'], 500);
-            }
-            
+            return response()->json(['success' => 'Processo de promoção registado com sucesso'], 201);
         } catch (\Throwable $th) {
-            dd($th);
+            report($th);
+
             return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
         }
     }

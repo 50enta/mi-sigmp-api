@@ -2,12 +2,23 @@
 
 namespace App\Http\Requests\Processos;
 
-use Illuminate\Contracts\Validation\Validator;
 use App\Http\Requests\ProcessRequest;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class PromocaoRequest extends ProcessRequest
 {
+    public const MODALIDADE_EXCEPCIONAL = 'A título excepcional';
+
+    private const MODALIDADES = [
+        'Habilitação com curso adequado',
+        'Antiguidade',
+        'Escolha',
+        'Por orgânica',
+        self::MODALIDADE_EXCEPCIONAL,
+    ];
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -26,6 +37,8 @@ class PromocaoRequest extends ProcessRequest
             'pessoa_id.*' => 'required|exists:pessoas,id',
             'categoriaActual' => 'required|string',
             'novaCategoria' => 'required|string|different:categoriaActual', // ⭐
+            'modalidade' => ['required', 'string', Rule::in(self::MODALIDADES)],
+            'obs' => ['nullable', 'string', Rule::requiredIf(fn () => $this->input('modalidade') === self::MODALIDADE_EXCEPCIONAL)],
             'abertoPor' => 'required|exists:pessoas,id',
             'nrDespacho' => 'required',
             'dataDespacho' => 'required|date',
@@ -40,6 +53,9 @@ class PromocaoRequest extends ProcessRequest
     {
         return [
             'novaCategoria.different' => 'A nova categoria deve ser diferente da categoria actual.',
+            'modalidade.required' => 'A modalidade da promoção é obrigatória.',
+            'modalidade.in' => 'Seleccione uma modalidade de promoção válida.',
+            'obs.required' => 'As observações são obrigatórias para uma promoção a título excepcional.',
             'nrDespacho' => 'O número do despacho é obrigatório',
             'dataDespacho' => 'A data de despacho é obrigatória',
             'pessoa_id' => 'A pessoa é obrigatória.',
@@ -59,7 +75,7 @@ class PromocaoRequest extends ProcessRequest
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Erro de validação',
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ], 422));
     }
 }

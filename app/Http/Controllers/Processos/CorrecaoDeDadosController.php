@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Processos;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Processos\CorrecaoDadosRequest;
+use App\Models\Pessoa;
 use App\Models\Processos\CorrecaoDeDados;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class CorrecaoDeDadosController extends Controller
 {
-
     public function stats(Request $request)
     {
         try {
@@ -78,19 +80,42 @@ class CorrecaoDeDadosController extends Controller
 
     public function newProcess(CorrecaoDadosRequest $request)
     {
-        try {
-            $filename = time() . '_' . $request->file('comprovativo')->getClientOriginalName();
-            $request->file('comprovativo')->move(public_path('uploads'), $filename);
+        $uploadedFilePath = null;
 
-            $data = $request->all();
+        try {
+            $filename = time().'_'.$request->file('comprovativo')->getClientOriginalName();
+            $request->file('comprovativo')->move(public_path('uploads'), $filename);
+            $uploadedFilePath = public_path('uploads/'.$filename);
+
+            $data = $request->validated();
             $data['comprovativo'] = $filename;
             $data['pessoa_id'] = $request->input('pessoa_id')[0];
 
-            CorrecaoDeDados::create($data);
+            DB::transaction(function () use ($data) {
+                CorrecaoDeDados::create($data);
+
+                if ((int) $data['tipoCorrecao'] === 0) {
+                    Pessoa::query()
+                        ->whereKey($data['pessoa_id'])
+                        ->update(['nomeCompleto' => $data['novoNome']]);
+                } else {
+                    Pessoa::query()
+                        ->whereKey($data['pessoa_id'])
+                        ->update(['dataNasc' => $data['dataNasc']]);
+                }
+            });
 
             return response()->json(['success' => 'Processo de correção de dados criado com sucesso!'], 201);
         } catch (\Throwable $th) {
-            return response()->json(['error' => 'Ocorreu um erro inesperado'], 500);
+            if ($uploadedFilePath !== null) {
+                File::delete($uploadedFilePath);
+            }
+
+            report($th);
+
+            return response()->json([
+                'message' => 'Não foi possível registar a correção de dados. Tente novamente.',
+            ], 500);
         }
     }
 }
